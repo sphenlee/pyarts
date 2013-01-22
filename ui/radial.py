@@ -25,7 +25,7 @@ class Radial(object):
     def renderpie(self, i, cdl):
         img = ui.cairotex.CairoImage(self.width, self.height)
 
-        self.offs = 2 * math.pi / (self.pies * 2)
+        self.offs = -2 * math.pi / (self.pies * 2)
 
         if i == 0:
             img.ctx.set_source_rgb(1, 1, 1)
@@ -92,7 +92,7 @@ class Radial(object):
         dx = x - self.x
         dy = y - self.y
         dist = math.sqrt(dx*dx + dy*dy)
-        if dist < 32:
+        if dist < self.width/5:
             self.pie = 0
         else:
             phi = math.atan2(dy, dx) - self.offs
@@ -114,12 +114,15 @@ if __name__ == '__main__':
     gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
     r = Radial([
-        ('Attack', 'res/ui/arrow-attack.cdl'),
-        ('Attack', 'res/ui/arrow-attack.cdl'),
-        ('Attack', 'res/ui/arrow-attack.cdl'),
-        ('Attack', 'res/ui/arrow-attack.cdl'),
-        ('Attack', 'res/ui/arrow-attack.cdl'),
-        ('Attack', 'res/ui/arrow-attack.cdl'),
+        ('Attack',  'res/ui/arrow-attack.cdl'),
+        ('Move',    'res/ui/arrow-move.cdl'),
+        ('Guard',   'res/ui/arrow-guard.cdl'),
+        ('Attack',  'res/ui/arrow-attack.cdl'),
+        ('Attack',  'res/ui/arrow-attack.cdl'),
+        ('Attack',  'res/ui/arrow-attack.cdl'),
+        #('Attack',  'res/ui/arrow-attack.cdl'),
+        #('Attack',  'res/ui/arrow-attack.cdl'),
+        #('Attack',  'res/ui/arrow-attack.cdl'),
     ])
 
     @window.event

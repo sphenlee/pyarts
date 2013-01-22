@@ -47,5 +47,16 @@ class CairoDL(object):
     def do_L(self, x, y):
         self.ctx.line_to(float(x), float(y))
 
+    def do_c(self, *args):
+        assert len(args) == 6
+        self.ctx.rel_curve_to(*map(float, args))
+
+    def do_C(self, *args):
+        assert len(args) == 6
+        self.ctx.curve_to(*map(float, args))
+
+    def do_z(self):
+        self.ctx.close_path()
+
     def do_f(self):
         self.ctx.fill()
