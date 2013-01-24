@@ -60,3 +60,6 @@ class CairoDL(object):
 
     def do_f(self):
         self.ctx.fill()
+
+    def do_k(self):
+        self.ctx.stroke()

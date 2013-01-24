@@ -130,6 +130,36 @@ class EditMode(Mode):
 
         self.mesh.movevert(self.cur, x, y)
 
+class Camera(object):
+    def __init__(self, w, h):
+        self.w = w
+        self.h = h
+        self.x = 0
+        self.y = 0
+        self.dx = 0
+        self.dy = 0
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        if x < 10:
+            self.dx = 1
+        elif x > self.w - 10:
+            self.dx = -1
+        else:
+            self.dx = 0
+        if y < 10:
+            self.dy = 1
+        elif y > self.h - 10:
+            self.dy = -1
+        else:
+            self.dy = 0
+
+    def update(self, dt):
+        self.x += self.dx * dt * 10
+        self.y += self.dy * dt * 10
+
+    def setup(self):
+        gl.glLoadIdentity()
+        gl.glTranslatef(self.x, self.y, 0)
 
 class Main(object):
     def __init__(self):
@@ -138,11 +168,17 @@ class Main(object):
         self.menu = ui.radial.Radial([
             ('Option1', None),
             ('Option2', None),
-            ('Wireframe', None, self.on_wireframe)
+            ('Wireframe', 'res/ui/mapedit-wireframe.cdl', self.on_wireframe),
+            ('Center View', None, self.on_centerview)
         ])
+        self.cam = Camera(1280, 1024)
 
     def on_wireframe(self):
         self.mode.wire = not self.mode.wire
+
+    def on_centerview(self):
+        self.cam.x = 0
+        self.cam.y = 0
 
     def on_key_press(self, symbol, modifiers):
         if symbol == pyglet.window.key.TAB:
@@ -156,18 +192,25 @@ class Main(object):
 
     def on_mouse_press(self, x, y, b, m):
         if b & pyglet.window.mouse.RIGHT:
-            self.menu.activate(self.window, x, y)
+            self.menu.activate(self.window, x - self.cam.x, y - self.cam.y)
 
     def on_draw(self):
         self.window.clear()
+        self.cam.setup()
         self.mode.draw()
         if self.menu.active:
             self.menu.draw()
 
+    def update(self, dt):
+        self.cam.update(dt * 60)
+
     def main(self):
         self.window = pyglet.window.Window(fullscreen=True)
         self.window.push_handlers(self)
+        self.window.push_handlers(self.cam)
         self.window.push_handlers(self.mode)
+
+        pyglet.clock.schedule_interval(self.update, 1/60.0)
 
         pyglet.app.run()
 
