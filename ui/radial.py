@@ -78,6 +78,10 @@ class Radial(object):
 
     window = None
 
+    @property
+    def active(self):
+        return self.window is not None
+
     def activate(self, window, x, y):
         self.x = x
         self.y = y
@@ -87,8 +91,7 @@ class Radial(object):
         self.window = window
         self.window.push_handlers(self)
 
-    def on_draw(self):
-        self.window.clear()
+    def draw(self):
         for i, tex in enumerate(self.texs):
             if i == self.pie:
                 label = self.labels[i]
@@ -141,7 +144,9 @@ if __name__ == '__main__':
 
     @window.event
     def on_draw():
-        pass
+        window.clear()
+        if r.active:
+            r.draw()
 
     @window.event
     def on_mouse_press(x, y, button, modifiers):

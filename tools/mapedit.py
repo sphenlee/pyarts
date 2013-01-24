@@ -41,6 +41,9 @@ class Map(object):
         self.vb.resize(self.c, len(self.indices))
         self.vb.indices = self.indices
 
+    def movevert(self, n, x, y):
+        self.vb.vertices[n*2:(n+1)*2] = [x, y]
+
     def setcolor(self, i, r, g, b):
         self.vb.colors[i*3:(i+1)*3] = [r, g, b]
 
@@ -50,29 +53,11 @@ class Map(object):
             if dist(x, y, px, py) < 20:
                 return i
 
-class CreateMode(object):
+class Mode(object):
     def __init__(self, map):
         self.map = map
-        self.tri = []
         self.hover = None
-
-    def on_mouse_press(self, x, y, button, modifiers):
-        if not (button & pyglet.window.mouse.LEFT):
-            return
-
-        i = self.map.vertat(x, y)
-        if i is None:
-            i = self.map.addvert(x, y)
-
-        self.map.setcolor(i, 0xff, 0x7f, 0x00)
-        self.hover = None
-        self.tri.append(i)
-
-        if len(self.tri) == 3:
-            self.map.addface(*self.tri)
-            for i in self.tri:
-                self.map.setcolor(i, 0xff, 0xff, 0xff)
-            self.tri = []
+        self.tri = () # FIXME
 
     def on_mouse_motion(self, x, y, dx, dy):
         i = self.map.vertat(x, y)
@@ -86,17 +71,84 @@ class CreateMode(object):
         if self.hover is not None:
             self.map.setcolor(self.hover, 0xff, 0xff, 0x00)
 
-    def on_draw(self):
+    def draw(self):
         self.map.draw()
+
+class CreateMode(Mode):
+    def __init__(self, map):
+        super(CreateMode, self).__init__(map)
+        self.tri = []
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        if not (button & pyglet.window.mouse.LEFT):
+            return
+
+        i = self.map.vertat(x, y)
+        if i is None:
+            i = self.map.addvert(x, y)
+
+        self.map.setcolor(i, 0xff, 0x7f, 0x00)
+        #self.hover = None # FIXME?
+        self.tri.append(i)
+
+        if len(self.tri) == 3:
+            self.map.addface(*self.tri)
+            for i in self.tri:
+                self.map.setcolor(i, 0xff, 0xff, 0xff)
+            self.tri = []
+
+class EditMode(Mode):
+    def __init__(self, map):
+        super(EditMode, self).__init__(map)
+        self.cur = None
+
+    def on_mouse_press(self, x, y, b, m):
+        if not (b & pyglet.window.mouse.LEFT):
+            return
+
+        self.cur = self.map.vertat(x, y)
+        if self.cur is None:
+            return
+
+        self.map.setcolor(self.cur, 0x00, 0xff, 0x00)
+
+    def on_mouse_release(self, x, y, b, m):
+        if not (b & pyglet.window.mouse.LEFT):
+            return
+
+        self.map.setcolor(self.cur, 0xff, 0xff, 0xff)
+        self.cur = None
+
+    def on_mouse_drag(self, x, y, dx, dy, b, m):
+        if self.cur is None:
+            return
+
+        self.map.movevert(self.cur, x, y)
+
 
 class Main(object):
     def __init__(self):
         self.map = Map()
         self.mode = CreateMode(self.map)
 
+    def on_key_press(self, symbol, modifiers):
+        if symbol == pyglet.window.key.TAB:
+            if type(self.mode) is CreateMode:
+                self.mode = EditMode(self.map)
+            else:
+                self.mode = CreateMode(self.map)
+
+            self.window.pop_handlers()
+            self.window.push_handlers(self.mode)
+
+    def on_draw(self):
+        self.window.clear()
+        self.mode.draw()
+
     def main(self):
-        window = pyglet.window.Window(fullscreen=False)
-        window.push_handlers(self.mode)
+        self.window = pyglet.window.Window(fullscreen=False)
+        self.window.push_handlers(self)
+        self.window.push_handlers(self.mode)
 
         pyglet.app.run()
 
