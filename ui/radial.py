@@ -16,11 +16,19 @@ class Radial(object):
 
     def __init__(self, opts):
         self.texs = []
+        self.labels = []
 
         self.pies = len(opts) - 1
         for i, opt in enumerate(opts):
             tex = self.renderpie(i, opt[1])
             self.texs.append(tex)
+
+            label = pyglet.text.Label(
+                text=opt[0],
+                font_size=24,
+                anchor_x='center',
+                anchor_y='top')
+            self.labels.append(label)
 
     def renderpie(self, i, cdl):
         img = ui.cairotex.CairoImage(self.width, self.height)
@@ -83,6 +91,12 @@ class Radial(object):
         self.window.clear()
         for i, tex in enumerate(self.texs):
             if i == self.pie:
+                label = self.labels[i]
+                label.x = self.x
+                label.y = self.y - self.height/2
+                gl.glColor4f(1, 1, 1, 1)
+                label.draw()
+
                 gl.glColor4f(1, 1, 0, 0.9)
             else:
                 gl.glColor4f(1, 1, 1, 0.9)
