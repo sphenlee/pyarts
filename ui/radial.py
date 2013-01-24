@@ -11,12 +11,13 @@ from pyglet import gl
 import math
 
 class Radial(object):
-    width  = 256
-    height = 256
+    width  = 128
+    height = 128
 
     def __init__(self, opts):
         self.texs = []
         self.labels = []
+        self.funcs = []
 
         self.pies = len(opts) - 1
         for i, opt in enumerate(opts):
@@ -25,10 +26,15 @@ class Radial(object):
 
             label = pyglet.text.Label(
                 text=opt[0],
-                font_size=24,
+                font_size=16,
                 anchor_x='center',
                 anchor_y='top')
             self.labels.append(label)
+
+            if len(opt) == 3: # FIXME
+                self.funcs.append(opt[2])
+            else:
+                self.funcs.append(lambda: None)
 
     def renderpie(self, i, cdl):
         img = ui.cairotex.CairoImage(self.width, self.height)
@@ -49,7 +55,8 @@ class Radial(object):
                 self.width/2,
                 self.height/2
             )
-            img.render(open(cdl))
+            if cdl:
+                img.render(open(cdl))
         else:
             phi = 2 * math.pi / self.pies
 
@@ -72,7 +79,8 @@ class Radial(object):
                 self.width/2  + self.width/3  * math.cos(phi2),
                 self.height/2 + self.height/3 * math.sin(phi2)
             )
-            img.render(open(cdl))
+            if cdl:
+                img.render(open(cdl))
 
         return img.get_texture()
 
@@ -92,17 +100,20 @@ class Radial(object):
         self.window.push_handlers(self)
 
     def draw(self):
+        gl.glEnable(gl.GL_BLEND)
+        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+
         for i, tex in enumerate(self.texs):
             if i == self.pie:
                 label = self.labels[i]
                 label.x = self.x
                 label.y = self.y - self.height/2
-                gl.glColor4f(1, 1, 1, 1)
+                gl.glColor4f(1, 1, 1, 0.7)
                 label.draw()
 
-                gl.glColor4f(1, 1, 0, 0.9)
+                gl.glColor4f(1, 1, 0, 0.7)
             else:
-                gl.glColor4f(1, 1, 1, 0.9)
+                gl.glColor4f(1, 1, 1, 0.7)
             tex.blit(self.x - self.width/2, self.y - self.height/2)
 
     def on_mouse_drag(self, x, y, mdx, mdy, button, modifiers):
@@ -118,17 +129,16 @@ class Radial(object):
                 self.pie = self.pies + int(pie)
             else:
                 self.pie = int(pie) + 1
+        return True
 
     def on_mouse_release(self, x, y, button, modifiers):
         window = self.window
         self.window = None
         window.pop_handlers()
+        self.funcs[self.pie]()
 
 if __name__ == '__main__':
     window = pyglet.window.Window(fullscreen=True)
-
-    gl.glEnable(gl.GL_BLEND)
-    gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
     r = Radial([
         ('Attack',  'res/ui/arrow-attack.cdl'),
