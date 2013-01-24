@@ -13,51 +13,39 @@ def dist(x1, y1, x2, y2):
 
 class Map(object):
     def __init__(self):
-        self.vcount = 0
-        self.verts = array.array('f')
-        self.colors = array.array('B')
+        self.n = 0      # number of verts
+        self.c = 1024   # capacity of vert buffer
+        self.vb = pyglet.graphics.vertex_list_indexed(self.c, [0], 'v2f', 'c3B')
+
         self.indices = array.array('I')
 
-        self.vb = None
-
     def draw(self):
-        if self.vb:
-            self.vb.draw(pyglet.gl.GL_TRIANGLES)
-
-    def update(self):
-        if not self.vb:
-            self.vb = pyglet.graphics.vertex_list_indexed(self.vcount, self.indices, 'v2f', 'c3B')
-        else:
-            self.vb.resize(self.vcount, len(self.indices))
-
-        self.vb.vertices = self.verts
-        self.vb.colors = self.colors
-        self.vb.indices = self.indices
+        self.vb.draw(pyglet.gl.GL_TRIANGLES)
 
     def addvert(self, x, y):
-        self.vcount += 1
-        self.verts.append(x)
-        self.verts.append(y)
+        if self.n == self.c:
+            self.c *= 2
+            self.vb.resize(self.c, len(self.indices))
 
-        self.colors.append(0xFF)
-        self.colors.append(0xFF)
-        self.colors.append(0xFF)
-
-        return self.vcount - 1
+        self.vb.vertices[self.n*2:(self.n+1)*2] = [x, y]
+        self.setcolor(self.n, 0xff, 0xff, 0xff)
+        self.n += 1
+        return self.n - 1
 
     def addface(self, a, b, c):
         self.indices.append(a)
         self.indices.append(b)
         self.indices.append(c)
-        self.update()
+        self.vb.resize(self.c, len(self.indices))
+        self.vb.indices = self.indices
 
     def setcolor(self, i, r, g, b):
         self.vb.colors[i*3:(i+1)*3] = [r, g, b]
 
     def vertat(self, x, y):
-        for i in xrange(self.vcount):
-            px, py = self.verts[i*2], self.verts[i*2+1]
-            if dist(x, y, px, py) < 10:
+        for i in xrange(self.n):
+            px, py = self.vb.vertices[i*2], self.vb.vertices[i*2+1]
+            if dist(x, y, px, py) < 20:
                 return i
 
 class CreateMode(object):
