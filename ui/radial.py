@@ -103,6 +103,8 @@ class Radial(object):
         gl.glEnable(gl.GL_BLEND)
         gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
+        gl.glPushMatrix()
+        gl.glLoadIdentity()
         for i, tex in enumerate(self.texs):
             if i == self.pie:
                 label = self.labels[i]
@@ -115,6 +117,7 @@ class Radial(object):
             else:
                 gl.glColor4f(1, 1, 1, 0.7)
             tex.blit(self.x - self.width/2, self.y - self.height/2)
+        gl.glPopMatrix()
 
     def on_mouse_drag(self, x, y, mdx, mdy, button, modifiers):
         dx = x - self.x

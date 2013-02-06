@@ -5,22 +5,52 @@ Map editor
 import pyglet
 from pyglet import gl
 import array
-import math
+import struct
+import sys
+import os
 
 import ui.radial
 
-def dist(x1, y1, x2, y2):
+def dist2(x1, y1, x2, y2):
     dx = x2 - x1
     dy = y2 - y1
-    return math.sqrt(dx*dx + dy*dy)
+    return dx*dx + dy*dy
 
 class Mesh(object):
-    def __init__(self):
-        self.n = 0      # number of verts
-        self.c = 1024   # capacity of vert buffer
+    def __init__(self, fname):
+        self.n = 0  # number of verts
+        self.c = 8  # capacity of vert buffer
         self.vb = pyglet.graphics.vertex_list_indexed(self.c, [0], 'v2f', 'c3B')
 
         self.indices = array.array('I')
+
+        if os.path.exists(fname):
+            self.loadfrom(fname)
+
+    def saveto(self, fname):
+        with open(fname, 'wb') as fp:
+            fp.write(struct.pack('II', self.n, len(self.indices)))
+
+            verts = array.array('f', self.vb.vertices)[0:self.n*2]
+            fp.write(verts.tostring())
+            fp.write(self.indices.tostring())
+
+    def loadfrom(self, fname):
+        with open(fname, 'rb') as fp:
+            self.n, i = struct.unpack('II', fp.read(8))
+
+            while self.c < self.n:
+                self.c *= 2
+
+            verts = array.array('f')
+            verts.fromfile(fp, self.n * 2)
+
+            self.indices.fromfile(fp, i)
+
+            self.vb.resize(self.c, i)
+            self.vb.vertices[0:self.n*2] = verts
+            self.vb.colors[0:self.n*3] = [0xFF] * (self.n*3)
+            self.vb.indices = self.indices
 
     def draw(self, wire=True):
         if wire:
@@ -55,80 +85,88 @@ class Mesh(object):
     def vertat(self, x, y):
         for i in xrange(self.n):
             px, py = self.vb.vertices[i*2], self.vb.vertices[i*2+1]
-            if dist(x, y, px, py) < 20:
+            if dist2(x, y, px, py) < 400:
                 return i
 
 class Mode(object):
-    def __init__(self, mesh):
-        self.mesh = mesh
+    def __init__(self, main):
+        self.main = main
         self.hover = None
         self.tri = () # FIXME
         self.wire = True
 
     def on_mouse_motion(self, x, y, dx, dy):
-        i = self.mesh.vertat(x, y)
+        x, y = self.main.cam.unxform(x, y)
+
+        i = self.main.mesh.vertat(x, y)
         if self.hover is not None:
             if self.hover in self.tri:
-                self.mesh.setcolor(self.hover, 0xff, 0x7f, 0x00)
+                self.main.mesh.setcolor(self.hover, 0xff, 0x7f, 0x00)
             else:
-                self.mesh.setcolor(self.hover, 0xff, 0xff, 0xff)
+                self.main.mesh.setcolor(self.hover, 0xff, 0xff, 0xff)
 
         self.hover = i
         if self.hover is not None:
-            self.mesh.setcolor(self.hover, 0xff, 0xff, 0x00)
+            self.main.mesh.setcolor(self.hover, 0xff, 0xff, 0x00)
 
     def draw(self):
-        self.mesh.draw(wire=self.wire)
+        self.main.mesh.draw(wire=self.wire)
 
 class CreateMode(Mode):
-    def __init__(self, mesh):
-        super(CreateMode, self).__init__(mesh)
+    def __init__(self, main):
+        super(CreateMode, self).__init__(main)
         self.tri = []
 
     def on_mouse_press(self, x, y, button, modifiers):
         if not (button & pyglet.window.mouse.LEFT):
             return
 
-        i = self.mesh.vertat(x, y)
-        if i is None:
-            i = self.mesh.addvert(x, y)
+        x, y = self.main.cam.unxform(x, y)
 
-        self.mesh.setcolor(i, 0xff, 0x7f, 0x00)
+        i = self.main.mesh.vertat(x, y)
+        if i is None:
+            i = self.main.mesh.addvert(x, y)
+
+        self.main.mesh.setcolor(i, 0xff, 0x7f, 0x00)
         #self.hover = None # FIXME?
         self.tri.append(i)
 
         if len(self.tri) == 3:
-            self.mesh.addface(*self.tri)
+            self.main.mesh.addface(*self.tri)
             for i in self.tri:
-                self.mesh.setcolor(i, 0xff, 0xff, 0xff)
+                self.main.mesh.setcolor(i, 0xff, 0xff, 0xff)
             self.tri = []
 
 class EditMode(Mode):
-    def __init__(self, mesh):
-        super(EditMode, self).__init__(mesh)
+    def __init__(self, main):
+        super(EditMode, self).__init__(main)
         self.cur = None
 
     def on_mouse_press(self, x, y, b, m):
         if not (b & pyglet.window.mouse.LEFT):
             return
 
-        self.cur = self.mesh.vertat(x, y)
+        x, y = self.main.cam.unxform(x, y)
+
+        self.cur = self.main.mesh.vertat(x, y)
         if self.cur is not None:
-            self.mesh.setcolor(self.cur, 0x00, 0xff, 0x00)
+            self.main.mesh.setcolor(self.cur, 0x00, 0xff, 0x00)
 
     def on_mouse_release(self, x, y, b, m):
         if not (b & pyglet.window.mouse.LEFT):
             return
 
         if self.cur is not None:
-            self.mesh.setcolor(self.cur, 0xff, 0xff, 0xff)
+            self.main.mesh.setcolor(self.cur, 0xff, 0xff, 0xff)
             self.cur = None
 
     def on_mouse_drag(self, x, y, dx, dy, b, m):
         if self.cur is None:
             return
 
-        self.mesh.movevert(self.cur, x, y)
+        x, y = self.main.cam.unxform(x, y)
+
+        self.main.mesh.movevert(self.cur, x, y)
 
 class Camera(object):
     def __init__(self, w, h):
@@ -138,6 +176,7 @@ class Camera(object):
         self.y = 0
         self.dx = 0
         self.dy = 0
+        self.s = 1.0
 
     def on_mouse_motion(self, x, y, dx, dy):
         if x < 10:
@@ -153,6 +192,15 @@ class Camera(object):
         else:
             self.dy = 0
 
+    def unxform(self, x, y):
+        return (x - self.x) / self.s, (y - self.y) / self.s
+
+    def on_mouse_scroll(self, x, y, sx, sy):
+        if sy > 0:
+            self.s *= 1.1
+        else:
+            self.s /= 1.1
+
     def update(self, dt):
         self.x += self.dx * dt * 10
         self.y += self.dy * dt * 10
@@ -160,18 +208,22 @@ class Camera(object):
     def setup(self):
         gl.glLoadIdentity()
         gl.glTranslatef(self.x, self.y, 0)
+        gl.glScalef(self.s, self.s, 0)
 
 class Main(object):
-    def __init__(self):
-        self.mesh = Mesh()
-        self.mode = CreateMode(self.mesh)
+    def __init__(self, fname):
+        self.loadfrom(fname)
+        self.mode = CreateMode(self)
         self.menu = ui.radial.Radial([
-            ('Option1', None),
+            ('Save', None, self.on_save),
             ('Option2', None),
             ('Wireframe', 'res/ui/mapedit-wireframe.cdl', self.on_wireframe),
-            ('Center View', None, self.on_centerview)
+            ('Center View', 'res/ui/mapedit-center.cdl', self.on_centerview)
         ])
         self.cam = Camera(1280, 1024)
+
+    def on_save(self):
+        self.mesh.saveto(os.path.join(self.fname, 'terrain.mesh'))
 
     def on_wireframe(self):
         self.mode.wire = not self.mode.wire
@@ -179,30 +231,44 @@ class Main(object):
     def on_centerview(self):
         self.cam.x = 0
         self.cam.y = 0
+        self.cam.s = 1.0
 
     def on_key_press(self, symbol, modifiers):
         if symbol == pyglet.window.key.TAB:
             if type(self.mode) is CreateMode:
-                self.mode = EditMode(self.mesh)
+                self.mode = EditMode(self)
             else:
-                self.mode = CreateMode(self.mesh)
+                self.mode = CreateMode(self)
 
             self.window.pop_handlers()
             self.window.push_handlers(self.mode)
 
     def on_mouse_press(self, x, y, b, m):
         if b & pyglet.window.mouse.RIGHT:
-            self.menu.activate(self.window, x - self.cam.x, y - self.cam.y)
+            self.menu.activate(self.window, x, y)
 
     def on_draw(self):
         self.window.clear()
         self.cam.setup()
+        gl.glColor3f(1, 1, 1)
+        self.terrain.blit(0, 0)
         self.mode.draw()
         if self.menu.active:
             self.menu.draw()
 
     def update(self, dt):
         self.cam.update(dt * 60)
+
+    def loadfrom(self, fname):
+        self.fname = fname
+        t = os.path.join(fname, 'terrain.png')
+        if os.path.exists(t):
+            self.terrain = pyglet.image.load(t)
+        else:
+            self.terrain = None
+
+        m = os.path.join(fname, 'terrain.mesh')
+        self.mesh = Mesh(m)
 
     def main(self):
         self.window = pyglet.window.Window(fullscreen=True)
@@ -215,6 +281,6 @@ class Main(object):
         pyglet.app.run()
 
 if __name__ == '__main__':
-    m = Main()
+    m = Main(fname=sys.argv[1])
     m.main()
 
