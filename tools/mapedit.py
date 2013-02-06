@@ -215,7 +215,7 @@ class Main(object):
         self.loadfrom(fname)
         self.mode = CreateMode(self)
         self.menu = ui.radial.Radial([
-            ('Save', None, self.on_save),
+            ('Save', 'res/ui/mapedit-save.cdl', self.on_save),
             ('Option2', None),
             ('Wireframe', 'res/ui/mapedit-wireframe.cdl', self.on_wireframe),
             ('Center View', 'res/ui/mapedit-center.cdl', self.on_centerview)
