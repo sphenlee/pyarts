@@ -6,8 +6,8 @@ create table metadata (
     value text
 );
 
--- info about the map (num players, description etc).
-create table mapinfo (
+-- info about the scenario (num players, description etc).
+create table scenarioinfo (
     key text,
     value text
 );

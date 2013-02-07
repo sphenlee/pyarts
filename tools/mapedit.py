@@ -7,9 +7,12 @@ from pyglet import gl
 import array
 import struct
 import sys
+import sqlite3
 import os
+import cStringIO
 
 import ui.radial
+import buffile
 
 def dist2(x1, y1, x2, y2):
     dx = x2 - x1
@@ -17,40 +20,38 @@ def dist2(x1, y1, x2, y2):
     return dx*dx + dy*dy
 
 class Mesh(object):
-    def __init__(self, fname):
+    def __init__(self, fp=None):
         self.n = 0  # number of verts
         self.c = 8  # capacity of vert buffer
         self.vb = pyglet.graphics.vertex_list_indexed(self.c, [0], 'v2f', 'c3B')
 
         self.indices = array.array('I')
 
-        if os.path.exists(fname):
-            self.loadfrom(fname)
+        if fp is not None:
+            self.loadfrom(fp)
 
-    def saveto(self, fname):
-        with open(fname, 'wb') as fp:
-            fp.write(struct.pack('II', self.n, len(self.indices)))
+    def saveto(self, fp):
+        fp.write(struct.pack('II', self.n, len(self.indices)))
 
-            verts = array.array('f', self.vb.vertices)[0:self.n*2]
-            fp.write(verts.tostring())
-            fp.write(self.indices.tostring())
+        verts = array.array('f', self.vb.vertices)[0:self.n*2]
+        fp.write(verts.tostring())
+        fp.write(self.indices.tostring())
 
-    def loadfrom(self, fname):
-        with open(fname, 'rb') as fp:
-            self.n, i = struct.unpack('II', fp.read(8))
+    def loadfrom(self, fp):
+        self.n, i = struct.unpack('II', fp.read(8))
 
-            while self.c < self.n:
-                self.c *= 2
+        while self.c < self.n:
+            self.c *= 2
 
-            verts = array.array('f')
-            verts.fromfile(fp, self.n * 2)
+        verts = array.array('f')
+        verts.fromstring(fp.read(self.n * 2 * verts.itemsize))
 
-            self.indices.fromfile(fp, i)
+        self.indices.fromstring(fp.read(i * self.indices.itemsize))
 
-            self.vb.resize(self.c, i)
-            self.vb.vertices[0:self.n*2] = verts
-            self.vb.colors[0:self.n*3] = [0xFF] * (self.n*3)
-            self.vb.indices = self.indices
+        self.vb.resize(self.c, i)
+        self.vb.vertices[0:self.n*2] = verts
+        self.vb.colors[0:self.n*3] = [0xFF] * (self.n*3)
+        self.vb.indices = self.indices
 
     def draw(self, wire=True):
         if wire:
@@ -94,23 +95,24 @@ class Mode(object):
         self.hover = None
         self.tri = () # FIXME
         self.wire = True
+        self.mesh = main.map.mesh
 
     def on_mouse_motion(self, x, y, dx, dy):
         x, y = self.main.cam.unxform(x, y)
 
-        i = self.main.mesh.vertat(x, y)
+        i = self.mesh.vertat(x, y)
         if self.hover is not None:
             if self.hover in self.tri:
-                self.main.mesh.setcolor(self.hover, 0xff, 0x7f, 0x00)
+                self.mesh.setcolor(self.hover, 0xff, 0x7f, 0x00)
             else:
-                self.main.mesh.setcolor(self.hover, 0xff, 0xff, 0xff)
+                self.mesh.setcolor(self.hover, 0xff, 0xff, 0xff)
 
         self.hover = i
         if self.hover is not None:
-            self.main.mesh.setcolor(self.hover, 0xff, 0xff, 0x00)
+            self.mesh.setcolor(self.hover, 0xff, 0xff, 0x00)
 
     def draw(self):
-        self.main.mesh.draw(wire=self.wire)
+        self.main.map.draw(wire=self.wire)
 
 class CreateMode(Mode):
     def __init__(self, main):
@@ -123,18 +125,18 @@ class CreateMode(Mode):
 
         x, y = self.main.cam.unxform(x, y)
 
-        i = self.main.mesh.vertat(x, y)
+        i = self.mesh.vertat(x, y)
         if i is None:
-            i = self.main.mesh.addvert(x, y)
+            i = self.mesh.addvert(x, y)
 
-        self.main.mesh.setcolor(i, 0xff, 0x7f, 0x00)
+        self.mesh.setcolor(i, 0xff, 0x7f, 0x00)
         #self.hover = None # FIXME?
         self.tri.append(i)
 
         if len(self.tri) == 3:
-            self.main.mesh.addface(*self.tri)
+            self.mesh.addface(*self.tri)
             for i in self.tri:
-                self.main.mesh.setcolor(i, 0xff, 0xff, 0xff)
+                self.mesh.setcolor(i, 0xff, 0xff, 0xff)
             self.tri = []
 
 class EditMode(Mode):
@@ -148,16 +150,16 @@ class EditMode(Mode):
 
         x, y = self.main.cam.unxform(x, y)
 
-        self.cur = self.main.mesh.vertat(x, y)
+        self.cur = self.mesh.vertat(x, y)
         if self.cur is not None:
-            self.main.mesh.setcolor(self.cur, 0x00, 0xff, 0x00)
+            self.mesh.setcolor(self.cur, 0x00, 0xff, 0x00)
 
     def on_mouse_release(self, x, y, b, m):
         if not (b & pyglet.window.mouse.LEFT):
             return
 
         if self.cur is not None:
-            self.main.mesh.setcolor(self.cur, 0xff, 0xff, 0xff)
+            self.mesh.setcolor(self.cur, 0xff, 0xff, 0xff)
             self.cur = None
 
     def on_mouse_drag(self, x, y, dx, dy, b, m):
@@ -166,7 +168,7 @@ class EditMode(Mode):
 
         x, y = self.main.cam.unxform(x, y)
 
-        self.main.mesh.movevert(self.cur, x, y)
+        self.mesh.movevert(self.cur, x, y)
 
 class Camera(object):
     def __init__(self, w, h):
@@ -210,9 +212,49 @@ class Camera(object):
         gl.glTranslatef(self.x, self.y, 0)
         gl.glScalef(self.s, self.s, 0)
 
+class Map(object):
+    def __init__(self, fname):
+        if os.path.exists(fname):
+            self.loadfrom(fname)
+        else:
+            self.new(fname)
+
+    def loadfrom(self, fname):
+        self.con = sqlite3.connect(fname)
+
+        row = self.con.execute('select * from map order by nid limit 1').fetchone()
+        id, terrain, ground, walk, sail, fly = row
+
+        if terrain is not None:
+            self.terrain = pyglet.image.load(".png", file=buffile.Buffile(terrain))
+        else:
+            self.terrain = None
+
+        self.mesh = Mesh(buffile.Buffile(ground))
+
+    def new(self, fname):
+        self.con = sqlite3.connect(fname)
+
+        self.con.executescript(open('tools/map.sql').read())
+        self.con.commit()
+
+        self.terrain = None
+
+    def save(self):
+        buf = cStringIO.StringIO()
+        self.mesh.saveto(buf)
+        self.con.execute('update map set ground = ? where nid = ?',
+            (buffer(buf.getvalue()), 0))
+
+    def draw(self, wire):
+        gl.glColor3f(1, 1, 1)
+        if self.terrain is not None:
+            self.terrain.blit(0, 0)
+        self.mesh.draw(wire)
+
 class Main(object):
     def __init__(self, fname):
-        self.loadfrom(fname)
+        self.map = Map(fname)
         self.mode = CreateMode(self)
         self.menu = ui.radial.Radial([
             ('Save', 'res/ui/mapedit-save.cdl', self.on_save),
@@ -223,7 +265,7 @@ class Main(object):
         self.cam = Camera(1280, 1024)
 
     def on_save(self):
-        self.mesh.saveto(os.path.join(self.fname, 'terrain.mesh'))
+        self.map.save()
 
     def on_wireframe(self):
         self.mode.wire = not self.mode.wire
@@ -250,25 +292,12 @@ class Main(object):
     def on_draw(self):
         self.window.clear()
         self.cam.setup()
-        gl.glColor3f(1, 1, 1)
-        self.terrain.blit(0, 0)
         self.mode.draw()
         if self.menu.active:
             self.menu.draw()
 
     def update(self, dt):
         self.cam.update(dt * 60)
-
-    def loadfrom(self, fname):
-        self.fname = fname
-        t = os.path.join(fname, 'terrain.png')
-        if os.path.exists(t):
-            self.terrain = pyglet.image.load(t)
-        else:
-            self.terrain = None
-
-        m = os.path.join(fname, 'terrain.mesh')
-        self.mesh = Mesh(m)
 
     def main(self):
         self.window = pyglet.window.Window(fullscreen=True)
@@ -278,7 +307,8 @@ class Main(object):
 
         pyglet.clock.schedule_interval(self.update, 1/60.0)
 
-        pyglet.app.run()
+        with self.map.con:
+            pyglet.app.run()
 
 if __name__ == '__main__':
     m = Main(fname=sys.argv[1])
