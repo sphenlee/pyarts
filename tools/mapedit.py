@@ -95,7 +95,7 @@ class Mode(object):
         self.hover = None
         self.tri = () # FIXME
         self.wire = True
-        self.mesh = main.map.mesh
+        self.mesh = main.map.look.mesh
 
     def on_mouse_motion(self, x, y, dx, dy):
         x, y = self.main.cam.unxform(x, y)
@@ -212,8 +212,21 @@ class Camera(object):
         gl.glTranslatef(self.x, self.y, 0)
         gl.glScalef(self.s, self.s, 0)
 
+class Node(object):
+    def __init__(self):
+        pass
+
+    def draw(self, wire):
+        gl.glColor3f(1, 1, 1)
+        if self.terrain is not None:
+            self.terrain.blit(0, 0)
+        self.mesh.draw(wire)
+
 class Map(object):
     def __init__(self, fname):
+        self.nodes = {}
+        self.look = None
+
         if os.path.exists(fname):
             self.loadfrom(fname)
         else:
@@ -222,15 +235,20 @@ class Map(object):
     def loadfrom(self, fname):
         self.con = sqlite3.connect(fname)
 
-        row = self.con.execute('select * from map order by nid limit 1').fetchone()
-        id, terrain, ground, walk, sail, fly = row
+        for row in self.con.execute('select * from map'):
+            self.nodes[row[0]] = self.loadone(*row)
 
+        self.look = self.nodes[0]
+
+    def loadone(self, nid, terrain, ground, walk, sail, fly):
+        node = Node()
+        node.nid = nid
         if terrain is not None:
-            self.terrain = pyglet.image.load(".png", file=buffile.Buffile(terrain))
+            node.terrain = pyglet.image.load(".png", file=buffile.Buffile(terrain))
         else:
-            self.terrain = None
-
-        self.mesh = Mesh(buffile.Buffile(ground))
+            node.terrain = None
+        node.mesh = Mesh(buffile.Buffile(ground))
+        return node
 
     def new(self, fname):
         self.con = sqlite3.connect(fname)
@@ -241,16 +259,15 @@ class Map(object):
         self.terrain = None
 
     def save(self):
-        buf = cStringIO.StringIO()
-        self.mesh.saveto(buf)
-        self.con.execute('update map set ground = ? where nid = ?',
-            (buffer(buf.getvalue()), 0))
+        for nid, node in self.nodes.iteritems():
+            buf = cStringIO.StringIO()
+            node.mesh.saveto(buf)
+            self.con.execute('update map set ground = ? where nid = ?',
+                (buffer(buf.getvalue()), nid))
 
     def draw(self, wire):
-        gl.glColor3f(1, 1, 1)
-        if self.terrain is not None:
-            self.terrain.blit(0, 0)
-        self.mesh.draw(wire)
+        for node in self.nodes.itervalues():
+            node.draw(wire)
 
 class Main(object):
     def __init__(self, fname):
