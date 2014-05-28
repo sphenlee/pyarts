@@ -18,4 +18,6 @@ class DataSource(object):
 
     def getentityproto(self, name):
         return self.map['entityprotos'][name]
-        
+
+    def getmapsector(self, x, y):
+        return self.map['map']['sectors'][x][y]

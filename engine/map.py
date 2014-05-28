@@ -56,7 +56,7 @@ class Map(object):
     def loadsector(self, x, y):
         data = self.datasrc.getmapsector(x, y)
 
-        s = Sector()
+        s = Sector(data)
         s.rendersetup(self.batch)
         self.sectors[0, 0] = s
 
