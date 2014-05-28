@@ -198,10 +198,18 @@ class Camera(object):
         return (x - self.x) / self.s, (y - self.y) / self.s
 
     def on_mouse_scroll(self, x, y, sx, sy):
+        x, y = self.unxform(x, y)
+        s = self.s
         if sy > 0:
             self.s *= 1.1
         else:
             self.s /= 1.1
+        print x, y, self.s, s, self.s/s
+        print (1 - s/self.s) * x
+        print (1 - s/self.s) * y
+        print '...'
+        self.x += (1 - self.s/s) * x
+        self.y += (1 - self.s/s) * y
 
     def update(self, dt):
         self.x += self.dx * dt * 10

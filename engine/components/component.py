@@ -10,12 +10,17 @@ class Component(object):
         self.ent.components[self.name] = self
         setattr(self.ent, self.name, self)
 
+    def load(self):
+        raise NotImplemented()
+
+    def save(self):
+        raise NotImplemented()
+
+    def inject(self, **comps):
+        assert len(comps) == 0
 
 all_components = { }
 
-def register(name):
-    def decorator(cls):
-        all_components[name] = cls
-        cls.name = name
-        return cls
-    return decorator
+def register(cls):
+    all_components[cls.name] = cls
+    return cls

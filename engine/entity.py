@@ -12,8 +12,6 @@ class Entity(object):
         self.eid = eid
         self.components = { }
 
-    def 
-
     def save(self):
         data = { }
         for name, comp in components.iteritems():

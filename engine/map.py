@@ -4,57 +4,62 @@ Map
 Holds the state of the terrain and fog-of-war
 '''
 
+import array
+
 import pyglet
 from pyglet import gl
 
-import array
-import struct
+from ui.util import TextureGroup
 
 class Sector(object):
     def __init__(self):
         self.terrain = pyglet.image.load('maps/test/grass.png').get_texture()
 
-    class Group(pyglet.graphics.Group):
-        def __init__(self, tex):
-            super(Sector.Group, self).__init__()
-            self.tex = tex
-
-        def set_state(self):
-            gl.glEnable(self.tex.target)
-            gl.glBindTexture(self.tex.target, self.tex.id)
-
-        def unset_state(self):
-            gl.glDisable(self.tex.target)
-
     def rendersetup(self, batch):
-        with open('maps/test/node.obj.raw') as fp:
-            data = fp.read()
-
-        s = struct.Struct('I')
-        n, = s.unpack(data[0:4])
-
         vdata = array.array('f')
-        vdata.fromstring(data[4:4+(n*4)])
-
         tdata = array.array('f')
-        tdata.fromstring(data[4+(n*4):])
+        
+        for x in xrange(256):
+            for y in xrange(256):
+                vdata.extend([
+                    x, y,
+                    x + 1, y + 1,
+                    x, y + 1,
+                    x, y,
+                    x + 1, y,
+                    x + 1, y + 1
+                ])
+                tdata.extend([
+                    0, 0,
+                    1, 1,
+                    0, 1,
+                    0, 0,
+                    1, 0,
+                    1, 1
+                ])
 
-        group = self.Group(self.terrain)
-        self.vb = batch.add(n/2, gl.GL_TRIANGLES, group, 'v2f', 't2f')
+        group = TextureGroup(self.terrain)
+        self.vb = batch.add(256 * 256 * 3 * 2, gl.GL_TRIANGLES, group, 'v2f', 't2f')
 
         self.vb.vertices = vdata
         self.vb.tex_coords = tdata
 
 class Map(object):
-    def __init__(self):
-        self.sectors = { }
+    def __init__(self, datasrc):
+        self.datasrc = datasrc
 
         self.batch = pyglet.graphics.Batch()
 
+        self.sectors = { }
+        
+
+    def loadsector(self, x, y):
+        data = self.datasrc.getmapsector(x, y)
+
         s = Sector()
         s.rendersetup(self.batch)
-        self.sectors['0'] = s
+        self.sectors[0, 0] = s
 
-    def render(self):
+    def draw(self):
         self.batch.draw()
 
