@@ -2,6 +2,9 @@
 UI Utils
 '''
 
+import pyglet
+from pyglet import gl
+
 class TextureGroup(pyglet.graphics.Group):
     def __init__(self, tex):
         super(TextureGroup, self).__init__()

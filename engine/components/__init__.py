@@ -1,0 +1,6 @@
+# import all components here so they can register themselves
+
+__all__ = []
+
+from .appearance import *
+from .locator import *

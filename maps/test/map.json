@@ -1,0 +1,60 @@
+{
+    "entityprotos" : {
+        "pesant" : {
+            "name" : "Pesant",
+            "components" : ["locator", "appearance"],
+            "sprite" : "res/unit-pesant.png"
+        }
+    },
+
+    "map" : {
+        "sectors" : [
+            [{ "texture" : "grass.png" } ],
+            [{ } ]
+        ]
+    },
+
+    "entities" : {
+        "1" : {
+            "team" : 0,
+            "proto" : "peasant",
+            "locator" : {
+                "x" : 0, "y" : 0, "placed" : true
+            }
+        },
+        "2" : {
+            "team" : 0,
+            "proto" : "archer",
+            "locator" : {
+                "x" : 10, "y" : 10, "placed" : true
+            }
+        }
+    },
+
+    "teams" : [
+        {
+            "tid" : 0,
+            "entityprotos" : {
+                "peasant" : {
+                    "name" : "Peasant Upgraded",
+                    "components" : ["locator", "appearance"],
+                    "sprite" : "res/unit-pesant.png"
+                },
+                "archer" : {
+                    "name" : "Archer",
+                    "components" : ["locator", "appearance"],
+                    "sprite" : "res/unit-archer.png"
+                }
+            }
+        }
+    ],
+
+    "misc" : {
+        "game.initial.state" : {
+            "camera" : [
+                { "x" : 0, "y" : 0 },
+                { "x" : 0, "y" : 0 }
+            ]
+        }
+    }
+}

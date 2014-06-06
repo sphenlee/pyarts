@@ -1,6 +1,7 @@
 import pyglet
 
 from engine.game import Game
+from engine.datasource import DataSource
 
 class Main(object):
     '''
@@ -14,7 +15,10 @@ class Main(object):
         self.window = pyglet.window.Window(800, 600)
         self.window.push_handlers(self)
 
-        self.game = Game()
+        mapfile = 'maps/test/map.json'
+        self.datasrc = DataSource(mapfile, mapfile, mapfile)
+        self.game = Game(self.datasrc)
+        self.game.load()
 
         pyglet.app.run()
 

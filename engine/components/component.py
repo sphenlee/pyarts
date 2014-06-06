@@ -10,6 +10,12 @@ class Component(object):
         self.ent.components[self.name] = self
         setattr(self.ent, self.name, self)
 
+    def __hash__(self):
+        return hash((self.ent.eid, self.name))
+
+    def __eq__(self, rhs):
+        return self.ent.eid == rhs.ent.eid and self.name == rhs.name
+
     def load(self):
         raise NotImplemented()
 
@@ -19,8 +25,11 @@ class Component(object):
     def inject(self, **comps):
         assert len(comps) == 0
 
-all_components = { }
+_all_components = { }
 
 def register(cls):
-    all_components[cls.name] = cls
+    _all_components[cls.name] = cls
     return cls
+
+def getcomponentclass(name):
+    return _all_components[name]

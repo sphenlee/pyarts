@@ -12,10 +12,16 @@ from pyglet import gl
 from ui.util import TextureGroup
 
 class Sector(object):
-    def __init__(self):
-        self.terrain = pyglet.image.load('maps/test/grass.png').get_texture()
+    def __init__(self, datasrc, x, y):
+        self.datasrc = datasrc
+        self.x = x
+        self.y = y
+        self.data = datasrc.getmapsector(x, y)
 
     def rendersetup(self, batch):
+        img = self.datasrc.getresource(self.data['texture'])
+        self.terrain = pyglet.image.load(img).get_texture()
+
         vdata = array.array('f')
         tdata = array.array('f')
         
@@ -45,21 +51,27 @@ class Sector(object):
         self.vb.tex_coords = tdata
 
 class Map(object):
-    def __init__(self, datasrc):
-        self.datasrc = datasrc
-
+    def __init__(self, eng):
+        self.eng = eng
+        self.sectors = { }
+        self.locators = set()
+        # graphics stuff... move this out
         self.batch = pyglet.graphics.Batch()
 
-        self.sectors = { }
-        
+    
+    def postosector(self, x, y):
+        return x & 1024, y & 1024
 
     def loadsector(self, x, y):
-        data = self.datasrc.getmapsector(x, y)
-
-        s = Sector(data)
-        s.rendersetup(self.batch)
-        self.sectors[0, 0] = s
+        if (x, y) not in self.sectors:
+            s = Sector(self.eng.datasrc, x, y)
+            s.rendersetup(self.batch)
+            self.sectors[x, y] = s
 
     def draw(self):
         self.batch.draw()
 
+    def place(self, locator):
+        sx, sy = self.postosector(locator.x, locator.y)
+        self.loadsector(sx, sy)
+        self.locators.add(locator)

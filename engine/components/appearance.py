@@ -6,17 +6,20 @@ Component to make a component visible on the game screen
 
 from .component import Component, register
 
+@register
 class Appearance(Component):
     name = 'appearance'
     depends = ['locator', '@renderer']
 
     def inject(self, locator, renderer):
         self.locator = locator
-        self.sprite = renderer.getsprite()
+
+        img = self.ent.proto.sprite
+        self.sprite = renderer.new_sprite(img)
+        
 
     def save(self):
+        return {}
 
     def load(self, data):
-        self.__dict__.update(data)
-
-    
+        self.sprite.setpos(self.locator.x, self.locator.y)

@@ -14,10 +14,21 @@ class DataSource(object):
         self.core = json.load(open(core))
 
     def getresource(self, name):
-        return open(p.join('maps', 'test', name)).read()
+        return p.join('maps', 'test', name)
 
-    def getentityproto(self, name):
-        return self.map['entityprotos'][name]
+    def getentityprotos(self, tid):
+        protos = self.map['entityprotos']
+        protos.update(self.getteams()[tid]['entityprotos'])
+        return protos
+
+    def getentities(self):
+        return self.map['entities']
+
+    def getteams(self):
+        return self.map['teams']
 
     def getmapsector(self, x, y):
         return self.map['map']['sectors'][x][y]
+
+    def getmisc(self, key):
+        return self.save['misc'][key]

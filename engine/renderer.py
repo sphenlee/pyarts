@@ -6,12 +6,8 @@ the game
 import pyglet
 
 class Sprite(object):
-    def __init__(self, batch):
-        self.batch = batch
-        self.sprite = None
-
-    def setimage(self, img):
-        self.sprite = pyglet.sprite.Sprite(img, batch=batch)
+    def __init__(self, sprite):
+        self.sprite = sprite
 
     def setpos(self, x, y):
         self.sprite.x = x
@@ -19,14 +15,18 @@ class Sprite(object):
 
 
 class Renderer(object):
-    def __init__(self):
-        self.batch = pyglet.batch.Batch()
+    def __init__(self, datasrc):
+        self.datasrc = datasrc
+        self.batch = pyglet.graphics.Batch()
         self.sprites = set()
 
-    def new_sprite(self):
-        s = Sprite(self.batch)
+    def new_sprite(self, imgfile):
+        res = self.datasrc.getresource(imgfile)
+        img = pyglet.image.load(res)
+        gl = pyglet.sprite.Sprite(img, batch=self.batch)
+        s = Sprite(gl)
         self.sprites.add(s)
         return s
 
-    def on_draw(self):
+    def draw(self):
         self.batch.draw()
