@@ -4,11 +4,17 @@ UI - the map, ability buttons, status bar, towns bar and minimap
 '''
 
 from .screen import Screen
+from engine.datasource import DataSource
+from engine.game import Game
 
 class GameScreen(Screen):
-    def __init__(self, game):
-        super(GameScreen, self).__init__()
-        self.game = game
+    def on_activate(self):
+        mapfile = 'maps/test/map.json'
+        self.datasrc = DataSource(mapfile, mapfile, mapfile)
+        self.game = Game(self.datasrc)
+        self.game.load()
 
     def on_draw(self):
-        game.render()
+        self.window.clear()
+        self.game.render()
+        return True
