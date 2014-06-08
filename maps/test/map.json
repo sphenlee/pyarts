@@ -19,14 +19,14 @@
             "team" : 0,
             "proto" : "peasant",
             "locator" : {
-                "x" : 0, "y" : 0, "placed" : true
+                "x" : 50, "y" : 50, "placed" : true
             }
         },
         "2" : {
             "team" : 0,
             "proto" : "archer",
             "locator" : {
-                "x" : 10, "y" : 10, "placed" : true
+                "x" : 100, "y" : 100, "placed" : true
             }
         }
     },

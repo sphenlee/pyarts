@@ -22,4 +22,5 @@ class Appearance(Component):
         return {}
 
     def load(self, data):
-        self.sprite.setpos(self.locator.x, self.locator.y)
+        self.sprite.setpos(self.locator.x - self.locator.r,
+                           self.locator.y - self.locator.r)

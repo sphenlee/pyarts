@@ -34,3 +34,4 @@ class Engine(object):
 
     def getteam(self, tid):
         return self.teams[tid]
+    

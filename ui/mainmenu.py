@@ -13,7 +13,7 @@ class MainMenu(Screen):
     The main menu
     '''
 
-    def on_activate(self):
+    def pre_activate(self):
         self.label = pyglet.text.Label('Press "S" to start',
             font_size=36,
             x=100, y=100)

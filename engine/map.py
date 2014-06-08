@@ -72,6 +72,24 @@ class Map(object):
         self.batch.draw()
 
     def place(self, locator):
+        print 'place', locator.x, locator.y
         sx, sy = self.postosector(locator.x, locator.y)
         self.loadsector(sx, sy)
         self.locators.add(locator)
+
+    def entitiesinrect(self, x1, y1, x2, y2):
+        print 'entities in rect', x1, y1, x2, y2
+        # TODO eventually this can use spatial partitioning to speed it up
+        result = set()
+
+        if x2 < x1:
+            x1, x2 = x2, x1
+        if y2 < y1:
+            y1, y2 = y2, y1
+
+        for loc in self.locators:
+            if x1 <= loc.x <= x2:
+                if y1 <= loc.y <= y2:
+                    result.add(loc.ent.eid)
+
+        return result

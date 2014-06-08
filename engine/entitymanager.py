@@ -14,12 +14,15 @@ class EntityManager(object):
         self.nextentid = 0
         self.entities = { } # entid -> entitiy
 
+    def get(self, eid):
+        return self.entities[eid]
+
     def load(self):
         data = self.datasrc.getentities()
         for eid, edata in data.iteritems():
             team = self.eng.getteam(edata['team'])
             proto = team.getproto(edata['proto'])
-            ent = self.create(proto, eid=eid)
+            ent = self.create(proto, eid=int(eid))
             ent.load(edata)
 
     def create(self, proto, eid=None):
@@ -29,6 +32,7 @@ class EntityManager(object):
             self.nextentid += 1
 
         ent = Entity(eid, proto)
+        self.entities[eid] = ent
 
         # perform the dependency injection
         deps = set(proto.components)

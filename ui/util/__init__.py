@@ -11,6 +11,7 @@ class TextureGroup(pyglet.graphics.Group):
         self.tex = tex
 
     def set_state(self):
+        gl.glColor4f(1, 1, 1, 1)
         gl.glEnable(self.tex.target)
         gl.glBindTexture(self.tex.target, self.tex.id)
 

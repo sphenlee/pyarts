@@ -18,12 +18,14 @@ class Locator(Component):
         return {
             'x' : self.x,
             'y' : self.y,
+            'r' : self.r,
             'placed' : self.placed
         }
 
     def load(self, data):
         self.x = data.get('x', 0)
         self.y = data.get('y', 0)
+        self.r = data.get('r', 16)
         self.placed = data.get('placed', False)
         if self.placed:
             self.map.place(self)
