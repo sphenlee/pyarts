@@ -59,7 +59,7 @@ class Map(object):
         self.batch = pyglet.graphics.Batch()
 
     
-    def postosector(self, x, y):
+    def pos_to_sector(self, x, y):
         return x & 1024, y & 1024
 
     def loadsector(self, x, y):
@@ -68,17 +68,18 @@ class Map(object):
             s.rendersetup(self.batch)
             self.sectors[x, y] = s
 
+    def step(self):
+        pass
+
     def draw(self):
         self.batch.draw()
 
     def place(self, locator):
-        print 'place', locator.x, locator.y
-        sx, sy = self.postosector(locator.x, locator.y)
+        sx, sy = self.pos_to_sector(locator.x, locator.y)
         self.loadsector(sx, sy)
         self.locators.add(locator)
 
-    def entitiesinrect(self, x1, y1, x2, y2):
-        print 'entities in rect', x1, y1, x2, y2
+    def entities_in_rect(self, x1, y1, x2, y2):
         # TODO eventually this can use spatial partitioning to speed it up
         result = set()
 

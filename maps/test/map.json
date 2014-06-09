@@ -49,6 +49,12 @@
         }
     ],
 
+    "players" : [
+        {
+            "teams" : [0]
+        }
+    ],
+
     "misc" : {
         "game.initial.state" : {
             "camera" : [

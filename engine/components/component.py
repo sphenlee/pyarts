@@ -25,6 +25,9 @@ class Component(object):
     def inject(self, **comps):
         assert len(comps) == 0
 
+    def step(self):
+        pass
+
 _all_components = { }
 
 def register(cls):

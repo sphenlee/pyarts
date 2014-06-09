@@ -16,11 +16,13 @@ class Appearance(Component):
 
         img = self.ent.proto.sprite
         self.sprite = renderer.new_sprite(img)
-        
 
     def save(self):
         return {}
 
     def load(self, data):
+        pass
+
+    def step(self):
         self.sprite.setpos(self.locator.x - self.locator.r,
                            self.locator.y - self.locator.r)

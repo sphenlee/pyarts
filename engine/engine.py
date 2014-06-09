@@ -4,7 +4,6 @@ The Engine holds all of the state that is shared by all players
 
 from .map import Map
 from .entitymanager import EntityManager
-#from .playermanager import PlayerManager
 from .renderer import Renderer
 from .team import Team
 
@@ -14,7 +13,6 @@ class Engine(object):
         self.teams = []
         self.map = Map(self)
         self.entities = EntityManager(self)
-        #self.players = PlayerManager(self)
 
         self.renderer = Renderer(self.datasrc)
 
@@ -27,6 +25,10 @@ class Engine(object):
             self.teams.append(team)
 
         self.entities.load()
+
+    def step(self):
+        self.map.step()
+        self.entities.step()
 
     def render(self):
         self.map.draw()

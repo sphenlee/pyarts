@@ -11,6 +11,8 @@ from pyglet import gl
 
 from .engine import Engine
 from .camera import Camera
+from .player import Player
+from .order import *
 
 class Game(object):
     def __init__(self, datasrc, localplayer=0):
@@ -19,15 +21,50 @@ class Game(object):
         self.engine = Engine(datasrc)
         self.camera = Camera(800, 600)
         self.selection = []
+        self.players = []
+        self.cycle = 0
+        self.latency = 16
+        self.orderthisturn = None
 
     def load(self):
         self.engine.load()
+
+        data = self.datasrc.getplayers()
+        for pdata in data:
+            player = Player()
+            player.load(pdata)
+            self.players.append(player)
 
         data = self.datasrc.getmisc('game.initial.state')
 
         look = data['camera'][self.localplayer]
         self.camera.lookx = look['x']
         self.camera.looky = look['y']
+
+    def startturn(self):
+        self.cycle += 1
+        self.orderthisturn = None
+
+    def endturn(self):
+        p = self.players[self.localplayer]
+        if not self.orderthisturn:
+            self.orderthisturn = NoOrder()
+
+        p.addorder(self.cycle + self.latency, self.orderthisturn)
+
+    def step(self):
+        orders = [p.getorder(self.cycle) for p in self.players]
+        if not all(orders):
+            print 'No Order for player in cycle %d' % self.cycle 
+        else:
+            self.endturn()
+            self.startturn()
+
+            self.engine.step()
+
+            for p in self.players:
+                order = p.getorder(self.cycle)
+                self.engine.entities.doorder(order)
 
     def render(self):
         self.camera.setup()
@@ -50,21 +87,17 @@ class Game(object):
         gl.glVertex2f(loc.x - loc.r, loc.y - loc.r)
         gl.glEnd()
 
-
-    def selectpoint(self, x, y, add=False):
-        print 'select point', x, y, add
-        rect = (x - 16, y - 16, x + 16, y + 16)
-        ents = self.engine.map.entitiesinrect(*rect)
-        self.doselection(ents, add)
-
-    def selectrect(self, x1, y1, x2, y2, add=False):
-        print 'select rect', x1, y1, x2, y2, add
-        ents = self.engine.map.entitiesinrect(x1, y1, x2, y2)
-        self.doselection(ents, add)
-
-    def doselection(self, ents, add):
+    def select(self, ents, add):
         if not add:
             del self.selection[:]
 
         self.selection.extend(ents)
         print self.selection
+
+    def autocommand_ent(self, ent):
+        if self.selection:
+            self.orderthisturn = AutoCommandOrder(self.selection, ent)
+
+    def autocommand_pos(self, x, y):
+        if self.selection:
+            self.orderthisturn = AutoCommandOrder(self.selection, (x, y))

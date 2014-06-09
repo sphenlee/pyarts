@@ -26,6 +26,9 @@ class Entity(object):
 
     def load(self, data):
         for name, comp in self.components.iteritems():
-            print 'loading', name, comp, data
             tmp = data.get(name)
             comp.load(tmp)
+
+    def step(self):
+        for comp in self.components.itervalues():
+            comp.step()

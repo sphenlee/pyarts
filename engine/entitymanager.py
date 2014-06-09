@@ -75,3 +75,21 @@ class EntityManager(object):
                 comp.inject(**args)
 
         return ent
+
+
+    def step(self):
+        for ent in self.entities.itervalues():
+            ent.step()
+
+    def doorder(self, order):
+        if order.type == Order.NONE:
+            return
+
+        leader = order.ents[0]
+
+        if order.type == Order.AUTOCOMMAND:
+            action = leader.behaviour.autocommand(order.target)
+
+        for eid in order.ents:
+            ent = self.get(eid)
+            ent.actions.give(action)

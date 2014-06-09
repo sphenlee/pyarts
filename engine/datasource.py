@@ -22,10 +22,13 @@ class DataSource(object):
         return protos
 
     def getentities(self):
-        return self.map['entities']
+        return self.save['entities']
 
     def getteams(self):
-        return self.map['teams']
+        return self.save['teams']
+
+    def getplayers(self):
+        return self.save['players']
 
     def getmapsector(self, x, y):
         return self.map['map']['sectors'][x][y]
