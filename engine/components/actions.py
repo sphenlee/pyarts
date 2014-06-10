@@ -11,11 +11,14 @@ class Actions(Component):
     name = 'actions'
     depends = []
 
+    def configure(self, data):
+        self.queue = []
+
     def save(self):
         return { }
 
     def load(self, data):
-        self.queue = []
+        pass
 
     def step(self):
         if self.queue:

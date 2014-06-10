@@ -16,6 +16,12 @@ class Entity(object):
         self.proto = proto
         self.components = { }
 
+    def configure(self):
+        for name, comp in self.components.iteritems():
+            tmp = self.proto.data.get(name)
+            if tmp:
+                comp.configure(tmp)
+
     def save(self):
         data = {
             'team' : self.team.tid,

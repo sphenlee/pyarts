@@ -17,6 +17,9 @@ class Behaviour(Component):
         self.actions = actions
         self.entities = entitymanager
 
+    def configure(self, data):
+        pass
+
     def save(self):
         return {
             'type' : self.type

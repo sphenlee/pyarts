@@ -85,6 +85,8 @@ class EntityManager(object):
                         args[c] = ent.components[c]
                 comp.inject(**args)
 
+        ent.configure()
+
         return ent
 
 

@@ -14,7 +14,8 @@ class Appearance(Component):
     def inject(self, locator, renderer):
         self.locator = locator
 
-        img = self.ent.proto.sprite
+    def configure(self, data):
+        img = data['sprite']
         self.sprite = renderer.new_sprite(img)
 
     def save(self):

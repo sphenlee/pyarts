@@ -3,7 +3,10 @@
         "peasant" : {
             "name" : "Peasant",
             "components" : ["locator", "appearance"],
-            "sprite" : "res/unit-pesant.png"
+            "appearance" : {
+                "sprite" : "res/unit-pesant.png"
+            },
+            "locator" : { "r" : 16 }
         }
     },
 
@@ -40,12 +43,18 @@
                 "peasant" : {
                     "name" : "Peasant Upgraded",
                     "components" : ["locator", "appearance", "behaviour"],
-                    "sprite" : "res/unit-pesant.png"
+                    "appearance" : {
+                        "sprite" : "res/unit-pesant.png"
+                    },
+                    "locator" : { "r" : 16 }
                 },
                 "archer" : {
                     "name" : "Archer",
                     "components" : ["locator", "appearance", "behaviour"],
-                    "sprite" : "res/unit-archer.png"
+                    "appearance" : {
+                        "sprite" : "res/unit-archer.png"
+                    },
+                    "locator" : { "r" : 20 }
                 }
             }
         }

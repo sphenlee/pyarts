@@ -15,12 +15,8 @@ class EntityProto(object):
 
     def load(self, data):
         self.name = data['name']
-        self.sprite = data.get('sprite')
         self.components = data['components']
+        self.data = data
 
     def save(self):
-        return {
-            'name' : self.name,
-            'sprite' : self.sprite,
-            'components' : self.components
-        }
+        return self.data

@@ -16,6 +16,9 @@ class Component(object):
     def __eq__(self, rhs):
         return self.ent.eid == rhs.ent.eid and self.name == rhs.name
 
+    def configure(self, data):
+        raise NotImplemented()
+
     def load(self):
         raise NotImplemented()
 

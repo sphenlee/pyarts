@@ -17,8 +17,6 @@ class MoveAction(object):
         self.range = range
 
     def step(self):
-        print 'moving', self.ent, self.target
-
         # TODO use pathfinder to plot a path and use Walk actions to follow it
 
         pos = self.target.getpos()
@@ -29,5 +27,5 @@ class MoveAction(object):
         if distance(me, pos) > self.range:
             walk = WalkAction(pos)
             self.ent.actions.give(walk)
-        else:
+        elif self.target.ispos():
             self.ent.actions.done()
