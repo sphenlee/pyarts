@@ -20,7 +20,8 @@
             "proto" : "peasant",
             "locator" : {
                 "x" : 50, "y" : 50, "placed" : true
-            }
+            },
+            "behaviour" : { "type" : "unit" }
         },
         "2" : {
             "team" : 0,
@@ -37,7 +38,7 @@
             "entityprotos" : {
                 "peasant" : {
                     "name" : "Peasant Upgraded",
-                    "components" : ["locator", "appearance"],
+                    "components" : ["locator", "appearance", "behaviour"],
                     "sprite" : "res/unit-pesant.png"
                 },
                 "archer" : {

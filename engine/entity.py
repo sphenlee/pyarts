@@ -32,3 +32,6 @@ class Entity(object):
     def step(self):
         for comp in self.components.itervalues():
             comp.step()
+
+    def has(self, comp):
+        return comp in self.components

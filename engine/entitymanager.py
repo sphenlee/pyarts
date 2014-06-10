@@ -6,6 +6,7 @@ Container holding all of the entities
 
 from .components.component import getcomponentclass
 from .entity import Entity
+from .order import Order
 
 class EntityManager(object):
     def __init__(self, eng):
@@ -59,7 +60,8 @@ class EntityManager(object):
         globalcomponents = {
             'renderer' : self.eng.renderer,
             'map' : self.eng.map,
-            'datasrc' : self.eng.datasrc
+            'datasrc' : self.eng.datasrc,
+            'entitymanager' : self
         }
 
         for cname in deps:
@@ -85,11 +87,10 @@ class EntityManager(object):
         if order.type == Order.NONE:
             return
 
-        leader = order.ents[0]
-
         if order.type == Order.AUTOCOMMAND:
-            action = leader.behaviour.autocommand(order.target)
-
-        for eid in order.ents:
-            ent = self.get(eid)
-            ent.actions.give(action)
+            for eid in order.ents:
+                ent = self.get(eid)
+                if ent.has('behaviour'):
+                    # behaviour depends on actions, so no need to check for both
+                    action = ent.behaviour.autocommand(order.target)
+                    ent.actions.give(action)

@@ -2,22 +2,26 @@
 Normal Mode
 '''
 
+from engine.target import Target
+
 class NormalMode(object):
     def __init__(self, game):
         self.game = game
 
-    def left_click_pos(self, x, y):
+    def left_click_pos(self, x, y, add):
         pass
 
     def left_click_ents(self, ents, add):
         self.game.select(ents, add)
 
-    def right_click(self, x, y, ents):
-        print 'right click', x, y, ents
+    def right_click(self, x, y, ents, add):
+        print 'right click', x, y, ents, add
         if ents:
-            self.game.autocommand_ent(next(iter(ents)))
+            target = Target(next(iter(ents)))
         else:
-            self.game.autocommand_pos(x, y)
+            target = Target((x, y))
+
+        self.game.autocommand(target)
 
 
     def draw(self):

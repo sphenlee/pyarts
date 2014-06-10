@@ -94,10 +94,6 @@ class Game(object):
         self.selection.extend(ents)
         print self.selection
 
-    def autocommand_ent(self, ent):
+    def autocommand(self, target):
         if self.selection:
-            self.orderthisturn = AutoCommandOrder(self.selection, ent)
-
-    def autocommand_pos(self, x, y):
-        if self.selection:
-            self.orderthisturn = AutoCommandOrder(self.selection, (x, y))
+            self.orderthisturn = AutoCommandOrder(self.selection, target)

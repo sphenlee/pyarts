@@ -11,10 +11,11 @@ from engine.actions import MoveAction#, AttackAction
 @register
 class Behaviour(Component):
     name = 'behaviour'
-    depends = ['actions']
+    depends = ['actions', '@entitymanager']
 
-    def inject(self, actions):
+    def inject(self, actions, entitymanager):
         self.actions = actions
+        self.entitymanager = entitymanager
 
     def save(self):
         return { }
@@ -23,5 +24,9 @@ class Behaviour(Component):
         self.type = data["type"]
 
     def autocommand(self, target):
-        if instanceof(target, tuple):
+        if target.ispos():
+            return MoveAction(target)
+        else:
+            ent = self.entitymanager.get(target.eid)
+            print ent
             return MoveAction(target)

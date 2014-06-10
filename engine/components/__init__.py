@@ -4,3 +4,5 @@ __all__ = []
 
 from .appearance import *
 from .locator import *
+from .behaviour import *
+from .actions import *

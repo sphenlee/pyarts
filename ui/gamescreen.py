@@ -48,8 +48,9 @@ class GameScreen(Screen):
 
     def on_mouse_press(self, x, y, button, mod):
         if button & mouse.RIGHT:
+            add = bool(mod & key.MOD_SHIFT)
             ents = self.entities_at_point(x, y)
-            self.mode.right_click(x, y, ents)
+            self.mode.right_click(x, y, ents, add)
         elif button & mouse.LEFT:
             self.click = (x, y)
 
@@ -59,9 +60,7 @@ class GameScreen(Screen):
 
     def on_mouse_release(self, x, y, button, mod):
         if button & mouse.LEFT:
-            add = False
-            if mod & key.MOD_SHIFT:
-                add = True
+            add = bool(mod & key.MOD_SHIFT)
 
             if self.dragbox is not None:
                 # dragged
@@ -75,7 +74,7 @@ class GameScreen(Screen):
             if ents:
                 self.mode.left_click_ents(ents, add)
             else:
-                self.mode.left_click_pos(x, y)
+                self.mode.left_click_pos(x, y, add)
             
             self.click = None
             self.dragbox = None
