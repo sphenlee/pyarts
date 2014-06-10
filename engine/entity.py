@@ -17,7 +17,10 @@ class Entity(object):
         self.components = { }
 
     def save(self):
-        data = { }
+        data = {
+            'team' : self.team.tid,
+            'proto' : self.proto.epid
+        }
         for name, comp in self.components.iteritems():
             tmp = comp.save()
             if tmp:

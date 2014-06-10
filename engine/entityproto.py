@@ -6,7 +6,10 @@ and hence can be modified by upgrades.
 '''
 
 class EntityProto(object):
-    def __init__(self, team):
+    sprite = None
+
+    def __init__(self, epid, team):
+        self.epid = epid
         self.instances = set()
         self.team = team
 
@@ -15,4 +18,9 @@ class EntityProto(object):
         self.sprite = data.get('sprite')
         self.components = data['components']
 
-    
+    def save(self):
+        return {
+            'name' : self.name,
+            'sprite' : self.sprite,
+            'components' : self.components
+        }

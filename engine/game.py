@@ -37,9 +37,26 @@ class Game(object):
 
         data = self.datasrc.getmisc('game.initial.state')
 
-        look = data['camera'][self.localplayer]
+        look = data['camera'][str(self.localplayer)]
         self.camera.lookx = look['x']
         self.camera.looky = look['y']
+
+    def save(self, sink):
+        self.engine.save(sink)
+
+        for p in self.players:
+            data = p.save()
+            sink.addplayer(data)
+
+        data = {
+            'camera' : {
+                self.localplayer : {
+                    'x' : self.camera.lookx,
+                    'y' : self.camera.looky,
+                }
+            }
+        }
+        sink.setmisc('game.initial.state', data)
 
     def startturn(self):
         self.cycle += 1

@@ -33,5 +33,10 @@ class DataSource(object):
     def getmapsector(self, x, y):
         return self.map['map']['sectors'][x][y]
 
-    def getmisc(self, key):
-        return self.save['misc'][key]
+    def getmisc(self, key, *default):
+        # can't use a None default here - use *args to detect no default
+        # as being different to a None default
+        if len(default) == 1:
+            return self.save['misc'].get(key, default[0])
+        else:
+            return self.save['misc'][key]

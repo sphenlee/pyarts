@@ -9,13 +9,16 @@ from pyglet.window import key, mouse
 
 from .screen import Screen
 from engine.datasource import DataSource
+from engine.datasink import DataSink
 from engine.game import Game
 from .modes import *
 
 class GameScreen(Screen):
     def pre_activate(self):
         mapfile = 'maps/test/map.json'
-        self.datasrc = DataSource(mapfile, mapfile, mapfile)
+        savefile = 'maps/test/map_save.json'
+        savefile = mapfile
+        self.datasrc = DataSource(savefile, mapfile, mapfile)
         self.game = Game(self.datasrc)
         self.game.load()
 
@@ -70,6 +73,8 @@ class GameScreen(Screen):
             else:
                 # no drag, just click
                 ents = self.entities_at_point(x, y)
+                # one entity only for a single click
+                ents = set((next(iter(ents)),)) # eew...
             
             if ents:
                 self.mode.left_click_ents(ents, add)
@@ -78,6 +83,15 @@ class GameScreen(Screen):
             
             self.click = None
             self.dragbox = None
+
+    def on_key_press(self, symbol, mod):
+        if symbol == key.S and mod & key.MOD_CTRL:
+            mapfile = 'maps/test/map_save.json'
+            sink = DataSink(mapfile)
+            self.game.save(sink)
+            sink.commit()
+            return True
+
 
     def on_draw(self):
         self.window.clear()

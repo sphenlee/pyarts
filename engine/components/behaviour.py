@@ -18,10 +18,12 @@ class Behaviour(Component):
         self.entities = entitymanager
 
     def save(self):
-        return { }
+        return {
+            'type' : self.type
+        }
 
     def load(self, data):
-        self.type = data["type"]
+        self.type = data['type']
 
     def autocommand(self, target):
         if target.ispos():

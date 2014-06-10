@@ -26,6 +26,15 @@ class EntityManager(object):
             ent = self.create(proto, eid=int(eid))
             ent.load(edata)
 
+        self.nextentid = self.datasrc.getmisc('entities.nextentid', 1)
+
+    def save(self, sink):
+        for eid, ent in self.entities.iteritems():
+            data = ent.save()
+            sink.addentity(eid, data)
+
+        sink.setmisc('entities.nextentid', self.nextentid)
+
     def create(self, proto, eid=None):
         '''Create an entity from a proto'''
         if eid is None:

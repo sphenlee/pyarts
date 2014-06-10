@@ -18,10 +18,20 @@ class Team(object):
 
         epdatas = self.eng.datasrc.getentityprotos(self.tid)
 
-        for id_, epdata in epdatas.iteritems():
-            ep = EntityProto(self)
+        for epid, epdata in epdatas.iteritems():
+            ep = EntityProto(epid, self)
             ep.load(epdata)
-            self.entityprotos[id_] = ep
+            self.entityprotos[epid] = ep
+
+    def save(self):
+        protos = {}
+        for id_, ep in self.entityprotos.iteritems():
+            protos[id_] = ep.save()
+
+        return {
+            'tid' : self.tid,
+            'entityprotos' : protos
+        }
 
     def getproto(self, name):
         return self.entityprotos[name]

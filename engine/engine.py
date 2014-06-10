@@ -26,6 +26,13 @@ class Engine(object):
 
         self.entities.load()
 
+    def save(self, sink):
+        for t in self.teams:
+            data = t.save()
+            sink.addteam(data)
+
+        self.entities.save(sink)
+
     def step(self):
         self.map.step()
         self.entities.step()
