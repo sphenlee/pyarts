@@ -36,6 +36,13 @@ class Locator(Component):
         self.placed = True
         self.map.place(self)
 
+    def move(self, x, y):
+        self.x = x
+        self.y = y
+
     def unplace(self):
         self.placed = False
         self.map.unplace(self)
+
+    def pos(self):
+        return self.x, self.y

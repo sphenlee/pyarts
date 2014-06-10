@@ -17,9 +17,9 @@ class NormalMode(object):
     def right_click(self, x, y, ents, add):
         print 'right click', x, y, ents, add
         if ents:
-            target = Target(next(iter(ents)))
+            target = Target(self.game.engine.entities, next(iter(ents)))
         else:
-            target = Target((x, y))
+            target = Target(self.game.engine.entities, (x, y))
 
         self.game.autocommand(target)
 

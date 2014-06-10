@@ -15,7 +15,7 @@ class Behaviour(Component):
 
     def inject(self, actions, entitymanager):
         self.actions = actions
-        self.entitymanager = entitymanager
+        self.entities = entitymanager
 
     def save(self):
         return { }
@@ -27,6 +27,6 @@ class Behaviour(Component):
         if target.ispos():
             return MoveAction(target)
         else:
-            ent = self.entitymanager.get(target.eid)
+            ent = self.entities.get(target.eid)
             print ent
             return MoveAction(target)
