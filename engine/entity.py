@@ -19,8 +19,7 @@ class Entity(object):
     def configure(self):
         for name, comp in self.components.iteritems():
             tmp = self.proto.data.get(name)
-            if tmp:
-                comp.configure(tmp)
+            comp.configure(tmp)
 
     def save(self):
         data = {

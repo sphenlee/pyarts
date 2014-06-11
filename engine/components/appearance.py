@@ -13,10 +13,11 @@ class Appearance(Component):
 
     def inject(self, locator, renderer):
         self.locator = locator
+        self.renderer = renderer
 
     def configure(self, data):
         img = data['sprite']
-        self.sprite = renderer.new_sprite(img)
+        self.sprite = self.renderer.new_sprite(img)
 
     def save(self):
         return {}
