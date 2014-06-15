@@ -5,6 +5,9 @@ Manages the content of the whole window
 '''
 
 class Screen(object):
+    WIDTH = 1600
+    HEIGHT = 900
+
     def __init__(self, parent=None, window=None):
         self.window = window if window is not None else parent.window
 

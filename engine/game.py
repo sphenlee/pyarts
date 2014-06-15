@@ -13,18 +13,21 @@ from .engine import Engine
 from .camera import Camera
 from .player import Player
 from .order import *
+from .event import Event
 
 class Game(object):
     def __init__(self, datasrc, localplayer=0):
         self.datasrc = datasrc
         self.localplayer = localplayer
         self.engine = Engine(datasrc)
-        self.camera = Camera(800, 600)
+        self.camera = Camera()
         self.selection = []
         self.players = []
         self.cycle = 0
         self.latency = 16
         self.orderthisturn = None
+
+        self.onselectionchange = Event()
 
     def load(self):
         self.engine.load()
@@ -109,7 +112,7 @@ class Game(object):
             del self.selection[:]
 
         self.selection.extend(ents)
-        print self.selection
+        self.onselectionchange.emit()
 
     def autocommand(self, target):
         if self.selection:

@@ -11,6 +11,9 @@ class StatusEffect(object):
         self.mult = mult
         self.timeout = timeout
 
+    def save(self):
+        return self.__dict__
+
     def apply(self, stats):
         stats[self.name] = stats[self.name] * mult + add
 
@@ -29,14 +32,18 @@ class Stats(Component):
         self.stats = self.basestats.copy()
 
     def save(self):
-        return self.stats
+        return {
+            'effects' : [eff.__save__() for eff in self.stack]
+        }
 
     def load(self, data):
-        
-        for name, val in data['stats'].iteritems():
-            self.stats[name] = int(val)
+        for effdata in data['effects']:
+            eff = StatusEffect(**effdata)
+            self.stack.append(eff)
 
-    def reclaculate(self):
+        self.recalculate()
+
+    def recalculate(self):
         self.stats = self.basestats.copy()
         for eff in self.stack:
             eff.apply(self.stats)
@@ -51,3 +58,7 @@ class Stats(Component):
         if len(self.stack) != len(newstack):
             self.stack = newstack
             self.recalculate()
+
+    def apply(self, eff):
+        self.stack.append(eff)
+        self.recalculate()
