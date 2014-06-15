@@ -17,11 +17,13 @@ class Entity(object):
         self.components = { }
 
     def configure(self):
+        ''' Loads shared data from the entity proto into each component '''
         for name, comp in self.components.iteritems():
             tmp = self.proto.data.get(name)
             comp.configure(tmp)
 
     def save(self):
+        ''' Save each component '''
         data = {
             'team' : self.team.tid,
             'proto' : self.proto.epid
@@ -33,13 +35,16 @@ class Entity(object):
         return data
 
     def load(self, data):
+        ''' Loads entity specific data into each component '''
         for name, comp in self.components.iteritems():
             tmp = data.get(name)
             comp.load(tmp)
 
     def step(self):
+        ''' Step each component '''
         for comp in self.components.itervalues():
             comp.step()
 
     def has(self, comp):
+        ''' Check if this entity has a certain component '''
         return comp in self.components

@@ -1,5 +1,11 @@
 '''
 Variables
+
+Variables are frequently changing numbers that describe
+the capabilities of an entity. (For infrequently changing
+values use Stats)
+Variables can nominate stats that will be the variable's
+maximum and regeneration rate (which can be negative).
 '''
 
 from .component import Component, register
@@ -10,9 +16,10 @@ class Variable(object):
         self.max = descr.get('max', 2**32)
         self.regen = descr.get('regen')
 
-        self.val = 0
+        self.val = 0 # TODO initial value of a variable somewhere?
 
     def step(self, stats):
+        ''' Apply regeneration '''
         max_ = stats[self.max]
         if self.val < max_:
             self.val += stats[self.regen]

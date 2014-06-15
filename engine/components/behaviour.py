@@ -29,9 +29,15 @@ class Behaviour(Component):
         self.type = data['type']
 
     def autocommand(self, target):
+        '''
+        Decide based on the target and this entity
+        what the appropriate action is
+        '''
         if target.ispos():
+            # move to the target position
             return MoveAction(target)
         else:
+            # TODO - check if the entity is friend or enemy (Follow, Attack,
+            # or all of the other possible actions)
             ent = self.entities.get(target.eid)
-            print ent
             return MoveAction(target)

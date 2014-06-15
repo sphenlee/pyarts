@@ -1,7 +1,9 @@
 '''
 Map
 
-Holds the state of the terrain and fog-of-war
+Holds the state of the terrain and fog-of-war.
+
+Right now also does rendering - this should be moved...
 '''
 
 import array

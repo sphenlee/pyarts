@@ -16,9 +16,11 @@ class EntityManager(object):
         self.entities = { } # entid -> entitiy
 
     def get(self, eid):
+        ''' Get an entity by ID '''
         return self.entities[eid]
 
     def load(self):
+        ''' Load all the entities '''
         data = self.datasrc.getentities()
         for eid, edata in data.iteritems():
             team = self.eng.getteam(edata['team'])
@@ -29,6 +31,7 @@ class EntityManager(object):
         self.nextentid = self.datasrc.getmisc('entities.nextentid', 1)
 
     def save(self, sink):
+        ''' Save all the entities '''
         for eid, ent in self.entities.iteritems():
             data = ent.save()
             sink.addentity(eid, data)
@@ -44,7 +47,7 @@ class EntityManager(object):
         ent = Entity(eid, proto)
         self.entities[eid] = ent
 
-        # perform the dependency injection
+        # loop until the deps stop changing (when we find all the dependencies)
         deps = set(proto.components)
         while 1:
             newdeps = set(deps)
@@ -61,6 +64,7 @@ class EntityManager(object):
 
             deps = newdeps
 
+        # construct the component classes
         for cname in deps:
             if cname[0] != '@':
                 cls = getcomponentclass(cname)
@@ -73,6 +77,7 @@ class EntityManager(object):
             'entitymanager' : self
         }
 
+        # perform the injection
         for cname in deps:
             if cname[0] != '@':
                 cls = getcomponentclass(cname)
@@ -85,16 +90,19 @@ class EntityManager(object):
                         args[c] = ent.components[c]
                 comp.inject(**args)
 
+        # configure the new entity
         ent.configure()
 
         return ent
 
 
     def step(self):
+        ''' Step all entities '''
         for ent in self.entities.itervalues():
             ent.step()
 
     def doorder(self, order):
+        ''' Give an order to the relevant entities '''
         if order.type == Order.NONE:
             return
 

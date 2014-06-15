@@ -1,7 +1,11 @@
 '''
 Actions
 
-Component for managing entity actions
+Component for managing entity actions.
+Holds a stack/queue of actions: actions can be pushed
+to pause the current action and resume it later, or they can be queued
+to be done after all other actions are done.
+The queue can also be emptied to cancel everything.
 '''
 
 from .component import Component, register
@@ -21,12 +25,14 @@ class Actions(Component):
         pass
 
     def step(self):
-        if self.queue:
-            self.queue[-1].step()
+        ''' Step the current action '''
+        self.queue[-1].step()
 
     def give(self, action):
+        ''' Pause the current action and do this action first '''
         action.ent = self.ent
         self.queue.append(action)
 
     def done(self):
+        ''' Current action is finished, remove it '''
         self.queue.pop()

@@ -3,7 +3,12 @@ Team
 A team is a logical group of entities.
 Teams can be controlled by 0, 1 or more players.
 EntityProtos are contained in a team, which means upgrades
-always apply to an entire team.
+always apply to an entire team (but not to other teams).
+
+When loading a map there is a global list of protos that we
+load first, then merge in any team specific protos.
+This means that usually every teams starts with the same
+protos but as upgrades are done they can diverge.
 '''
 
 from .entityproto import EntityProto

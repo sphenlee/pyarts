@@ -1,7 +1,9 @@
 '''
 Component
 
-Base class for all component classes
+Base class for all component classes.
+
+Methods are in lifecycle order.
 '''
 
 class Component(object):
@@ -16,20 +18,35 @@ class Component(object):
     def __eq__(self, rhs):
         return self.ent.eid == rhs.ent.eid and self.name == rhs.name
 
+    def inject(self, **comps):
+        ''' Called with keyword args for each dependency declared '''
+        # if there are no dependencies you can leave unimplemented (hence this assert)
+        assert len(comps) == 0
+
     def configure(self, data):
+        '''
+        Load data from the entity's proto - shared by all
+        entities of this type
+        '''
         raise NotImplemented()
 
     def load(self):
+        '''
+        Load entity specific data
+        '''
         raise NotImplemented()
-
-    def save(self):
-        raise NotImplemented()
-
-    def inject(self, **comps):
-        assert len(comps) == 0
 
     def step(self):
+        ''' Step the component - called one each turn '''
         pass
+
+    def save(self):
+        '''
+        Save the component's state - the data returned here will
+        be passed to the load method when the game is loaded
+        '''
+        raise NotImplemented()
+
 
 _all_components = { }
 

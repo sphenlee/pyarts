@@ -1,7 +1,8 @@
 '''
 MapRevealer
 
-Component to reveal areas on the map
+Component to reveal areas on the map.
+TODO - this might not be needed, locator can do it?
 '''
 
 from .component import Component, register

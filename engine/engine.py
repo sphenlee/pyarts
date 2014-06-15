@@ -1,5 +1,7 @@
 '''
-The Engine holds all of the state that is shared by all players
+The Engine holds all of the state that is shared by all players.
+
+This includes the EntityManager, Map and the list of teams.
 '''
 
 from .map import Map

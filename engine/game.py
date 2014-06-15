@@ -2,8 +2,9 @@
 Game
 
 The game represents the entire state of a game.
-It holds the local player specific information as well
-as the engine.
+It holds the local player specific information (ie. stuff that
+does not need to be communicated over the network to other players)
+It also holds the Engine which has all the shared stuff.
 '''
 
 from pyglet import gl
@@ -62,10 +63,12 @@ class Game(object):
         sink.setmisc('game.initial.state', data)
 
     def startturn(self):
+        ''' Called when we are ready for the next turn '''
         self.cycle += 1
         self.orderthisturn = None
 
     def endturn(self):
+        ''' Called to end the current turn '''
         p = self.players[self.localplayer]
         if not self.orderthisturn:
             self.orderthisturn = NoOrder()
@@ -73,6 +76,11 @@ class Game(object):
         p.addorder(self.cycle + self.latency, self.orderthisturn)
 
     def step(self):
+        '''
+        If we have an order for every player then we advance to
+        the next turn, and then step the engine, finally we assign
+        orders to entities
+        '''
         orders = [p.getorder(self.cycle) for p in self.players]
         if not all(orders):
             print 'No Order for player in cycle %d' % self.cycle 
@@ -108,6 +116,7 @@ class Game(object):
         gl.glEnd()
 
     def select(self, ents, add):
+        ''' Select ents or add ents to the current selection '''
         if not add:
             del self.selection[:]
 
@@ -115,5 +124,6 @@ class Game(object):
         self.onselectionchange.emit()
 
     def autocommand(self, target):
+        ''' Give an autocommand on target to the selected entities '''
         if self.selection:
             self.orderthisturn = AutoCommandOrder(self.selection, target)

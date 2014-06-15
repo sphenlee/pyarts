@@ -1,6 +1,7 @@
 '''
 Game Screen renders all of the parts of the main game
 UI - the map, ability buttons, status bar, towns bar and minimap
+It also handles the top level mouse and key bindings (the drag box)
 '''
 
 import pyglet
@@ -41,21 +42,30 @@ class GameScreen(Screen):
 
     @property
     def mode(self):
+        '''
+        Get the current UI mode - modes decide what the
+        mouse buttons and keys do
+        '''
         return self.modes[-1]
 
     def push_mode(self, mode):
+        ''' Enter a new mode '''
         self.modes.append(mode)
 
     def pop_mode(self, mode):
+        ''' Return to the previous mode '''
         self.modes.pop()
 
     def entities_at_point(self, x, y):
+        ''' Ask the map for entities within 16 pixels of (x, y) '''
         return self.game.engine.map.entities_in_rect(x - 16, y - 16, x + 16, y + 16)
 
     def entities_in_rect(self, x1, y1, x2, y2):
+        ''' Ask the map for entities within a box '''
         return self.game.engine.map.entities_in_rect(x1, y1, x2, y2)
 
     def on_mouse_motion(self, x, y, dx, dy):
+        ''' Mouse motion event - check for edge scrolling '''
         if x < 10:
             self.dx = 5
         elif x > self.WIDTH - 10:
@@ -70,6 +80,11 @@ class GameScreen(Screen):
             self.dy = 0
 
     def on_mouse_press(self, x, y, button, mod):
+        '''
+        Right mouse button - grab entities at point and let the mode
+        decide what to do.
+        Left mouse button - just record the point, incase the user drags
+        '''
         if button & mouse.RIGHT:
             add = bool(mod & key.MOD_SHIFT)
             x, y = self.game.camera.unproject((x, y))
@@ -79,10 +94,15 @@ class GameScreen(Screen):
             self.click = (x, y)
 
     def on_mouse_drag(self, x, y, dx, dy, button, mod):
+        ''' Update drag box '''
         if button & mouse.LEFT:
             self.dragbox = (x, y)
 
     def on_mouse_release(self, x, y, button, mod):
+        '''
+        Left button - grab entities in the dragbox, or at the click point,
+        let the mode decide what to do
+        '''
         if button & mouse.LEFT:
             add = bool(mod & key.MOD_SHIFT)
             x, y = self.game.camera.unproject((x, y))
@@ -107,6 +127,7 @@ class GameScreen(Screen):
             self.dragbox = None
 
     def on_key_press(self, symbol, mod):
+        ''' DEBUGGING - CTRL-S will save the game '''
         if symbol == key.S and mod & key.MOD_CTRL:
             mapfile = 'maps/test/map_save.json'
             sink = DataSink(mapfile)
@@ -116,6 +137,7 @@ class GameScreen(Screen):
 
 
     def on_draw(self):
+        ''' Draw all the things '''
         self.window.clear()
 
         gl.glMatrixMode(gl.GL_PROJECTION)
