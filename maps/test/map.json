@@ -7,6 +7,21 @@
                 "sprite" : "res/unit-pesant.png"
             },
             "locator" : { "r" : 16 }
+        },
+        "archer" : {
+            "name" : "Archer",
+            "components" : ["locator", "appearance", "behaviour", "variables"],
+            "appearance" : {
+                "sprite" : "res/unit-archer.png"
+            },
+            "locator" : { "r" : 20 },
+            "variables" : {
+                "hp" : { "max" : "maxhp", "regen" : "hgregen" }
+            },
+            "stats" : {
+                "maxhp" : 250,
+                "hgregen" : 2
+            }
         }
     },
 
@@ -33,6 +48,14 @@
                 "x" : 100, "y" : 100, "placed" : true
             },
             "behaviour" : { "type" : "unit" }
+        },
+        "3" : {
+            "team" : 0,
+            "proto" : "archer",
+            "locator" : {
+                "x" : 150, "y" : 150, "placed" : true
+            },
+            "behaviour" : { "type" : "unit" }
         }
     },
 
@@ -47,14 +70,6 @@
                         "sprite" : "res/unit-pesant.png"
                     },
                     "locator" : { "r" : 16 }
-                },
-                "archer" : {
-                    "name" : "Archer",
-                    "components" : ["locator", "appearance", "behaviour"],
-                    "appearance" : {
-                        "sprite" : "res/unit-archer.png"
-                    },
-                    "locator" : { "r" : 20 }
                 }
             }
         }

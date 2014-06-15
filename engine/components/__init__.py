@@ -7,3 +7,4 @@ from .locator import *
 from .behaviour import *
 from .actions import *
 from .stats import *
+from .variables import *

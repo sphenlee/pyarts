@@ -18,7 +18,7 @@ class GameScreen(Screen):
     def pre_activate(self):
         mapfile = 'maps/test/map.json'
         savefile = 'maps/test/map_save.json'
-        #savefile = mapfile
+        savefile = mapfile
         self.datasrc = DataSource(savefile, mapfile, mapfile)
         self.game = Game(self.datasrc)
         self.game.load()

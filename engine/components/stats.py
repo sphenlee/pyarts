@@ -33,13 +33,14 @@ class Stats(Component):
 
     def save(self):
         return {
-            'effects' : [eff.__save__() for eff in self.stack]
+            'effects' : [eff.save() for eff in self.stack]
         }
 
     def load(self, data):
-        for effdata in data['effects']:
-            eff = StatusEffect(**effdata)
-            self.stack.append(eff)
+        if data is not None:
+            for effdata in data['effects']:
+                eff = StatusEffect(**effdata)
+                self.stack.append(eff)
 
         self.recalculate()
 
@@ -62,3 +63,6 @@ class Stats(Component):
     def apply(self, eff):
         self.stack.append(eff)
         self.recalculate()
+
+    def __getitem__(self, key):
+        return self.stats[key]
