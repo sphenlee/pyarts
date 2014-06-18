@@ -22,7 +22,7 @@
                 "maxhp" : 250,
                 "hgregen" : 2
             },
-            "abilities" : [ "boost" ]
+            "abilities" : [ "boost", "heal" ]
         }
     },
 
@@ -68,6 +68,15 @@
                 "description" : "Raises MaxHP by 10% for 30s",
                 "effect" : null,
                 "group" : true,
+                "cooldown" : 60,
+                "cost" : 100,
+                "image" : "res/unit-pesant.png"
+            },
+            "heal" : {
+                "type" : "targeted",
+                "name" : "Heal",
+                "description" : "Restores 100 HP to target unit",
+                "effect" : null,
                 "cooldown" : 60,
                 "cost" : 100,
                 "image" : "res/unit-pesant.png"

@@ -4,7 +4,7 @@ AbilityAction
 High level action for getting an entity to do an action
 '''
 
-from .move import MoveAction
+from .move import MoveAction, distance
 
 class AbilityAction(object):
     ent = None
@@ -27,7 +27,7 @@ class AbilityAction(object):
             print 'ability', pos, me, distance(me, pos)
 
             if distance(me, pos) > self.ability.range:
-                mv = MoveAction(pos)
+                mv = MoveAction(self.target)
                 self.ent.actions.give(mv)
                 return
 

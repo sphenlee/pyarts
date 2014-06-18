@@ -78,7 +78,7 @@ class Game(object):
         ''' Enter a new mode '''
         self.modes.append(mode)
 
-    def pop_mode(self, mode):
+    def pop_mode(self):
         ''' Return to the previous mode '''
         self.modes.pop()
 
@@ -182,8 +182,8 @@ class Game(object):
         if ability.type == ability.INSTANT:
             self.order(order)
         elif ability.type == ability.TARGETED:
-            pass # FIXME
+            self.push_mode(TargetingMode(self, order))
         elif ability.type == ability.AREA_OF_EFFECT:
-            pass # FIXME
+            self.push_mode(TargetingMode(self, order))
         elif ability.type == ability.STATIC:
             pass # do nothing

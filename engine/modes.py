@@ -6,8 +6,6 @@ from target import Target
 
 class NormalMode(object):
     '''
-    Normal Mode
-
     The mode the game is usually in
     '''
 
@@ -36,4 +34,37 @@ class NormalMode(object):
 
     def draw(self):
         ''' Nothing special to draw '''
+        pass
+
+class TargetingMode(object):
+    '''
+    A mode used to select a target for an ability
+    '''
+
+    def __init__(self, game, order):
+        self.game = game
+        self.order = order
+
+    def left_click_pos(self, x, y, add):
+        ''' Select a position target '''
+        self.order.target = Target(self.game.engine.entities, (x, y))
+        self.game.order(self.order)
+        self.game.pop_mode()
+
+    def left_click_ents(self, ents, add):
+        ''' Select an entity target '''
+        self.order.target = Target(self.game.engine.entities, next(iter(ents)))
+        self.game.order(self.order)
+        self.game.pop_mode()
+
+    def right_click(self, x, y, ents, add):
+        ''' RIght click cancels the targeting '''
+        self.game.pop_mode()
+
+    def ability(self, idx):
+        ''' Ability button also cancels targeting '''
+        self.game.pop_mode()
+
+    def draw(self):
+        ''' Nothing special to draw (yet) '''
         pass
