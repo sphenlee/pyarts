@@ -27,6 +27,8 @@ class NormalMode(object):
 
         self.game.autocommand(target)
 
+    def ability(self, idx):
+        self.game.ability(idx)
 
     def draw(self):
         ''' Nothing special to draw '''

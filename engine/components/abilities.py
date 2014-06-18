@@ -31,3 +31,6 @@ class Abilities(Component):
 
     def step(self):
         pass
+
+    def __getitem__(self, idx):
+        return self.abilities[idx]

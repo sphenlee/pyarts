@@ -75,6 +75,10 @@ class Game(object):
 
         p.addorder(self.cycle + self.latency, self.orderthisturn)
 
+    def order(self, order):
+        assert not self.orderthisturn
+        self.orderthisturn = order
+
     def step(self):
         '''
         If we have an order for every player then we advance to
@@ -126,4 +130,37 @@ class Game(object):
     def autocommand(self, target):
         ''' Give an autocommand on target to the selected entities '''
         if self.selection:
-            self.orderthisturn = AutoCommandOrder(self.selection, target)
+            self.order(AutoCommandOrder(self.selection, target))
+
+    def ability(self, idx):
+        ''' Do the ability at idx for the currently selected entities '''
+        if not self.selection:
+            # nothing selected
+            return
+
+        ent = self.engine.entities.get(self.selection[0])
+        if not ent.has('abilities'):
+            # no abilities
+            return
+
+        ability = ent.abilities[idx]
+
+        # get the ents - non group abilities cannot be done by
+        # multiple entities so we pick the first
+        ents = self.selection
+        if not ability.group:
+            ents = ents[0]
+
+        # create the order
+        order = AbilityOrder(self.selection, idx)
+
+        # based on ability type we either issue an order
+        # or enter a new mode
+        if ability.type == ability.INSTANT:
+            self.order(order)
+        elif ability.type == ability.TARGETED:
+            pass # FIXME
+        elif ability.type == ability.AREA_OF_EFFECT:
+            pass # FIXME
+        elif ability.type == ability.STATIC:
+            pass # do nothing

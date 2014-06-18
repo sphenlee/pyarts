@@ -126,6 +126,8 @@ class GameScreen(Screen):
             self.click = None
             self.dragbox = None
 
+    numbers = [getattr(key, '_%d' % i) for i in range(1, 9)]
+
     def on_key_press(self, symbol, mod):
         ''' DEBUGGING - CTRL-S will save the game '''
         if symbol == key.S and mod & key.MOD_CTRL:
@@ -134,7 +136,9 @@ class GameScreen(Screen):
             self.game.save(sink)
             sink.commit()
             return True
-
+        elif symbol in self.numbers:
+            num = self.numbers.index(symbol)
+            self.mode.ability(num)
 
     def on_draw(self):
         ''' Draw all the things '''

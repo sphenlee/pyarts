@@ -19,3 +19,9 @@ class AutoCommandOrder(Order):
     def __init__(self, ents, target):
         Order.__init__(self, Order.AUTOCOMMAND, ents)
         self.target = target
+
+class AbilityOrder(Order):
+    def __init__(self, ents, idx):
+        Order.__init__(self, Order.ABILITY, ents)
+        self.idx = idx
+        self.target = None # target is optional
