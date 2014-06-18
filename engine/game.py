@@ -143,7 +143,10 @@ class Game(object):
             # no abilities
             return
 
-        ability = ent.abilities[idx]
+        try:
+            ability = ent.abilities[idx]
+        except IndexError:
+            return
 
         # get the ents - non group abilities cannot be done by
         # multiple entities so we pick the first

@@ -112,13 +112,10 @@ class EntityManager(object):
             for eid in order.ents:
                 ent = self.get(eid)
                 if ent.has('behaviour'):
-                    # behaviour depends on actions, so no need to check for both
-                    action = ent.behaviour.autocommand(order.target)
-                    ent.actions.give(action)
+                    ent.behaviour.autocommand(order.target)
+
         elif order.type == Order.ABILITY:
             for eid in order.ents:
                 ent = self.get(eid)
-                if ent.has('abilities') and ent.has('actions'):
-                    ability = ent.abilities[order.idx]
-                    action = AbilityAction(ability, order.target)
-                    ent.actions.give(action)
+                if ent.has('abilities'):
+                    ent.abilities.activate(order.idx, order.target)

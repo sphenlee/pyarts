@@ -6,7 +6,7 @@ Component to control what auto commands do for each kind of entity
 
 from .component import Component, register
 
-from engine.actions import MoveAction#, AttackAction
+from ..actions import MoveAction#, AttackAction
 
 @register
 class Behaviour(Component):
@@ -35,9 +35,11 @@ class Behaviour(Component):
         '''
         if target.ispos():
             # move to the target position
-            return MoveAction(target)
+            action = MoveAction(target)
         else:
             # TODO - check if the entity is friend or enemy (Follow, Attack,
             # or all of the other possible actions)
             ent = self.entities.get(target.eid)
-            return MoveAction(target)
+            action = MoveAction(target)
+
+        self.actions.give(action)
