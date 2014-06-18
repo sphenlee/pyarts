@@ -6,6 +6,7 @@ This includes the EntityManager, Map and the list of teams.
 
 from .map import Map
 from .entitymanager import EntityManager
+from .contentmanager import ContentManager
 from .renderer import Renderer
 from .team import Team
 
@@ -15,18 +16,22 @@ class Engine(object):
         self.teams = []
         self.map = Map(self)
         self.entities = EntityManager(self)
+        self.content = ContentManager()
 
         self.renderer = Renderer(self.datasrc)
 
         self.towns = [ ]
 
     def load(self):
+        self.content.load(self.datasrc)
+
         for t in self.datasrc.getteams():
             team = Team(self)
             team.load(t)
             self.teams.append(team)
 
         self.entities.load()
+
 
     def save(self, sink):
         for t in self.teams:

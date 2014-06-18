@@ -74,7 +74,8 @@ class EntityManager(object):
             'renderer' : self.eng.renderer,
             'map' : self.eng.map,
             'datasrc' : self.eng.datasrc,
-            'entitymanager' : self
+            'entitymanager' : self,
+            'content' : self.eng.content
         }
 
         # perform the injection

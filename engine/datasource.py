@@ -21,6 +21,9 @@ class DataSource(object):
         protos.update(self.getteams()[tid]['entityprotos'])
         return protos
 
+    def getcontent(self, type):
+        return self.map['content'][type]
+
     def getentities(self):
         return self.save['entities']
 
@@ -40,3 +43,4 @@ class DataSource(object):
             return self.save['misc'].get(key, default[0])
         else:
             return self.save['misc'][key]
+

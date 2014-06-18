@@ -26,7 +26,8 @@ class Actions(Component):
 
     def step(self):
         ''' Step the current action '''
-        self.queue[-1].step()
+        if self.queue:
+            self.queue[-1].step()
 
     def give(self, action):
         ''' Pause the current action and do this action first '''

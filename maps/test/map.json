@@ -10,7 +10,7 @@
         },
         "archer" : {
             "name" : "Archer",
-            "components" : ["locator", "appearance", "behaviour", "variables"],
+            "components" : ["locator", "appearance", "behaviour", "variables", "abilities"],
             "appearance" : {
                 "sprite" : "res/unit-archer.png"
             },
@@ -21,7 +21,8 @@
             "stats" : {
                 "maxhp" : 250,
                 "hgregen" : 2
-            }
+            },
+            "abilities" : [ "boost" ]
         }
     },
 
@@ -56,6 +57,21 @@
                 "x" : 150, "y" : 150, "placed" : true
             },
             "behaviour" : { "type" : "unit" }
+        }
+    },
+
+    "content" : {
+        "abilities" : {
+            "boost" : {
+                "type" : "instant",
+                "name" : "HP Boost",
+                "description" : "Raises MaxHP by 10% for 30s",
+                "effect" : null,
+                "group" : true,
+                "cooldown" : 60,
+                "cost" : 100,
+                "image" : "res/unit-pesant.png"
+            }
         }
     },
 
