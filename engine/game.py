@@ -15,6 +15,7 @@ from .camera import Camera
 from .player import Player
 from .order import *
 from .event import Event
+from .modes import *
 
 class Game(object):
     def __init__(self, datasrc, localplayer=0):
@@ -27,6 +28,9 @@ class Game(object):
         self.cycle = 0
         self.latency = 16
         self.orderthisturn = None
+
+        self.modes = []
+        self.push_mode(NormalMode(self))
 
         self.onselectionchange = Event()
 
@@ -61,6 +65,22 @@ class Game(object):
             }
         }
         sink.setmisc('game.initial.state', data)
+
+    @property
+    def mode(self):
+        '''
+        Get the current mode - modes decide what the
+        mouse buttons and keys do
+        '''
+        return self.modes[-1]
+
+    def push_mode(self, mode):
+        ''' Enter a new mode '''
+        self.modes.append(mode)
+
+    def pop_mode(self, mode):
+        ''' Return to the previous mode '''
+        self.modes.pop()
 
     def startturn(self):
         ''' Called when we are ready for the next turn '''

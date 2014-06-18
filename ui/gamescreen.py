@@ -13,7 +13,6 @@ from .infopanel import InfoPanel
 from engine.datasource import DataSource
 from engine.datasink import DataSink
 from engine.game import Game
-from .modes import *
 
 class GameScreen(Screen):
     def pre_activate(self):
@@ -23,9 +22,6 @@ class GameScreen(Screen):
         self.datasrc = DataSource(savefile, mapfile, mapfile)
         self.game = Game(self.datasrc)
         self.game.load()
-
-        self.modes = []
-        self.push_mode(NormalMode(self.game))
 
         self.click = None
         self.dragbox = None
@@ -39,22 +35,6 @@ class GameScreen(Screen):
     def update(self, dt, *args):
         self.game.camera.move(self.dx, self.dy)
         self.game.step()
-
-    @property
-    def mode(self):
-        '''
-        Get the current UI mode - modes decide what the
-        mouse buttons and keys do
-        '''
-        return self.modes[-1]
-
-    def push_mode(self, mode):
-        ''' Enter a new mode '''
-        self.modes.append(mode)
-
-    def pop_mode(self, mode):
-        ''' Return to the previous mode '''
-        self.modes.pop()
 
     def entities_at_point(self, x, y):
         ''' Ask the map for entities within 16 pixels of (x, y) '''
@@ -89,7 +69,7 @@ class GameScreen(Screen):
             add = bool(mod & key.MOD_SHIFT)
             x, y = self.game.camera.unproject((x, y))
             ents = self.entities_at_point(x, y)
-            self.mode.right_click(x, y, ents, add)
+            self.game.mode.right_click(x, y, ents, add)
         elif button & mouse.LEFT:
             self.click = (x, y)
 
@@ -119,9 +99,9 @@ class GameScreen(Screen):
                     ents = set((next(iter(ents)),)) # eew...
             
             if ents:
-                self.mode.left_click_ents(ents, add)
+                self.game.mode.left_click_ents(ents, add)
             else:
-                self.mode.left_click_pos(x, y, add)
+                self.game.mode.left_click_pos(x, y, add)
             
             self.click = None
             self.dragbox = None
@@ -138,7 +118,7 @@ class GameScreen(Screen):
             return True
         elif symbol in self.numbers:
             num = self.numbers.index(symbol)
-            self.mode.ability(num)
+            self.game.mode.ability(num)
 
     def on_draw(self):
         ''' Draw all the things '''

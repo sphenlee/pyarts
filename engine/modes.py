@@ -1,12 +1,16 @@
 '''
-Normal Mode
-
-The mode the game is usually in
+Modes
 '''
 
-from engine.target import Target
+from target import Target
 
 class NormalMode(object):
+    '''
+    Normal Mode
+
+    The mode the game is usually in
+    '''
+
     def __init__(self, game):
         self.game = game
 
