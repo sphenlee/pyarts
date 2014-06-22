@@ -27,11 +27,14 @@ class AbilityAction(object):
             print 'ability', pos, me, distance(me, pos)
 
             if distance(me, pos) > self.ability.range:
-                mv = MoveAction(self.target)
+                mv = MoveAction(self.target, range=self.ability.range, follow=False)
                 self.ent.actions.give(mv)
                 return
 
         print 'done ability'
         if self.start:
             self.start()
+
+        self.ability.activate(self.ent.eid)
+
         self.ent.actions.done()

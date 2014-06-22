@@ -11,12 +11,13 @@ class Ability(object):
     TARGETED = 3
     AREA_OF_EFFECT = 4
 
-    def __init__(self, data):
+    def __init__(self, data, lua):
         self.name = data['name']
         self.description = data['description']
 
-        self.effect = data['effect']
-
+        code = 'return ' + data['effect']
+        self.effect = lua.dostring(code)
+        
         self.type = {
             'static' : Ability.STATIC,
             'instant' : Ability.INSTANT,
@@ -30,3 +31,6 @@ class Ability(object):
         self.cost = data['cost']
 
         self.image = data['image']
+
+    def activate(self, *args):
+        self.effect(*args)

@@ -10,15 +10,19 @@ from .contentmanager import ContentManager
 from .renderer import Renderer
 from .team import Team
 
+from lua import lua
+
 class Engine(object):
     def __init__(self, datasrc):
         self.datasrc = datasrc
         self.teams = []
         self.map = Map(self)
         self.entities = EntityManager(self)
-        self.content = ContentManager()
+        self.content = ContentManager(self)
 
         self.renderer = Renderer(self.datasrc)
+
+        self.lua = lua.State()
 
         self.towns = [ ]
 

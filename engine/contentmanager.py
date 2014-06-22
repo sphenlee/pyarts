@@ -11,14 +11,15 @@ A place to store various other game objects that need configuration data:
 from .ability import Ability
 
 class ContentManager(object):
-    def __init__(self):
+    def __init__(self, eng):
+        self.eng = eng
         self.abilities = {}
         self.activities = {}
         self.statuseffects = {}
 
     def load(self, datasrc):
         for name, data in datasrc.getcontent('abilities').iteritems():
-            self.abilities[name] = Ability(data)
+            self.abilities[name] = Ability(data, self.eng.lua)
 
         
     def getability(self, name):
