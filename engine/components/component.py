@@ -11,6 +11,7 @@ class Component(object):
         self.ent = ent
         self.ent.components[self.name] = self
         setattr(self.ent, self.name, self)
+        self.configured = False
 
     def __hash__(self):
         return hash((self.ent.eid, self.name))

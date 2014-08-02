@@ -11,53 +11,68 @@ import array
 import pyglet
 from pyglet import gl
 
-from ui.util import TextureGroup
+from .tileset import Tileset
+
+# some magic numbers :)
+SECTOR_SZ = 32 # the number of tiles in a sector
+VERTEX_SZ = 32 # the number of pixels per tile
+TEX_SZ = 1 / 8.0 # the size of each tile in text units
 
 class Sector(object):
-    def __init__(self, datasrc, x, y):
-        self.datasrc = datasrc
+    def __init__(self, map, x, y):
+        self.map = map
         self.x = x
         self.y = y
-        self.data = datasrc.getmapsector(x, y)
+        self.data = map.datasrc.getmapsector(x, y)
 
     def rendersetup(self, batch):
-        img = self.datasrc.getresource(self.data['texture'])
-        self.terrain = pyglet.image.load(img).get_texture()
+        tiles = self.data['tiles']
 
         vdata = array.array('f')
         tdata = array.array('f')
         
-        for x in xrange(256):
-            for y in xrange(256):
+        for y in xrange(SECTOR_SZ):
+            for x in xrange(SECTOR_SZ):
+                tile = tiles[x + SECTOR_SZ*y]
+
+                vx = x * VERTEX_SZ
+                vy = y * VERTEX_SZ
                 vdata.extend([
-                    x, y,
-                    x + 1, y + 1,
-                    x, y + 1,
-                    x, y,
-                    x + 1, y,
-                    x + 1, y + 1
+                    vx, vy,
+                    vx + VERTEX_SZ, vy + VERTEX_SZ,
+                    vx, vy + VERTEX_SZ,
+                    vx, vy,
+                    vx + VERTEX_SZ, vy,
+                    vx + VERTEX_SZ, vy + VERTEX_SZ
                 ])
+                ty, tx = divmod(tile, 8)
+                tx = tx * TEX_SZ
+                ty = 1 - ty * TEX_SZ
                 tdata.extend([
-                    0, 0,
-                    1, 1,
-                    0, 1,
-                    0, 0,
-                    1, 0,
-                    1, 1
+                    tx, ty,
+                    tx + TEX_SZ, ty - TEX_SZ,
+                    tx, ty - TEX_SZ,
+                    tx, ty,
+                    tx + TEX_SZ, ty,
+                    tx + TEX_SZ, ty - TEX_SZ
                 ])
 
-        group = TextureGroup(self.terrain)
-        self.vb = batch.add(256 * 256 * 3 * 2, gl.GL_TRIANGLES, group, 'v2f', 't2f')
+        group = self.map.tileset.group
+        self.vb = batch.add(SECTOR_SZ * SECTOR_SZ * 3 * 2,
+            gl.GL_TRIANGLES, group, 'v2f', 't2f')
 
         self.vb.vertices = vdata
         self.vb.tex_coords = tdata
 
 class Map(object):
-    def __init__(self, eng):
-        self.eng = eng
+    def __init__(self, datasrc):
+        self.datasrc = datasrc
+
+        self.tileset = Tileset(datasrc)
+
         self.sectors = { }
         self.locators = set()
-        # graphics stuff... move this out
+
         self.batch = pyglet.graphics.Batch()
 
     
@@ -66,7 +81,7 @@ class Map(object):
 
     def loadsector(self, x, y):
         if (x, y) not in self.sectors:
-            s = Sector(self.eng.datasrc, x, y)
+            s = Sector(self, x, y)
             s.rendersetup(self.batch)
             self.sectors[x, y] = s
 

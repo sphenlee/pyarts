@@ -2,6 +2,7 @@
 InfoPanel
 '''
 
+import pyglet
 from pyglet import gl
 
 from .panels.singleentitypanel import SingleEntityPanel
@@ -11,17 +12,29 @@ class InfoPanel(object):
     WIDTH = Screen.WIDTH / 2
     HEIGHT = Screen.HEIGHT / 4
 
-    def __init__(self, game):
+    def __init__(self, game, datasrc):
         self.game = game
+        self.datasrc = datasrc
         self.game.onselectionchange.add(self.update)
 
         self.display = None
 
+        self.images = {}
+
+    def getimage(self, fname):
+        try:
+            return self.images[fname]
+        except KeyError:
+            res = self.datasrc.getresource(fname)
+            img = pyglet.image.load(res)
+            self.images[fname] = img
+            return img
+
     def update(self):
         if len(self.game.selection) == 1:
-            self.display = SingleEntityPanel(self.game)
+            self.display = SingleEntityPanel(self)
         #elif len(self.game.selection) > 1:
-        #    self.display = MultiEntityPanel(self.game)
+        #    self.display = MultiEntityPanel(self)
         else:
             self.display = None
 

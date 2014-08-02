@@ -28,7 +28,7 @@ class GameScreen(Screen):
         self.dx = 0
         self.dy = 0
 
-        self.infopanel = InfoPanel(self.game)
+        self.infopanel = InfoPanel(self.game, self.datasrc)
 
         pyglet.clock.schedule(self.update, 0.1)
 

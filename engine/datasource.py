@@ -33,8 +33,11 @@ class DataSource(object):
     def getplayers(self):
         return self.save['players']
 
+    def gettileset(self):
+        return self.map['map']['tileset']
+
     def getmapsector(self, x, y):
-        return self.map['map']['sectors'][x][y]
+        return self.map['map']['sectors']['%d/%d' % (x, y)]
 
     def getmisc(self, key, *default):
         # can't use a None default here - use *args to detect no default

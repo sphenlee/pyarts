@@ -16,8 +16,8 @@ class Appearance(Component):
         self.renderer = renderer
 
     def configure(self, data):
-        img = data['sprite']
-        self.sprite = self.renderer.new_sprite(img)
+        self.sprite = self.renderer.new_sprite(data['sprite'], self.locator.r * 2)
+        self.portrait = data['portrait']
 
     def save(self):
         return {}

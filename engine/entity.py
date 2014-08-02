@@ -18,9 +18,20 @@ class Entity(object):
 
     def configure(self):
         ''' Loads shared data from the entity proto into each component '''
-        for name, comp in self.components.iteritems():
+        # do a basic bredth first traversal of the dependencies
+        # ignore cycles - not our problem!
+        def configureone(name):
+            comp = self.components[name]
+            if comp.configured:
+                return
+            for dep in comp.depends:
+                if dep[0] != '@':
+                    configureone(dep)
             tmp = self.proto.data.get(name)
             comp.configure(tmp)
+
+        for name in self.components.iterkeys():
+            configureone(name)
 
     def save(self):
         ''' Save each component '''

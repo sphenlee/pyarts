@@ -13,6 +13,7 @@ class Sprite(object):
         self.sprite.x = x
         self.sprite.y = y
 
+SPRITE_SIZE = 128
 
 class Renderer(object):
     def __init__(self, datasrc):
@@ -20,10 +21,11 @@ class Renderer(object):
         self.batch = pyglet.graphics.Batch()
         self.sprites = set()
 
-    def new_sprite(self, imgfile):
+    def new_sprite(self, imgfile, r):
         res = self.datasrc.getresource(imgfile)
         img = pyglet.image.load(res)
         gl = pyglet.sprite.Sprite(img, batch=self.batch)
+        gl.scale = float(r) / SPRITE_SIZE
         s = Sprite(gl)
         self.sprites.add(s)
         return s
