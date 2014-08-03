@@ -41,20 +41,24 @@ class TargetingMode(object):
     A mode used to select a target for an ability
     '''
 
-    def __init__(self, game, order):
+    def __init__(self, game, order, allowpos=True, allowent=True):
         self.game = game
         self.order = order
+        self.allowent = allowent
+        self.allowpos = allowpos
 
     def left_click_pos(self, x, y, add):
         ''' Select a position target '''
-        self.order.target = Target(self.game.engine.entities, (x, y))
-        self.game.order(self.order)
+        if self.allowpos:
+            self.order.target = Target(self.game.engine.entities, (x, y))
+            self.game.order(self.order)
         self.game.pop_mode()
 
     def left_click_ents(self, ents, add):
         ''' Select an entity target '''
-        self.order.target = Target(self.game.engine.entities, next(iter(ents)))
-        self.game.order(self.order)
+        if self.allowent:
+            self.order.target = Target(self.game.engine.entities, next(iter(ents)))
+            self.game.order(self.order)
         self.game.pop_mode()
 
     def right_click(self, x, y, ents, add):

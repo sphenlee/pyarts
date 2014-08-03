@@ -182,7 +182,7 @@ class Game(object):
         if ability.type == ability.INSTANT:
             self.order(order)
         elif ability.type == ability.TARGETED:
-            self.push_mode(TargetingMode(self, order))
+            self.push_mode(TargetingMode(self, order, allowpos=False))
         elif ability.type == ability.AREA_OF_EFFECT:
             self.push_mode(TargetingMode(self, order))
         elif ability.type == ability.STATIC:

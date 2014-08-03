@@ -62,7 +62,12 @@
                 "type" : "instant",
                 "name" : "HP Boost",
                 "description" : "Raises MaxHP by 10% for 30s",
-                "effect" : "function(me) print('Inside Lua boost' .. me) end",
+                "effect" : [
+                    "function(me, target)",
+                    "    print('Inside Lua boost' .. me)",
+                    "    print(target)",
+                    "end"
+                ],
                 "group" : true,
                 "cooldown" : 60,
                 "cost" : 100,
@@ -72,7 +77,12 @@
                 "type" : "targeted",
                 "name" : "Heal",
                 "description" : "Restores 100 HP to target unit",
-                "effect" : "function(me) print('Inside Lua boost' .. me) end",
+                "effect" : [
+                    "function(me, target)",
+                    "    print('Inside Lua heal' .. me)",
+                    "    print(target)",
+                    "end"
+                ],
                 "cooldown" : 60,
                 "cost" : 100,
                 "image" : "res/unit-pesant.png"

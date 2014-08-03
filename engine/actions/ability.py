@@ -35,6 +35,6 @@ class AbilityAction(object):
         if self.start:
             self.start()
 
-        self.ability.activate(self.ent.eid)
+        self.ability.activate(self.ent.eid, self.target)
 
         self.ent.actions.done()

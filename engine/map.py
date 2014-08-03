@@ -43,7 +43,9 @@ class Sector(object):
         return self.visible[x + y*SECTOR_SZ] & (1 << tid)
 
     def rendersetup(self, batch):
-        tiles = self.data['tiles']
+        tiles = self.data.get('tiles')
+        if tiles is None:
+            tiles = [0] * SECTOR_SZ * SECTOR_SZ
 
         vdata = array.array('f') # vertex data
         tdata = array.array('f') # terrain data
@@ -115,7 +117,12 @@ class Sector(object):
                 c = self.visible[ x      + (y + 1)*SECTOR_SZ] & tidmask != 0
                 d = self.visible[(x + 1) + (y + 1)*SECTOR_SZ] & tidmask != 0
 
-                ty, tx = self.map.fogofwar.gettile(a, b, c, d)
+                e = self.visited[ x      +  y     *SECTOR_SZ] & tidmask != 0
+                f = self.visited[(x + 1) +  y     *SECTOR_SZ] & tidmask != 0
+                g = self.visited[ x      + (y + 1)*SECTOR_SZ] & tidmask != 0
+                h = self.visited[(x + 1) + (y + 1)*SECTOR_SZ] & tidmask != 0
+
+                ty, tx = self.map.fogofwar.gettile(a, b, c, d, e, f, g, h)
                 tx = tx * TEX_SZ
                 ty = 1 - ty * TEX_SZ
                 fdata.extend([
@@ -144,7 +151,7 @@ class Map(object):
 
     
     def pos_to_sector(self, x, y):
-        return x & 1024, y & 1024
+        return (x >> 10), (y >> 10)
 
     def loadsector(self, x, y):
         if (x, y) not in self.sectors:
@@ -163,13 +170,12 @@ class Map(object):
         self.batch.draw()
 
     def place(self, locator):
-        sx, sy = self.pos_to_sector(locator.x, locator.y)
-        self.loadsector(sx, sy)
         self.locators.add(locator)
-        self.dirty.add((sx, sy))
+        self.move(locator)
 
     def move(self, locator):
         sx, sy = self.pos_to_sector(locator.x, locator.y)
+        self.loadsector(sx, sy)
         self.dirty.add((sx, sy))        
 
     def entities_in_rect(self, x1, y1, x2, y2):

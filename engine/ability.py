@@ -15,7 +15,10 @@ class Ability(object):
         self.name = data['name']
         self.description = data['description']
 
-        code = 'return ' + data['effect']
+        code = data['effect']
+        if isinstance(code, list):
+            code = '\n'.join(code)
+        code = 'return ' + code
         self.effect = lua.dostring(code)
         
         self.type = {
@@ -32,5 +35,12 @@ class Ability(object):
 
         self.image = data['image']
 
-    def activate(self, *args):
-        self.effect(*args)
+    def activate(self, me, target):
+        if self.type in (Ability.STATIC, Ability.INSTANT):
+            self.effect(me)
+        elif self.type == Ability.TARGETED:
+            if target.isent():
+                self.effect(me, target.eid)
+        elif self.type == Ability.AREA_OF_EFFECT:
+            x, y = target.getpos()
+            self.effect(me, x, y)
