@@ -14,6 +14,8 @@ class TextureGroup(pyglet.graphics.Group):
         gl.glColor4f(1, 1, 1, 1)
         gl.glEnable(self.tex.target)
         gl.glBindTexture(self.tex.target, self.tex.id)
+        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+        gl.glEnable(gl.GL_BLEND)
         #gl.glPolygonMode(gl.GL_FRONT_AND_BACK, gl.GL_LINE)
 
     def unset_state(self):

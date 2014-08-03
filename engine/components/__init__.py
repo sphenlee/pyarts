@@ -9,3 +9,4 @@ from .actions import *
 from .stats import *
 from .variables import *
 from .abilities import *
+from .maprevealer import *

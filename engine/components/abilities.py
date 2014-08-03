@@ -9,7 +9,6 @@ from ..actions import AbilityAction
 
 @register
 class Abilities(Component):
-    name = 'abilities'
     depends = [ '@content', 'actions' ]
 
     def inject(self, content, actions):

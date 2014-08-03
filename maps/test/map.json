@@ -11,7 +11,7 @@
         },
         "archer" : {
             "name" : "Archer",
-            "components" : ["locator", "appearance", "behaviour", "variables", "abilities"],
+            "components" : ["locator", "appearance", "behaviour", "variables", "abilities", "maprevealer"],
             "appearance" : {
                 "sprite" : "res/unit-archer.png",
                 "portrait" : "res/unit-archer.png"
@@ -22,7 +22,8 @@
             },
             "stats" : {
                 "maxhp" : 250,
-                "hgregen" : 2
+                "hgregen" : 2,
+                "sight" : 256
             },
             "abilities" : [ "boost", "heal" ]
         }
@@ -113,7 +114,8 @@
 
     "map" : {
         "tileset" : {
-            "texture" : "terrain_grass.png"
+            "texture" : "terrain_grass.png",
+            "fogofwar" : "fogofwar.png"
         },
         "sectors" : {
             "0/0" : {

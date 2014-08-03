@@ -12,7 +12,6 @@ from .component import Component, register
 
 @register
 class Actions(Component):
-    name = 'actions'
     depends = []
 
     def configure(self, data):

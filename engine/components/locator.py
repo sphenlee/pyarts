@@ -8,7 +8,6 @@ from .component import Component, register
 
 @register
 class Locator(Component):
-    name = 'locator'
     depends = ['@map']
 
     def inject(self, map):
@@ -16,6 +15,7 @@ class Locator(Component):
 
     def configure(self, data):
         self.r = data.get('r', 16)
+        self.sight = data.get('sight', 0)
 
     def save(self):
         return {
@@ -42,6 +42,7 @@ class Locator(Component):
         ''' Move the entity - an instant jump to the new location '''
         self.x = x
         self.y = y
+        self.map.move(self)
 
     def unplace(self):
         ''' Remove entity from the map (eg. picked up by a transport unit) '''

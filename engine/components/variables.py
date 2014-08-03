@@ -29,7 +29,6 @@ class Variable(object):
 
 @register
 class Variables(Component):
-    name = 'variables'
     depends = [ 'stats' ]
 
     def inject(self, stats):

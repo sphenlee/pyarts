@@ -1,19 +1,27 @@
 '''
 MapRevealer
 
-Component to reveal areas on the map.
-TODO - this might not be needed, locator can do it?
+Component to tie together the sight stat to the locator's sight property
 '''
 
 from .component import Component, register
 
 @register
 class MapRevealer(Component):
-    def configure(self, data):
-        pass
-    
-    def save(self):
-        return { }
+    depends = ['locator', 'stats']
 
+    def inject(self, locator, stats):
+        self.locator = locator
+        self.stats = stats
+
+    def configure(self, data):
+        self.locator.sight = self.stats['sight']
+    
     def load(self, data):
         pass
+
+    def step(self):
+        self.locator.sight = self.stats['sight']
+
+    def save(self):
+        return { }

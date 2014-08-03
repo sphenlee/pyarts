@@ -24,7 +24,6 @@ class StatusEffect(object):
 
 @register
 class Stats(Component):
-    name = 'stats'
     depends = []
 
     def configure(self, data):

@@ -52,6 +52,7 @@ class Component(object):
 _all_components = { }
 
 def register(cls):
+    cls.name = cls.__name__.lower()
     _all_components[cls.name] = cls
     return cls
 

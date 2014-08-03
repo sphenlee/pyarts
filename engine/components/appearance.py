@@ -8,7 +8,6 @@ from .component import Component, register
 
 @register
 class Appearance(Component):
-    name = 'appearance'
     depends = ['locator', '@renderer']
 
     def inject(self, locator, renderer):

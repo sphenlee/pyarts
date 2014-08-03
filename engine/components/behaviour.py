@@ -10,7 +10,6 @@ from ..actions import MoveAction#, AttackAction
 
 @register
 class Behaviour(Component):
-    name = 'behaviour'
     depends = ['actions', '@entitymanager']
 
     def inject(self, actions, entitymanager):
