@@ -4,7 +4,7 @@ FogOfWar
 
 import pyglet
 
-from ui.util import TextureGroup
+from .util import TextureGroup
 
 class FogOfWar(object):
     def __init__(self, datasrc):

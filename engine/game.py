@@ -11,18 +11,16 @@ from pyglet import gl
 
 
 from .engine import Engine
-from .camera import Camera
 from .player import Player
 from .order import *
 from .event import Event
 from .modes import *
 
 class Game(object):
-    def __init__(self, datasrc, localplayer=0):
+    def __init__(self, datasrc, localpid):
         self.datasrc = datasrc
-        self.localplayer = localplayer
+        self.localpid = localpid
         self.engine = Engine(datasrc)
-        self.camera = Camera()
         self.selection = []
         self.players = []
         self.cycle = 0
@@ -43,28 +41,12 @@ class Game(object):
             player.load(pdata)
             self.players.append(player)
 
-        data = self.datasrc.getmisc('game.initial.state')
-
-        look = data['camera'][str(self.localplayer)]
-        self.camera.lookx = look['x']
-        self.camera.looky = look['y']
-
     def save(self, sink):
         self.engine.save(sink)
 
         for p in self.players:
             data = p.save()
             sink.addplayer(data)
-
-        data = {
-            'camera' : {
-                self.localplayer : {
-                    'x' : self.camera.lookx,
-                    'y' : self.camera.looky,
-                }
-            }
-        }
-        sink.setmisc('game.initial.state', data)
 
     @property
     def mode(self):
@@ -89,7 +71,7 @@ class Game(object):
 
     def endturn(self):
         ''' Called to end the current turn '''
-        p = self.players[self.localplayer]
+        p = self.players[self.localpid]
         if not self.orderthisturn:
             self.orderthisturn = NoOrder()
 
@@ -119,7 +101,6 @@ class Game(object):
                 self.engine.entities.doorder(order)
 
     def render(self):
-        self.camera.setup()
         self.engine.render() # FIXME - engine should not have any graphics in it
 
         for eid in self.selection:

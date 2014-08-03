@@ -114,11 +114,9 @@
     ],
 
     "misc" : {
-        "game.initial.state" : {
-            "camera" : {
-                "0" : { "x" : 0, "y" : 0 },
-                "1" : { "x" : 0, "y" : 0 }
-            }
+        "camera.initial.position" : {
+            "0" : { "x" : 0, "y" : 0 },
+            "1" : { "x" : 0, "y" : 0 }
         }
     },
 

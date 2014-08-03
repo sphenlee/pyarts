@@ -10,6 +10,8 @@ from pyglet.window import key, mouse
 
 from .screen import Screen
 from .infopanel import InfoPanel
+from .camera import Camera
+from .maprenderer import MapRenderer
 from engine.datasource import DataSource
 from engine.datasink import DataSink
 from engine.game import Game
@@ -20,9 +22,13 @@ class GameScreen(Screen):
         savefile = 'maps/test/map_save.json'
         savefile = mapfile
         self.datasrc = DataSource(savefile, mapfile, mapfile)
-        self.game = Game(self.datasrc)
-        self.game.load()
+        self.game = Game(self.datasrc, localpid=0)
+        
+        tidmask = 1
+        self.mapren = MapRenderer(self.datasrc, self.game.engine.map, tidmask)
 
+        self.camera = Camera(self.mapren, localpid=0)
+        
         self.click = None
         self.dragbox = None
         self.dx = 0
@@ -30,10 +36,13 @@ class GameScreen(Screen):
 
         self.infopanel = InfoPanel(self.game, self.datasrc)
 
+        self.game.load()
+        self.camera.load(self.datasrc)
+
         pyglet.clock.schedule(self.update, 0.1)
 
     def update(self, dt, *args):
-        self.game.camera.move(self.dx, self.dy)
+        self.camera.move(self.dx, self.dy)
         self.game.step()
 
     def entities_at_point(self, x, y):
@@ -67,7 +76,7 @@ class GameScreen(Screen):
         '''
         if button & mouse.RIGHT:
             add = bool(mod & key.MOD_SHIFT)
-            x, y = self.game.camera.unproject((x, y))
+            x, y = self.camera.unproject((x, y))
             ents = self.entities_at_point(x, y)
             self.game.mode.right_click(x, y, ents, add)
         elif button & mouse.LEFT:
@@ -85,11 +94,11 @@ class GameScreen(Screen):
         '''
         if button & mouse.LEFT:
             add = bool(mod & key.MOD_SHIFT)
-            x, y = self.game.camera.unproject((x, y))
+            x, y = self.camera.unproject((x, y))
             if self.dragbox is not None:
                 # dragged
-                x1, y1 = self.game.camera.unproject(self.click)
-                x2, y2 = self.game.camera.unproject(self.dragbox)
+                x1, y1 = self.camera.unproject(self.click)
+                x2, y2 = self.camera.unproject(self.dragbox)
                 ents = self.entities_in_rect(x1, y1, x2, y2)
             else:
                 # no drag, just click
@@ -114,6 +123,7 @@ class GameScreen(Screen):
             mapfile = 'maps/test/map_save.json'
             sink = DataSink(mapfile)
             self.game.save(sink)
+            self.camera.save(sink)
             sink.commit()
             return True
         elif symbol in self.numbers:
@@ -128,6 +138,8 @@ class GameScreen(Screen):
         gl.glLoadIdentity()
         gl.gluOrtho2D(0, self.WIDTH, 0, self.HEIGHT)
 
+        self.camera.setup()
+        self.mapren.draw()
         self.game.render()
 
         gl.glMatrixMode(gl.GL_MODELVIEW)
