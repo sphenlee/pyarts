@@ -42,7 +42,8 @@ class GameScreen(Screen):
         pyglet.clock.schedule(self.update, 0.1)
 
     def update(self, dt, *args):
-        self.camera.move(self.dx, self.dy)
+        if self.dx or self.dy:
+            self.camera.move(self.dx, self.dy)
         self.game.step()
 
     def entities_at_point(self, x, y):
@@ -56,15 +57,15 @@ class GameScreen(Screen):
     def on_mouse_motion(self, x, y, dx, dy):
         ''' Mouse motion event - check for edge scrolling '''
         if x < 10:
-            self.dx = 5
-        elif x > self.WIDTH - 10:
             self.dx = -5
+        elif x > self.WIDTH - 10:
+            self.dx = +5
         else:
             self.dx = 0
         if y < 10:
-            self.dy = 5
-        elif y > self.HEIGHT - 10:
             self.dy = -5
+        elif y > self.HEIGHT - 10:
+            self.dy = +5
         else:
             self.dy = 0
 

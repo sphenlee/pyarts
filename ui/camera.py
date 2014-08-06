@@ -43,38 +43,40 @@ class Camera(object):
     def setup(self):
         gl.glMatrixMode(gl.GL_MODELVIEW)
         gl.glLoadIdentity()
-        gl.glTranslatef(self.lookx, self.looky, 0)
+        gl.glTranslatef(-self.lookx, -self.looky, 0)
 
     def move(self, dx, dy):
         self.lookx += dx
         self.looky += dy
 
+        print self.lookx, self.looky, dx, dy
+
         sec = self.mapren.looksector
 
         if self.lookx > SECTOR_SZ:
-            if sec.right:
+            if sec.neighbour[1, 0]:
                 self.lookx -= SECTOR_SZ
-                self.mapren.lookat(sec.right)
+                self.mapren.lookat(sec.neighbour[1, 0])
             else:
                 self.lookx = SECTOR_SZ
 
         elif self.lookx < 0:
-            if sec.left:
+            if sec.neighbour[-1, 0]:
                 self.lookx += SECTOR_SZ
-                self.mapren.lookat(sec.left)
+                self.mapren.lookat(sec.neighbour[-1, 0])
             else:
                 self.lookx = 0
 
         if self.looky > SECTOR_SZ:
-            if sec.up:
+            if sec.neighbour[0, 1]:
                 self.looky -= SECTOR_SZ
-                self.mapren.lookat(sec.up)
+                self.mapren.lookat(sec.neighbour[0, 1])
             else:
                 self.looky = SECTOR_SZ
 
         elif self.looky < 0:
-            if sec.down:
+            if sec.neighbour[0, -1]:
                 self.looky += SECTOR_SZ
-                self.mapren.lookat(sec.down)
+                self.mapren.lookat(sec.neighbour[0, -1])
             else:
                 self.looky = 0

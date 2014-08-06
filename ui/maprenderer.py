@@ -8,7 +8,7 @@ import pyglet
 from pyglet import gl
 
 from .fogofwar import FogOfWar
-from .util import TextureGroup
+from .util import TextureGroup, TranslateGroup
 
 from engine.map import SECTOR_SZ, VERTEX_SZ
 
@@ -22,7 +22,7 @@ class SectorRenderer(object):
 
         self.sector.onfogupdated.add(self.updatefog)
 
-    def rendersetup(self, batch):
+    def rendersetup(self, batch, dx, dy):
         tiles = self.sector.data.get('tiles')
         if tiles is None:
             tiles = [0] * SECTOR_SZ * SECTOR_SZ
@@ -57,14 +57,24 @@ class SectorRenderer(object):
                     tx + TEX_SZ, ty - TEX_SZ
                 ])
         
-        group = self.mapren.tileset_group
+        group = TranslateGroup(
+            dx * SECTOR_SZ * VERTEX_SZ,
+            dy * SECTOR_SZ * VERTEX_SZ,
+            parent=self.mapren.tileset_group
+        )
+
         self.terrain_vb = batch.add(SECTOR_SZ * SECTOR_SZ * 3 * 2,
             gl.GL_TRIANGLES, group, 'v2f', 't2f')
 
         self.terrain_vb.vertices = vdata
         self.terrain_vb.tex_coords = tdata
 
-        group = self.mapren.fogofwar.group
+        group = TranslateGroup(
+            dx * SECTOR_SZ * VERTEX_SZ,
+            dy * SECTOR_SZ * VERTEX_SZ,
+            parent=self.mapren.fogofwar.group
+        )
+
         self.fog_vb = batch.add(SECTOR_SZ * SECTOR_SZ * 3 * 2,
             gl.GL_TRIANGLES, group, 'v2f', 't2f')
 
@@ -111,16 +121,12 @@ class MapRenderer(object):
         self.map = map
         self.tidmask = tidmask
 
-        self.batch = pyglet.graphics.Batch()
-
         self.loadtileset()
 
         self.fogofwar = FogOfWar(datasrc)
 
         self.looksector = None # the sector being looked at
-        self.sectors = [] # at most 9 sectors should be loaded
-
-        map.onsectorloaded.add(self.sectorloaded)
+        self.renderers = [] # at most 9 sectors should be loaded
 
     def loadtileset(self):
         data = self.datasrc.gettileset()
@@ -129,13 +135,23 @@ class MapRenderer(object):
 
         self.tileset_group = TextureGroup(img.get_texture())
 
-    def sectorloaded(self, sector):
+    def setupsector(self, sector, dx, dy):
         sr = SectorRenderer(self, sector)
-        sr.rendersetup(self.batch)
-        self.sectors.append(sr)
+        sr.rendersetup(self.batch, dx, dy)
+        sr.updatefog()
+        self.renderers.append(sr)
 
     def lookat(self, sector):
+        # TODO don't reload every sector
+        
+        self.batch = pyglet.graphics.Batch()
         self.looksector = sector
+        self.renderers = []
+
+        print sector.neighbour
+        for (dx, dy), sec in sector.neighbour.items():
+            if sec:
+                self.setupsector(sec, dx, dy)
 
     def draw(self):
         self.batch.draw()

@@ -20,3 +20,17 @@ class TextureGroup(pyglet.graphics.Group):
 
     def unset_state(self):
         gl.glDisable(self.tex.target)
+
+class TranslateGroup(pyglet.graphics.Group):
+    def __init__(self, x, y, parent=None):
+        super(TranslateGroup, self).__init__(parent=parent)
+        self.x = x
+        self.y = y
+
+    def set_state(self):
+        gl.glPushMatrix()
+        gl.glMatrixMode(gl.GL_MODELVIEW)
+        gl.glTranslatef(self.x, self.y, 0)
+
+    def unset_state(self):
+        gl.glPopMatrix()

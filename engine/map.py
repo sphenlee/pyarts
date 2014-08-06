@@ -17,11 +17,11 @@ def distance2(x1, y1, x2, y2):
     return (x1 - x2)**2 + (y1 - y2)**2
 
 class Sector(object):
-    def __init__(self, map, x, y):
+    def __init__(self, map, sx, sy):
         self.map = map
-        self.x = x
-        self.y = y
-        self.data = map.datasrc.getmapsector(x, y)
+        self.sx = sx
+        self.sy = sy
+        self.data = map.datasrc.getmapsector(sx, sy)
 
         init = [0] * (SECTOR_SZ + 1) * (SECTOR_SZ + 1)
         self.visited = array.array('L', init)
@@ -29,20 +29,16 @@ class Sector(object):
 
         self.onfogupdated = Event()
 
-        # grab neighboring sectors
-        self.left  = self.map.sectors.get((x - 1, y    ))
-        self.up    = self.map.sectors.get((x    , y - 1))
-        self.down  = self.map.sectors.get((x    , y + 1))
-        self.right = self.map.sectors.get((x + 1, y    ))
-        # tell them about us
-        if self.left:
-            self.left.right = self
-        if self.right:
-            self.right.left = self
-        if self.up:
-            self.up.down = self
-        if self.down:
-            self.down.up = self
+        self.neighbour = {}
+
+    def initneighbours(self):
+        # grab neighbouring sectors
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                s = self.map.sectors.get((self.sx + dx, self.sy + dy))
+                self.neighbour[dx, dy] = s
+                if s:
+                    s.neighbour[-dx, -dy] = self
 
     def pointvisited(self, tid, pt):
         x, y = pt
@@ -62,7 +58,7 @@ class Sector(object):
             x, y, r = loc.x/VERTEX_SZ, loc.y/SECTOR_SZ, loc.sight/VERTEX_SZ
             for i in xrange(x-r, x+r):
                 for j in xrange(y-r, y+r):
-                    if 0 < i < SECTOR_SZ and 0 < j < SECTOR_SZ:
+                    if 0 <= i <= SECTOR_SZ and 0 <= j <= SECTOR_SZ:
                         if distance2(i, j, x, y) < r*r:
                             tid = loc.ent.team.tid
                             self.visible[i + j*SECTOR_SZ] |= (1 << tid)
@@ -86,8 +82,9 @@ class Map(object):
     def loadsector(self, sx, sy):
         if (sx, sy) not in self.sectors:
             s = Sector(self, sx, sy)
-            s.updatefog(self.locators)
             self.sectors[sx, sy] = s
+            s.initneighbours()
+            s.updatefog(self.locators)
             self.onsectorloaded.emit(s)
 
     def step(self):
