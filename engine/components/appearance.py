@@ -8,14 +8,14 @@ from .component import Component, register
 
 @register
 class Appearance(Component):
-    depends = ['locator', '@renderer']
+    depends = ['locator', '@sprites']
 
-    def inject(self, locator, renderer):
+    def inject(self, locator, sprites):
         self.locator = locator
-        self.renderer = renderer
+        self.sprites = sprites
 
     def configure(self, data):
-        self.sprite = self.renderer.new_sprite(data['sprite'], self.locator.r * 2)
+        self.sprite = self.sprites.new_sprite(data['sprite'], self.locator.r * 2)
         self.portrait = data['portrait']
 
     def save(self):

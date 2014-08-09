@@ -7,7 +7,7 @@ This includes the EntityManager, Map and the list of teams.
 from .map import Map
 from .entitymanager import EntityManager
 from .contentmanager import ContentManager
-from .renderer import Renderer
+from .spritemanager import SpriteManager
 from .team import Team
 from .scripting import setup
 
@@ -21,7 +21,7 @@ class Engine(object):
         self.entities = EntityManager(self)
         self.content = ContentManager(self)
 
-        self.renderer = Renderer(self.datasrc)
+        self.sprites = SpriteManager(self.datasrc)
 
         self.lua = lua.State()
         setup(self.lua)
@@ -51,7 +51,7 @@ class Engine(object):
         self.entities.step()
 
     def render(self):
-        self.renderer.draw()
+        self.sprites.draw()
 
     def getteam(self, tid):
         return self.teams[tid]

@@ -38,7 +38,7 @@ class Camera(object):
         sink.setmisc('camera.initial.position', data)
 
     def unproject(self, pos):
-        return (pos[0] - self.lookx, pos[1] - self.looky)
+        return (pos[0] + self.lookx, pos[1] + self.looky)
 
     def setup(self):
         gl.glMatrixMode(gl.GL_MODELVIEW)
@@ -48,8 +48,6 @@ class Camera(object):
     def move(self, dx, dy):
         self.lookx += dx
         self.looky += dy
-
-        print self.lookx, self.looky, dx, dy
 
         sec = self.mapren.looksector
 

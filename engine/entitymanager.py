@@ -72,7 +72,7 @@ class EntityManager(object):
                 cls(ent)
 
         globalcomponents = {
-            'renderer' : self.eng.renderer,
+            'sprites' : self.eng.sprites,
             'map' : self.eng.map,
             'datasrc' : self.eng.datasrc,
             'entitymanager' : self,

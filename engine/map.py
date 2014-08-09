@@ -10,25 +10,28 @@ import array
 
 from .event import Event
 
-SECTOR_SZ = 32 # the number of tiles in a sector
+NUM_TILES = 32 # the number of tiles in a sector
 VERTEX_SZ = 32 # the number of pixels per tile
+SECTOR_SZ = NUM_TILES * VERTEX_SZ
 
 def distance2(x1, y1, x2, y2):
     return (x1 - x2)**2 + (y1 - y2)**2
 
 class Sector(object):
     def __init__(self, map, sx, sy):
+        # general stuff
         self.map = map
         self.sx = sx
         self.sy = sy
         self.data = map.datasrc.getmapsector(sx, sy)
 
-        init = [0] * (SECTOR_SZ + 1) * (SECTOR_SZ + 1)
+        # fog info
+        init = [0] * (NUM_TILES + 1) * (NUM_TILES + 1)
         self.visited = array.array('L', init)
         self.visible = array.array('L', init)
-
         self.onfogupdated = Event()
 
+        # neighbour sectors
         self.neighbour = {}
 
     def initneighbours(self):
@@ -42,11 +45,11 @@ class Sector(object):
 
     def pointvisited(self, tid, pt):
         x, y = pt
-        return self.visited[x + y*SECTOR_SZ] & (1 << tid)
+        return self.visited[x + y*NUM_TILES] & (1 << tid)
 
     def pointvisible(self, tid, pt):
         x, y = pt
-        return self.visible[x + y*SECTOR_SZ] & (1 << tid)
+        return self.visible[x + y*NUM_TILES] & (1 << tid)
 
     def updatefog(self, locators):
         # clear visible data, needs to be recalculated from scratch
@@ -55,14 +58,14 @@ class Sector(object):
 
         # loop over locators and update visible and visited state
         for loc in locators:
-            x, y, r = loc.x/VERTEX_SZ, loc.y/SECTOR_SZ, loc.sight/VERTEX_SZ
+            x, y, r = loc.x/VERTEX_SZ, loc.y/VERTEX_SZ, loc.sight/VERTEX_SZ
             for i in xrange(x-r, x+r):
                 for j in xrange(y-r, y+r):
-                    if 0 <= i <= SECTOR_SZ and 0 <= j <= SECTOR_SZ:
+                    if 0 <= i <= NUM_TILES and 0 <= j <= NUM_TILES:
                         if distance2(i, j, x, y) < r*r:
                             tid = loc.ent.team.tid
-                            self.visible[i + j*SECTOR_SZ] |= (1 << tid)
-                            self.visited[i + j*SECTOR_SZ] |= (1 << tid)
+                            self.visible[i + j*NUM_TILES] |= (1 << tid)
+                            self.visited[i + j*NUM_TILES] |= (1 << tid)
 
         self.onfogupdated.emit()
 
@@ -80,12 +83,15 @@ class Map(object):
         return (x >> 10), (y >> 10)
 
     def loadsector(self, sx, sy):
-        if (sx, sy) not in self.sectors:
+        try:
+            return self.sectors[sx, sy]
+        except KeyError:
             s = Sector(self, sx, sy)
             self.sectors[sx, sy] = s
             s.initneighbours()
             s.updatefog(self.locators)
             self.onsectorloaded.emit(s)
+            return s
 
     def step(self):
         for sx, sy in self.dirty:
