@@ -160,5 +160,13 @@ class GameScreen(Screen):
             gl.glVertex2f(self.click[0],   self.click[1])
             gl.glEnd()
 
+        gl.glColor4f(0, 1, 1, 1)
+        gl.glBegin(gl.GL_QUADS)
+        gl.glVertex2f(-10, -10)
+        gl.glVertex2f( 10, -10)
+        gl.glVertex2f( 10,  10)
+        gl.glVertex2f(-10,  10)
+        gl.glEnd()
+
         return True
 

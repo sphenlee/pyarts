@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, '../pyglet')
+
 import pyglet
 
 from ui.mainmenu import MainMenu

@@ -3,6 +3,8 @@ MapRenderer
 '''
 
 import array
+import binascii
+import time
 
 import pyglet
 from pyglet import gl
@@ -10,7 +12,7 @@ from pyglet import gl
 from .fogofwar import FogOfWar
 from .util import TextureGroup, TranslateGroup
 
-from engine.map import NUM_TILES, VERTEX_SZ
+from engine.map import NUM_TILES, VERTEX_SZ, SECTOR_SZ
 
 TEX_SZ = 1 / 8.0 # the size of each tile in text units
 
@@ -22,10 +24,19 @@ class SectorRenderer(object):
 
         self.sector.onfogupdated.add(self.updatefog)
 
+    def cleanup(self):
+        self.sector.onfogupdated.remove(self.updatefog)
+
     def rendersetup(self, batch, dx, dy):
-        tiles = self.sector.data.get('tiles')
-        if tiles is None:
+        fname = self.sector.data.get('tiles')
+        if fname is None:
             tiles = [0] * NUM_TILES * NUM_TILES
+        else:
+            res = self.mapren.datasrc.getresource(fname)
+            with open(res) as fp:
+                tilesstr = binascii.unhexlify(fp.read().replace('\n', ''))
+                tiles = array.array('B')
+                tiles.fromstring(tilesstr)
 
         vdata = array.array('f') # vertex data
         tdata = array.array('f') # terrain data
@@ -58,8 +69,8 @@ class SectorRenderer(object):
                 ])
         
         group = TranslateGroup(
-            dx * NUM_TILES * VERTEX_SZ,
-            dy * NUM_TILES * VERTEX_SZ,
+            dx * SECTOR_SZ,
+            dy * SECTOR_SZ,
             parent=self.mapren.tileset_group
         )
 
@@ -70,8 +81,8 @@ class SectorRenderer(object):
         self.terrain_vb.tex_coords = tdata
 
         group = TranslateGroup(
-            dx * NUM_TILES * VERTEX_SZ,
-            dy * NUM_TILES * VERTEX_SZ,
+            dx * SECTOR_SZ,
+            dy * SECTOR_SZ,
             parent=self.mapren.fogofwar.group
         )
 
@@ -81,26 +92,31 @@ class SectorRenderer(object):
         self.fog_vb.vertices = vdata
 
     def updatefog(self):
+        start = time.time()
         tidmask = self.mapren.tidmask
         sec = self.sector
+        visible = sec.visible
+        visited = sec.visited
 
         fdata = array.array('f') # fog data
+
+        gettile = self.mapren.fogofwar.gettile
 
         # loop over the map and assign texture coords to create the
         # fog texture
         for y in xrange(NUM_TILES):
             for x in xrange(NUM_TILES):
-                a = sec.visible[ x      +  y     *NUM_TILES] & tidmask != 0
-                b = sec.visible[(x + 1) +  y     *NUM_TILES] & tidmask != 0
-                c = sec.visible[ x      + (y + 1)*NUM_TILES] & tidmask != 0
-                d = sec.visible[(x + 1) + (y + 1)*NUM_TILES] & tidmask != 0
+                a = visible[ x      +  y     *NUM_TILES] & tidmask != 0
+                b = visible[(x + 1) +  y     *NUM_TILES] & tidmask != 0
+                c = visible[ x      + (y + 1)*NUM_TILES] & tidmask != 0
+                d = visible[(x + 1) + (y + 1)*NUM_TILES] & tidmask != 0
 
-                e = sec.visited[ x      +  y     *NUM_TILES] & tidmask != 0
-                f = sec.visited[(x + 1) +  y     *NUM_TILES] & tidmask != 0
-                g = sec.visited[ x      + (y + 1)*NUM_TILES] & tidmask != 0
-                h = sec.visited[(x + 1) + (y + 1)*NUM_TILES] & tidmask != 0
+                e = visited[ x      +  y     *NUM_TILES] & tidmask != 0
+                f = visited[(x + 1) +  y     *NUM_TILES] & tidmask != 0
+                g = visited[ x      + (y + 1)*NUM_TILES] & tidmask != 0
+                h = visited[(x + 1) + (y + 1)*NUM_TILES] & tidmask != 0
 
-                ty, tx = self.mapren.fogofwar.gettile(a, b, c, d, e, f, g, h)
+                ty, tx = gettile(a, b, c, d, e, f, g, h)
                 tx = tx * TEX_SZ
                 ty = 1 - ty * TEX_SZ
                 fdata.extend([
@@ -112,7 +128,12 @@ class SectorRenderer(object):
                     tx + TEX_SZ, ty - TEX_SZ
                 ])
 
+        print 'updated fog renderer data, took %fs' % (time.time() - start)
+        start = time.time()
+
         self.fog_vb.tex_coords = fdata
+
+        print 'updated fog renderer gl, took %fs' % (time.time() - start)
 
 
 class MapRenderer(object):
@@ -126,7 +147,7 @@ class MapRenderer(object):
         self.fogofwar = FogOfWar(datasrc)
 
         self.looksector = None # the sector being looked at
-        self.renderers = [] # at most 9 sectors should be loaded
+        self.renderers = {}
 
     def loadtileset(self):
         data = self.datasrc.gettileset()
@@ -136,20 +157,24 @@ class MapRenderer(object):
         self.tileset_group = TextureGroup(img.get_texture())
 
     def setupsector(self, sector, dx, dy):
-        sr = SectorRenderer(self, sector)
+        try:
+            sr = self.renderers[sector.sx, sector.sy]
+        except KeyError:
+            sr = SectorRenderer(self, sector)
+            self.renderers[sector.sx, sector.sy] = sr
+
         sr.rendersetup(self.batch, dx, dy)
         sr.updatefog()
-        self.renderers.append(sr)
-
+            
     def lookat(self, sector):
         print 'lookat ', sector.sx, sector.sy
         # TODO don't reload every sector
         
         self.batch = pyglet.graphics.Batch()
         self.looksector = sector
-        self.renderers = []
 
         print sector.neighbour
+        self.setupsector(sector, 0, 0)
         for (dx, dy), sec in sector.neighbour.items():
             if sec:
                 self.setupsector(sec, dx, dy)

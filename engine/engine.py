@@ -17,7 +17,7 @@ class Engine(object):
     def __init__(self, datasrc):
         self.datasrc = datasrc
         self.teams = []
-        self.map = Map(datasrc)
+        self.map = Map(self)
         self.entities = EntityManager(self)
         self.content = ContentManager(self)
 
@@ -37,6 +37,7 @@ class Engine(object):
             self.teams.append(team)
 
         self.entities.load()
+        self.map.load()
 
 
     def save(self, sink):

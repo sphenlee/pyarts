@@ -16,20 +16,23 @@ class EntityManager(object):
         self.nextentid = 0
         self.entities = { } # entid -> entitiy
 
+        self.eng.map.onsectorloaded.add(self.sectorloaded)
+
     def get(self, eid):
         ''' Get an entity by ID '''
         return self.entities[eid]
 
     def load(self):
-        ''' Load all the entities '''
-        data = self.datasrc.getentities()
-        for eid, edata in data.iteritems():
-            team = self.eng.getteam(edata['team'])
-            proto = team.getproto(edata['proto'])
-            ent = self.create(proto, eid=int(eid))
-            ent.load(edata)
-
+        ''' Individual entities are loaded as the map loads sectors, juts grab misc data here '''
         self.nextentid = self.datasrc.getmisc('entities.nextentid', 1)
+
+    def loadentity(self, eid):
+        ''' Load a single entity by eid '''
+        data = self.datasrc.getentity(eid)
+        team = self.eng.getteam(data['team'])
+        proto = team.getproto(data['proto'])
+        ent = self.create(proto, eid=int(eid))
+        ent.load(data)
 
     def save(self, sink):
         ''' Save all the entities '''
@@ -97,6 +100,10 @@ class EntityManager(object):
 
         return ent
 
+    def sectorloaded(self, sec):
+        '''Load all the entities on the new sector'''
+        for eid in sec.data.get("entities", ()):
+            self.loadentity(eid)
 
     def step(self):
         ''' Step all entities '''

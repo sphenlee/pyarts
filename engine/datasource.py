@@ -24,8 +24,8 @@ class DataSource(object):
     def getcontent(self, type):
         return self.map['content'][type]
 
-    def getentities(self):
-        return self.save['entities']
+    def getentity(self, eid):
+        return self.save['entities'][str(eid)]
 
     def getteams(self):
         return self.save['teams']
@@ -35,6 +35,10 @@ class DataSource(object):
 
     def gettileset(self):
         return self.map['map']['tileset']
+
+    def getloadedsectors(self):
+        for xy in self.map['map']['loaded']:
+            yield tuple(map(int, xy.split('/')))
 
     def getmapsector(self, x, y):
         return self.map['map']['sectors']['%d/%d' % (x, y)]

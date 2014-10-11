@@ -36,6 +36,8 @@ class FogOfWar(object):
             return '0'
 
         s = x(a, e) + x(b, f) + x(c, g) + x(d, h)
+        if '1' in s and '2' in s and '0' in s:
+            s = s.replace('1', '2')
         try:
             idx = self.coords.index(s)
             return divmod(idx, 8)
