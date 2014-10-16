@@ -24,10 +24,8 @@ class SectorRenderer(object):
 
         self.sector.onfogupdated.add(self.updatefog)
 
-    def cleanup(self):
-        self.sector.onfogupdated.remove(self.updatefog)
+        self.batch = pyglet.graphics.Batch()
 
-    def rendersetup(self, batch, dx, dy):
         fname = self.sector.data.get('tiles')
         if fname is None:
             tiles = [0] * NUM_TILES * NUM_TILES
@@ -68,28 +66,34 @@ class SectorRenderer(object):
                     tx + TEX_SZ, ty - TEX_SZ
                 ])
         
-        group = TranslateGroup(
-            dx * SECTOR_SZ,
-            dy * SECTOR_SZ,
+        self.terrain_group = TranslateGroup(
+            0,
+            0,
             parent=self.mapren.tileset_group
         )
 
-        self.terrain_vb = batch.add(NUM_TILES * NUM_TILES * 3 * 2,
-            gl.GL_TRIANGLES, group, 'v2f', 't2f')
+        self.terrain_vb = self.batch.add(NUM_TILES * NUM_TILES * 3 * 2,
+            gl.GL_TRIANGLES, self.terrain_group, 'v2f', 't2f')
 
         self.terrain_vb.vertices = vdata
         self.terrain_vb.tex_coords = tdata
 
-        group = TranslateGroup(
-            dx * SECTOR_SZ,
-            dy * SECTOR_SZ,
+        self.fog_group = TranslateGroup(
+            0,
+            0,
             parent=self.mapren.fogofwar.group
         )
 
-        self.fog_vb = batch.add(NUM_TILES * NUM_TILES * 3 * 2,
-            gl.GL_TRIANGLES, group, 'v2f', 't2f')
+        self.fog_vb = self.batch.add(NUM_TILES * NUM_TILES * 3 * 2,
+            gl.GL_TRIANGLES, self.fog_group, 'v2f', 't2f')
 
         self.fog_vb.vertices = vdata
+
+    def rendersetup(self, dx, dy):
+        self.terrain_group.x = dx * SECTOR_SZ
+        self.terrain_group.y = dy * SECTOR_SZ
+        self.fog_group.x = dx * SECTOR_SZ
+        self.fog_group.y = dy * SECTOR_SZ
 
     def updatefog(self):
         start = time.time()
@@ -148,6 +152,7 @@ class MapRenderer(object):
 
         self.looksector = None # the sector being looked at
         self.renderers = {}
+        self.activerenderers = []
 
     def loadtileset(self):
         data = self.datasrc.gettileset()
@@ -162,15 +167,16 @@ class MapRenderer(object):
         except KeyError:
             sr = SectorRenderer(self, sector)
             self.renderers[sector.sx, sector.sy] = sr
+            sr.updatefog()
 
-        sr.rendersetup(self.batch, dx, dy)
-        sr.updatefog()
+        sr.rendersetup(dx, dy)
+        self.activerenderers.append(sr)
             
     def lookat(self, sector):
         print 'lookat ', sector.sx, sector.sy
-        # TODO don't reload every sector
+
+        del self.activerenderers[:]
         
-        self.batch = pyglet.graphics.Batch()
         self.looksector = sector
 
         print sector.neighbour
@@ -180,4 +186,6 @@ class MapRenderer(object):
                 self.setupsector(sec, dx, dy)
 
     def draw(self):
-        self.batch.draw()
+        for sr in self.activerenderers:
+            sr.batch.draw()
+
