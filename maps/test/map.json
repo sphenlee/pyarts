@@ -132,11 +132,12 @@
         }
     },
 
+    "tileset" : {
+        "texture" : "terrain_grass.png",
+        "fogofwar" : "fogofwar.png"
+    },        
+
     "map" : {
-        "tileset" : {
-            "texture" : "terrain_grass.png",
-            "fogofwar" : "fogofwar.png"
-        },
         "loaded" : ["0/0"],
         "sectors" : {
             "0/0" : {

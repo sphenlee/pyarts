@@ -16,13 +16,13 @@ class Player(object):
 
     def save(self):
         return {
-            "teams" : self.teams
+            "teams" : self.teams,
+            "type" : self.type
         }
 
     def load(self, data):
         self.teams = data["teams"]
         self.type = data["type"]
-
 
     def getorder(self, cycle):
         return self.orders[cycle & 0xFF]

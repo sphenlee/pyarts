@@ -12,16 +12,12 @@ from .screen import Screen
 from .infopanel import InfoPanel
 from .camera import Camera
 from .maprenderer import MapRenderer
-from engine.datasource import DataSource
-from engine.datasink import DataSink
 from engine.game import Game
 
 class GameScreen(Screen):
-    def pre_activate(self):
-        mapfile = 'maps/test/map.json'
-        savefile = 'maps/test/map_save.json'
-        savefile = mapfile
-        self.datasrc = DataSource(savefile, mapfile, mapfile)
+    def pre_activate(self, datasrc):
+        self.datasrc = datasrc
+
         self.game = Game(self.datasrc, localpid=0)
         
         tidmask = 1
@@ -40,6 +36,10 @@ class GameScreen(Screen):
         self.camera.load(self.datasrc)
 
         pyglet.clock.schedule(self.update, 0.5)
+
+    def save(self, datasink):
+        self.game.save(datasink)
+        self.camera.save(datasink)
 
     def update(self, dt, *args):
         if self.dx or self.dy:
@@ -130,6 +130,7 @@ class GameScreen(Screen):
         elif symbol in self.numbers:
             num = self.numbers.index(symbol)
             self.game.mode.ability(num)
+            return True
 
     def on_draw(self):
         ''' Draw all the things '''

@@ -14,6 +14,9 @@ class Screen(object):
     def pre_activate(self):
         '''Hook for subclasses - to avoid needing to use super...'''
 
-    def activate(self):
-        self.pre_activate()
+    def activate(self, *args, **kwargs):
+        self.pre_activate(*args, **kwargs)
         self.window.push_handlers(self)
+
+    def pause(self):
+        self.window.pop_handlers()

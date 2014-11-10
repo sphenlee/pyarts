@@ -102,7 +102,7 @@ class EntityManager(object):
 
     def sectorloaded(self, sec):
         '''Load all the entities on the new sector'''
-        for eid in sec.data.get("entities", ()):
+        for eid in sec.entities:
             self.loadentity(eid)
 
     def step(self):

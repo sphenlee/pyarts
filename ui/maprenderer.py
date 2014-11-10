@@ -26,7 +26,7 @@ class SectorRenderer(object):
 
         self.batch = pyglet.graphics.Batch()
 
-        fname = self.sector.data.get('tiles')
+        fname = self.sector.tiles
         if fname is None:
             tiles = [0] * NUM_TILES * NUM_TILES
         else:

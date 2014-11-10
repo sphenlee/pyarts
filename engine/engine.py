@@ -46,6 +46,7 @@ class Engine(object):
             sink.addteam(data)
 
         self.entities.save(sink)
+        self.map.save(sink)
 
     def step(self):
         self.map.step()

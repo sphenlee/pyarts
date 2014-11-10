@@ -34,14 +34,14 @@ class DataSource(object):
         return self.save['players']
 
     def gettileset(self):
-        return self.map['map']['tileset']
+        return self.map['tileset']
 
     def getloadedsectors(self):
-        for xy in self.map['map']['loaded']:
+        for xy in self.save['map']['loaded']:
             yield tuple(map(int, xy.split('/')))
 
     def getmapsector(self, x, y):
-        return self.map['map']['sectors']['%d/%d' % (x, y)]
+        return self.save['map']['sectors']['%d/%d' % (x, y)]
 
     def getmisc(self, key, *default):
         # can't use a None default here - use *args to detect no default

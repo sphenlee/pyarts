@@ -8,6 +8,7 @@ Right now also does rendering - this should be moved...
 
 import array
 import time
+import binascii
 
 from .event import Event
 
@@ -28,11 +29,25 @@ class Sector(object):
         self.map = map
         self.sx = sx
         self.sy = sy
-        self.data = map.datasrc.getmapsector(sx, sy)
+        
+        data = map.datasrc.getmapsector(sx, sy)
+
+        self.tiles = data['tiles']
+        self.entities = data.get('entities', ()) # this is bad - the value is eids and is not kept updated
 
         # fog info
-        init = [0] * (NUM_TILES + 1) * (NUM_TILES + 1)
-        self.visited = array.array('L', init)
+
+        init = '\0' * 8 * (NUM_TILES + 1) * (NUM_TILES + 1)
+
+        if 'visited' in data:
+            res = map.datasrc.getresource(data['visited'])
+            with open(res) as fp:
+                bindata = binascii.unhexlify(fp.read().replace('\n', ''))
+                self.visited = array.array('L')
+                self.visited.fromstring(bindata)
+        else:
+            self.visited = array.array('L', init)
+
         self.visible = array.array('L', init)
         self.onfogupdated = Event()
 
@@ -47,6 +62,18 @@ class Sector(object):
             if s:
                 s.neighbour[-dx, -dy] = self
 
+    def save(self, datasink):
+        data = binascii.hexlify(self.visited.tostring())
+        fname = 'visited_%d_%d.hex' % (self.sx, self.sy)
+        datasink.addresource(fname, data)
+
+        datasink.addmapsector(self.sx, self.sy, {
+                'visited' : fname,
+                'tiles' : self.tiles,
+                'entities' : [loc.ent.eid for loc in self.locators]
+            })
+
+
     def loadneighbours(self):
         ''' When a sector is occupied we need to ensure its neighbours are loaded'''
         for dx, dy in NEIGHBOURS:
@@ -54,7 +81,6 @@ class Sector(object):
             self.neighbour[dx, dy] = s
             if s:
                 s.neighbour[-dx, -dy] = self
-
 
     def place(self, locator):
         self.locators.add(locator)
@@ -84,6 +110,7 @@ class Sector(object):
 
         # loop over locators and update visible and visited state
         for loc in self.locators:
+            print loc.ent, loc.x, loc.y, loc.sight
             x = loc.x/VERTEX_SZ - self.sx*NUM_TILES
             y = loc.y/VERTEX_SZ - self.sy*NUM_TILES
             r = loc.sight/VERTEX_SZ
@@ -94,7 +121,7 @@ class Sector(object):
                             tid = loc.ent.team.tid
                             self.visible[i + j*NUM_TILES] |= (1 << tid)
                             self.visited[i + j*NUM_TILES] |= (1 << tid)
-        print 'updated fog, took %fs' % (time.time() - start)
+        print 'updated fog (%d,%d) took %fs' % (self.sx, self.sy, time.time() - start)
 
         self.onfogupdated.emit()
 
@@ -115,6 +142,12 @@ class Map(object):
     def load(self):
         for sx, sy in self.datasrc.getloadedsectors():
             self.loadsector(sx, sy)
+
+    def save(self, datasink):
+        for sec in self.sectors.itervalues():
+            sec.save(datasink)
+
+        datasink.setloadedsectors(self.sectors.iterkeys())
 
     def pos_to_sector(self, x, y):
         return (x >> 11), (y >> 11)
