@@ -15,8 +15,7 @@ class Locator(Component):
 
     def configure(self, data):
         self.r = data.get('r', 16)
-        self.sight = data.get('sight', 0)
-        self.sector = None
+        self.sight = data.get('sight', self.r + 16) # guess?
 
     def save(self):
         return {

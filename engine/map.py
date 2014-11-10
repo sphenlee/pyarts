@@ -57,15 +57,13 @@ class Sector(object):
 
 
     def place(self, locator):
-        oldsec = locator.sector
-        if oldsec:
-            oldsec.locators.discard(locator)
-            self.map.dirty.add(oldsec)
-
         self.locators.add(locator)
-        self.map.dirty.add(self)
-
         self.loadneighbours()
+
+    def unplace(self, locator):
+        self.locators.discard(locator)
+        if not self.occupied():
+            print 'sector is empty?'
 
     def occupied(self):
         return len(self.locators) > 0
@@ -108,6 +106,7 @@ class Map(object):
         self.sectors = { }
         self.dirty = set()
         self.locators = set()
+        self.placedon = { } # locator -> set(sectors)
 
         self.onsectorloaded = Event()
 
@@ -119,6 +118,9 @@ class Map(object):
 
     def pos_to_sector(self, x, y):
         return (x >> 11), (y >> 11)
+
+    def pos_to_sector_offset(self, x, y):
+        return (x & 0x7ff), (y & 0x7ff)
 
     def loadsector(self, sx, sy):
         try:
@@ -143,22 +145,55 @@ class Map(object):
 
     def place(self, locator):
         self.locators.add(locator)
+        self.placedon[locator] = set()
         self.move(locator)
 
     def move(self, locator):
         x, y = locator.x, locator.y
 
         sx, sy = self.pos_to_sector(x, y)
-        sec = self.loadsector(sx, sy)
-        sec.place(locator)
+        ox, oy = self.pos_to_sector_offset(x, y)
 
-        self.dirty.add(sec)
+        for sec in self.placedon[locator]:
+            sec.unplace(locator)
+            self.dirty.add(sec)
+        self.placedon[locator].clear()
+
+        def sectorplace(dx, dy):
+            sec = self.loadsector(sx + dx, sy + dy)
+            if sec:
+                sec.place(locator)
+                self.placedon[locator].add(sec)
+                self.dirty.add(sec)
+
+        # I just love this algorithm...
+        if ox - locator.sight < 0:
+            dx = -1
+        elif ox + locator.sight > SECTOR_SZ:
+            dx = 1
+        else:
+            dx = 0
+        if oy - locator.sight < 0:
+            dy = -1
+        elif oy + locator.sight > SECTOR_SZ:
+            dy = 1
+        else:
+            dy = 0
+
+        sectorplace(0, 0)
+        if dx:
+            sectorplace(dx, 0)
+        if dy:
+            sectorplace(0, dy)
+        if dx and dy:
+            sectorplace(dx, dy)
 
     def unplace(self, locator):
-        sec = locator.sector
-        if sec:
+        secs = self.placedon[locator]
+        for sec in secs:
             sec.locators.discard(locator)
             self.dirty.add(sec)
+        del self.placedon[locator]
 
     def entities_in_rect(self, x1, y1, x2, y2):
         # TODO eventually this can use spatial partitioning to speed it up
