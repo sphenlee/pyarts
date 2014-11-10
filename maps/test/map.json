@@ -107,12 +107,21 @@
                     }
                 }
             }
+        },
+        {
+            "tid" : 1,
+            "entityprotos" : {}
         }
     ],
 
     "players" : [
         {
-            "teams" : [0]
+            "teams" : [0],
+            "type" : "human"
+        },
+        {
+            "teams" : [1],
+            "type" : "passive"
         }
     ],
 

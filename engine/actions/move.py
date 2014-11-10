@@ -4,10 +4,9 @@ MoveAction
 Performs high level motion of an entity
 '''
 
-from .walk import WalkAction
+from .walk import WalkAction, distance
 
-def distance(p1, p2):
-    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+
 
 class MoveAction(object):
     ent = None

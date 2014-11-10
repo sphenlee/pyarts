@@ -87,18 +87,21 @@ class Game(object):
         the next turn, and then step the engine, finally we assign
         orders to entities
         '''
-        orders = [p.getorder(self.cycle) for p in self.players]
+        orders = [p.getorder(self.cycle) for p in self.players if p.type == Player.HUMAN]
         if not all(orders):
             print 'No Order for player in cycle %d' % self.cycle 
         else:
             self.endturn()
-            self.startturn()
-
+            
             self.engine.step()
 
             for p in self.players:
                 order = p.getorder(self.cycle)
-                self.engine.entities.doorder(order)
+                p.clearorder(self.cycle)
+                if order:
+                    self.engine.entities.doorder(order)
+
+            self.startturn()
 
     def render(self):
         self.engine.render() # FIXME - engine should not have any graphics in it

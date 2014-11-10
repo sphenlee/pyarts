@@ -39,7 +39,7 @@ class GameScreen(Screen):
         self.game.load()
         self.camera.load(self.datasrc)
 
-        pyglet.clock.schedule(self.update, 0.1)
+        pyglet.clock.schedule(self.update, 0.5)
 
     def update(self, dt, *args):
         if self.dx or self.dy:

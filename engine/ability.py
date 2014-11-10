@@ -6,10 +6,10 @@ They are bound to the buttons
 '''
 
 class Ability(object):
-    STATIC = 1
-    INSTANT = 2
-    TARGETED = 3
-    AREA_OF_EFFECT = 4
+    STATIC = 'static'            
+    INSTANT = 'instant'
+    TARGETED = 'targeted'
+    AREA_OF_EFFECT = 'area_of_effect'
 
     def __init__(self, data, lua):
         self.name = data['name']
@@ -21,12 +21,7 @@ class Ability(object):
         code = 'return ' + code
         self.effect = lua.dostring(code)
         
-        self.type = {
-            'static' : Ability.STATIC,
-            'instant' : Ability.INSTANT,
-            'targeted' : Ability.TARGETED,
-            'area_of_effect' : Ability.AREA_OF_EFFECT,
-        }[data['type']]
+        self.type = data['type']
 
         self.range = data.get('range', 0)
         self.group = data.get('group', False)

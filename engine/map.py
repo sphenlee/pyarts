@@ -146,7 +146,9 @@ class Map(object):
         self.move(locator)
 
     def move(self, locator):
-        sx, sy = self.pos_to_sector(locator.x, locator.y)
+        x, y = locator.x, locator.y
+
+        sx, sy = self.pos_to_sector(x, y)
         sec = self.loadsector(sx, sy)
         sec.place(locator)
 

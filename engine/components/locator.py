@@ -34,9 +34,9 @@ class Locator(Component):
 
     def place(self, x, y):
         ''' Put the entity onto the map '''
+        self.placed = True
         self.x = x
         self.y = y
-        self.placed = True
         self.map.place(self)
 
     def move(self, x, y):
@@ -44,7 +44,7 @@ class Locator(Component):
         self.x = x
         self.y = y
         self.map.move(self)
-
+        
     def unplace(self):
         ''' Remove entity from the map (eg. picked up by a transport unit) '''
         self.placed = False
