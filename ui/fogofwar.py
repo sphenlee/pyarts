@@ -3,6 +3,7 @@ FogOfWar
 '''
 
 import pyglet
+from pyglet.graphics import OrderedGroup
 
 from .util import TextureGroup
 
@@ -13,7 +14,8 @@ class FogOfWar(object):
 
         self.img = pyglet.image.load(res)
 
-        self.group = TextureGroup(self.img.get_texture())
+        self.tex = self.img.get_texture()
+
 
     coords = [
         '0000', '0002', '0022', '0020', '0202', '2220', '2202', '2020',
@@ -26,18 +28,15 @@ class FogOfWar(object):
         '1111', '0100', '1100', '1000', '0110', '1011', '0111', '1001'
     ]
 
-    def gettile(self, a, b, c, d, e, f, g, h):
+    def gettile(self, a, b, c, d):
         # no, I'm not trying to obfuscate this code...
-        def x(j, k):
+        def x(j):
             if j:
                 return '2'
-            if k:
-                return '1'
             return '0'
 
-        s = x(a, e) + x(b, f) + x(c, g) + x(d, h)
-        if '1' in s and '2' in s and '0' in s:
-            s = s.replace('1', '2')
+        s = x(a) + x(b) + x(c) + x(d)
+        
         try:
             idx = self.coords.index(s)
             return divmod(idx, 8)

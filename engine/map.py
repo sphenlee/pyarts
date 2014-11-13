@@ -12,8 +12,8 @@ import binascii
 
 from .event import Event
 
-NUM_TILES = 64 # the number of tiles in a sector
-VERTEX_SZ = 32 # the number of pixels per tile
+NUM_TILES = 32 # the number of tiles in a sector
+VERTEX_SZ = 64 # the number of pixels per tile
 SECTOR_SZ = NUM_TILES * VERTEX_SZ
 
 NEIGHBOURS = [ (-1, -1), (0, -1), (1, -1),
