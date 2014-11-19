@@ -117,8 +117,6 @@ class SectorRenderer(object):
         fdata1 = array.array('f') # fog data
         fdata2 = array.array('f') # fog data
 
-        gettile = self.mapren.fogofwar.gettile
-
         # loop over the map and assign texture coords to create the
         # fog texture
         for y in xrange(NUM_TILES):
@@ -133,9 +131,9 @@ class SectorRenderer(object):
                 g = visited[ x      + (y + 1)*NUM_TILES] & tidmask != 0
                 h = visited[(x + 1) + (y + 1)*NUM_TILES] & tidmask != 0
 
-                ty, tx = gettile(a, b, c, d)
-                tx = tx * TEX_SZ
-                ty = 1 - (ty + 2) * TEX_SZ
+                tx = (4*b + 2*c + d) * TEX_SZ
+                ty = 1 - (a + 2) * TEX_SZ
+                
                 fdata1.extend([
                     tx, ty,
                     tx + TEX_SZ, ty - TEX_SZ,
@@ -145,9 +143,9 @@ class SectorRenderer(object):
                     tx + TEX_SZ, ty - TEX_SZ
                 ])
 
-                ty, tx = gettile(e, f, g, h)
-                tx = tx * TEX_SZ
-                ty = 1 - ty * TEX_SZ
+                tx = (4*f + 2*g + h) * TEX_SZ
+                ty = 1 - e * TEX_SZ
+                
                 fdata2.extend([
                     tx, ty,
                     tx + TEX_SZ, ty - TEX_SZ,

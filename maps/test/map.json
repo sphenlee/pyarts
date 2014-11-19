@@ -103,7 +103,8 @@
                     },
                     "locator" : { "r" : 32 },
                     "stats" : {
-                        "sight" : 256
+                        "sight" : 256,
+                        "speed" : 1
                     }
                 }
             }
