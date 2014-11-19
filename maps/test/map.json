@@ -2,7 +2,7 @@
     "entityprotos" : {
         "peasant" : {
             "name" : "Peasant",
-            "components" : ["locator", "appearance"],
+            "components" : ["steering", "appearance"],
             "appearance" : {
                 "sprite" : "res/unit-pesant.png",
                 "portrait" : "res/unit-pesant.png"
@@ -11,7 +11,7 @@
         },
         "archer" : {
             "name" : "Archer",
-            "components" : ["locator", "appearance", "behaviour", "variables", "abilities", "maprevealer"],
+            "components" : ["steering", "appearance", "behaviour", "variables", "abilities", "maprevealer"],
             "appearance" : {
                 "sprite" : "res/unit-archer.png",
                 "portrait" : "res/unit-archer.png"
@@ -96,7 +96,7 @@
             "entityprotos" : {
                 "peasant" : {
                     "name" : "Peasant Upgraded",
-                    "components" : ["locator", "appearance", "behaviour", "maprevealer"],
+                    "components" : ["steering", "appearance", "behaviour", "maprevealer"],
                     "appearance" : {
                         "sprite" : "res/unit-pesant.png",
                         "portrait" : "res/unit-pesant.png"

@@ -29,13 +29,13 @@ class Component(object):
         Load data from the entity's proto - shared by all
         entities of this type
         '''
-        raise NotImplemented()
+        raise NotImplementedError
 
     def load(self):
         '''
         Load entity specific data
         '''
-        raise NotImplemented()
+        raise NotImplementedError
 
     def step(self):
         ''' Step the component - called one each turn '''
@@ -46,7 +46,7 @@ class Component(object):
         Save the component's state - the data returned here will
         be passed to the load method when the game is loaded
         '''
-        raise NotImplemented()
+        raise NotImplementedError
 
 
 _all_components = { }

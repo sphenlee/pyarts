@@ -4,9 +4,10 @@ AbilityAction
 High level action for getting an entity to do an action
 '''
 
+from .action import Action
 from .move import MoveAction, distance
 
-class AbilityAction(object):
+class AbilityAction(Action):
     ent = None
 
     def __init__(self, ability, target=None, start=None):

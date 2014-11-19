@@ -31,8 +31,12 @@ class Actions(Component):
     def give(self, action):
         ''' Pause the current action and do this action first '''
         action.ent = self.ent
+        if self.queue:
+            self.queue[-1].suspend()
         self.queue.append(action)
+        action.start()
 
     def done(self):
         ''' Current action is finished, remove it '''
+        self.queue[-1].stop()
         self.queue.pop()

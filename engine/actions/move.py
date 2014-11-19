@@ -4,11 +4,11 @@ MoveAction
 Performs high level motion of an entity
 '''
 
+from .action import Action
 from .walk import WalkAction, distance
 
 
-
-class MoveAction(object):
+class MoveAction(Action):
     ent = None
 
     def __init__(self, target, range=10, follow=True):
@@ -21,8 +21,6 @@ class MoveAction(object):
 
         pos = self.target.getpos()
         me = self.ent.locator.pos()
-
-        print pos, me, distance(me, pos)
 
         if distance(me, pos) > self.range:
             walk = WalkAction(pos)

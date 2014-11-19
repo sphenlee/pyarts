@@ -110,7 +110,7 @@ class Sector(object):
 
         # loop over locators and update visible and visited state
         for loc in self.locators:
-            print loc.ent, loc.x, loc.y, loc.sight
+            #print loc.ent, loc.x, loc.y, loc.sight
             x = loc.x/VERTEX_SZ - self.sx*NUM_TILES
             y = loc.y/VERTEX_SZ - self.sy*NUM_TILES
             r = loc.sight/VERTEX_SZ
@@ -121,7 +121,7 @@ class Sector(object):
                             tid = loc.ent.team.tid
                             self.visible[i + j*NUM_TILES] |= (1 << tid)
                             self.visited[i + j*NUM_TILES] |= (1 << tid)
-        print 'updated fog (%d,%d) took %fs' % (self.sx, self.sy, time.time() - start)
+        #print 'updated fog (%d,%d) took %fs' % (self.sx, self.sy, time.time() - start)
 
         self.onfogupdated.emit()
 
@@ -170,7 +170,7 @@ class Map(object):
 
     def step(self):
         self.n += 1
-        if self.n % 10:
+        if self.n % 50:
             for sec in self.dirty:
                 sec.updatefog()
 

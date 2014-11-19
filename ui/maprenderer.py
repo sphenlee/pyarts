@@ -157,13 +157,13 @@ class SectorRenderer(object):
                     tx + TEX_SZ, ty - TEX_SZ
                 ])
 
-        print 'updated fog renderer data, took %fs' % (time.time() - start)
+        #print 'updated fog renderer data, took %fs' % (time.time() - start)
         start = time.time()
 
         self.fog1_vb.tex_coords = fdata1
         self.fog2_vb.tex_coords = fdata2
 
-        print 'updated fog renderer gl, took %fs' % (time.time() - start)
+        #print 'updated fog renderer gl, took %fs' % (time.time() - start)
 
 
 class MapRenderer(object):

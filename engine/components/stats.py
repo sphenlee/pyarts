@@ -86,3 +86,6 @@ class Stats(Component):
     def __getitem__(self, key):
         ''' Lookup a stat by name '''
         return self.stats[key]
+
+    def get(self, key, default=None):
+        return self.stats.get(key, default)
