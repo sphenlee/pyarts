@@ -119,7 +119,7 @@ class EntityManager(object):
             for eid in order.ents:
                 ent = self.get(eid)
                 if ent.has('behaviour'):
-                    ent.behaviour.autocommand(order.target)
+                    ent.behaviour.autocommand(order.target, order.add)
 
         elif order.type == Order.ABILITY:
             for eid in order.ents:

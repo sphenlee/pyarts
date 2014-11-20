@@ -131,10 +131,10 @@ class Game(object):
         self.selection.extend(ents)
         self.onselectionchange.emit()
 
-    def autocommand(self, target):
+    def autocommand(self, target, add):
         ''' Give an autocommand on target to the selected entities '''
         if self.selection:
-            self.order(AutoCommandOrder(self.selection, target))
+            self.order(AutoCommandOrder(self.selection, target, add))
 
     def ability(self, idx):
         ''' Do the ability at idx for the currently selected entities '''

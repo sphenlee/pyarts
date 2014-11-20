@@ -27,7 +27,7 @@ class NormalMode(object):
         else:
             target = Target(self.game.engine.entities, (x, y))
 
-        self.game.autocommand(target)
+        self.game.autocommand(target, add)
 
     def ability(self, idx):
         self.game.ability(idx)

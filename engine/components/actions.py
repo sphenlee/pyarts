@@ -29,14 +29,38 @@ class Actions(Component):
             self.queue[-1].step()
 
     def give(self, action):
-        ''' Pause the current action and do this action first '''
+        ''' Cancel all actions and do this instead '''
         action.ent = self.ent
+
         if self.queue:
             self.queue[-1].suspend()
+            for ac in self.queue:
+                ac.stop()
+
+        del self.queue[:]
+
         self.queue.append(action)
         action.start()
+
+    def now(self, action):
+        ''' Pause the current action and do this action first '''
+        action.ent = self.ent
+        
+        if self.queue:
+            self.queue[-1].suspend()
+        
+        self.queue.append(action)
+        action.start()
+
+    def later(self, action):
+        ''' Do this action once all other actions are done '''
+        action.ent = self.ent
+        
+        self.queue.insert(0, action)
 
     def done(self):
         ''' Current action is finished, remove it '''
         self.queue[-1].stop()
         self.queue.pop()
+        if self.queue:
+            self.queue[-1].start()

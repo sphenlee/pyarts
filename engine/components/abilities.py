@@ -46,7 +46,7 @@ class Abilities(Component):
             ''' TODO - there might be a nicer way to do this '''
             self.cooldowns[idx] = ability.cooldown
         action = AbilityAction(ability, target, start)
-        self.actions.give(action)
+        self.actions.now(action)
         return True
 
     def __getitem__(self, idx):

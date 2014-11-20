@@ -27,7 +27,7 @@ class Behaviour(Component):
     def load(self, data):
         self.type = data['type']
 
-    def autocommand(self, target):
+    def autocommand(self, target, add):
         '''
         Decide based on the target and this entity
         what the appropriate action is
@@ -41,4 +41,7 @@ class Behaviour(Component):
             ent = self.entities.get(target.eid)
             action = MoveAction(target)
 
-        self.actions.give(action)
+        if add:
+            self.actions.later(action)
+        else:
+            self.actions.give(action)

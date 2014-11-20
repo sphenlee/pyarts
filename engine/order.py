@@ -16,9 +16,10 @@ class NoOrder(Order):
         Order.__init__(self, Order.NONE, None)
 
 class AutoCommandOrder(Order):
-    def __init__(self, ents, target):
+    def __init__(self, ents, target, add):
         Order.__init__(self, Order.AUTOCOMMAND, ents)
         self.target = target
+        self.add = add
 
 class AbilityOrder(Order):
     def __init__(self, ents, idx):
