@@ -33,6 +33,13 @@ class Sector(object):
     '''
     A sector is a piece of the map
     '''
+
+    # constants for walkmap
+    WALK_GROUND = 0x01
+    WALK_SEA = 0x02
+    WALK_AIR = 0x04
+    WALK_FOOT = 0x08
+
     def __init__(self, map, sx, sy):
         # general stuff
         self.map = map
@@ -104,6 +111,16 @@ class Sector(object):
         self.locators.discard(locator)
         if not self.occupied():
             print 'sector is empty?'
+
+    def footprint(self, loc):
+        x = loc.x/VERTEX_SZ - self.sx*NUM_TILES
+        y = loc.y/VERTEX_SZ - self.sy*NUM_TILES
+        r = loc.r/VERTEX_SZ
+        for i in xrange(x-r, x+r):
+            for j in xrange(y-r, y+r):
+                if 0 <= i <= NUM_TILES and 0 <= j <= NUM_TILES:
+                    if distance2(i, j, x, y) < r*r:
+                        self.walkmap[i + j*NUM_TILES] |= Sector.WALK_FOOT
 
     def occupied(self):
         return len(self.locators) > 0

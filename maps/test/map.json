@@ -26,6 +26,18 @@
                 "sight" : 256
             },
             "abilities" : [ "boost", "heal" ]
+        },
+        "townhall" : {
+            "name" : "Town Hall",
+            "components" : ["appearance", "behaviour", "maprevealer", "footprint"],
+            "appearance" : {
+                "sprite" : "res/bldg-townhall.png",
+                "portrait" : "res/bldg-townhall.png"
+            },
+            "locator" : { "r" : 128 },
+            "stats" : {
+                "sight" : 1024
+            }
         }
     },
 
@@ -53,6 +65,14 @@
                 "x" : 150, "y" : 150, "placed" : true
             },
             "behaviour" : { "type" : "unit" }
+        },
+        "4" : {
+            "team" : 0,
+            "proto" : "townhall",
+            "locator" : {
+                "x" : 300, "y" : 300, "placed" : true
+            },
+            "behaviour" : { "type" : "building" }
         }
     },
 
@@ -143,7 +163,7 @@
         "sectors" : {
             "0/0" : {
                 "tiles" : "tiles.hex",
-                "entities" : [1, 2, 3]
+                "entities" : [1, 2, 3, 4]
             },
             "0/1" : {
                 "tiles" : "tiles.hex"

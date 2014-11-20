@@ -54,7 +54,7 @@ class Map(object):
 
     def step(self):
         self.n += 1
-        if self.n % 50:
+        if self.n % 200:
             for sec in self.dirty:
                 sec.updatefog()
 
@@ -111,6 +111,12 @@ class Map(object):
             sec.locators.discard(locator)
             self.dirty.add(sec)
         del self.placedon[locator]
+
+    def footprint(self, locator):
+        secs = self.placedon[locator]
+        for sec in secs:
+            sec.footprint(locator)
+
 
     def entities_in_rect(self, x1, y1, x2, y2):
         # TODO eventually this can use spatial partitioning to speed it up

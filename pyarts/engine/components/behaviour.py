@@ -32,16 +32,19 @@ class Behaviour(Component):
         Decide based on the target and this entity
         what the appropriate action is
         '''
-        if target.ispos():
-            # move to the target position
-            action = MoveAction(target)
-        else:
-            # TODO - check if the entity is friend or enemy (Follow, Attack,
-            # or all of the other possible actions)
-            ent = self.entities.get(target.eid)
-            action = MoveAction(target)
+        if self.type == 'unit':
+            if target.ispos():
+                # move to the target position
+                action = MoveAction(target)
+            else:
+                # TODO - check if the entity is friend or enemy (Follow, Attack,
+                # or all of the other possible actions)
+                ent = self.entities.get(target.eid)
+                action = MoveAction(target)
 
-        if add:
-            self.actions.later(action)
+            if add:
+                self.actions.later(action)
+            else:
+                self.actions.give(action)
         else:
-            self.actions.give(action)
+            print 'building auto command', self, target, add
