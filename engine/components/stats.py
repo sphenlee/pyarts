@@ -20,7 +20,7 @@ class StatusEffect(object):
 
     def apply(self, stats):
         ''' Apply this effect '''
-        stats[self.name] = stats[self.name] * mult + add
+        stats[self.name] = stats[self.name] * self.mult + self.add
 
 @register
 class Stats(Component):

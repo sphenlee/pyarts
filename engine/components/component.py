@@ -7,6 +7,8 @@ Methods are in lifecycle order.
 '''
 
 class Component(object):
+    name = 'noname' # overriden by register function
+
     def __init__(self, ent):
         self.ent = ent
         self.ent.components[self.name] = self
