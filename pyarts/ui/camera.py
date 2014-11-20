@@ -7,7 +7,7 @@ How the user looks at the game world
 from pyglet import gl
 
 from .screen import Screen
-from engine.map import SECTOR_SZ
+from ..engine.map import SECTOR_SZ
 
 class Camera(object):
     def __init__(self, mapren, localpid):

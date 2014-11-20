@@ -7,8 +7,8 @@ from pyglet.window import key
 
 from .screen import Screen
 from .gamescreen import GameScreen
-from engine.datasource import DataSource
-from engine.datasink import DataSink
+from ..engine.datasource import DataSource
+from ..engine.datasink import DataSink
 
 mapfile = 'maps/test/map.json'
 savefile = 'maps/test/map_save.json'

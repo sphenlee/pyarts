@@ -4,7 +4,7 @@ Scripting
 Various functions that get exposed to Lua
 '''
 
-from lua import lua
+from .. import lua
 
 @lua.func
 def print_(*args):

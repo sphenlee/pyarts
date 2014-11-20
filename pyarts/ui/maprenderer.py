@@ -13,7 +13,7 @@ from pyglet.graphics import OrderedGroup
 from .fogofwar import FogOfWar
 from .util import TextureGroup, TranslateGroup
 
-from engine.sector import NUM_TILES, VERTEX_SZ, SECTOR_SZ
+from ..engine.sector import NUM_TILES, VERTEX_SZ, SECTOR_SZ
 
 TEX_SZ = 1 / 8.0 # the size of each tile in tex units
 

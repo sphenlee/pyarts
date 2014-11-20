@@ -11,7 +11,7 @@ from .spritemanager import SpriteManager
 from .team import Team
 from .scripting import setup
 
-import lua
+from .. import lua
 
 class Engine(object):
     def __init__(self, datasrc):

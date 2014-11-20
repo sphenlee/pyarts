@@ -12,7 +12,7 @@ from .screen import Screen
 from .infopanel import InfoPanel
 from .camera import Camera
 from .maprenderer import MapRenderer
-from engine.game import Game
+from ..engine.game import Game
 
 class GameScreen(Screen):
     def pre_activate(self, datasrc):
