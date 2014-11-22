@@ -5,7 +5,7 @@ Holds the state of the terrain and fog-of-war.
 '''
 
 from .event import Event
-from .sector import Sector, SECTOR_SZ
+from .sector import Sector, SECTOR_SZ, VERTEX_SZ
 
 
 class Map(object):
@@ -32,10 +32,22 @@ class Map(object):
 
         datasink.setloadedsectors(self.sectors.iterkeys())
 
+    def pos_to_cell(self, x, y):
+        return (x/VERTEX_SZ, y/VERTEX_SZ)
+
+    def cell_to_pos(self, x, y):
+        return (x*VERTEX_SZ, y*VERTEX_SZ)
+
     def pos_to_sector(self, x, y):
         return (x >> 11), (y >> 11)
 
-    def pos_to_sector_offset(self, x, y):
+    def cell_to_sector(self, x, y):
+        return (x >> 5), (y >> 5)
+
+    def cell_to_offset(self, x, y):
+        return (x & 0x1f), (y &0x1f)
+
+    def pos_to_offset(self, x, y):
         return (x & 0x7ff), (y & 0x7ff)
 
     def loadsector(self, sx, sy):
@@ -55,6 +67,10 @@ class Map(object):
         sx, sy = self.pos_to_sector(x, y)
         return self.sectors.get((sx, sy))
 
+    def sector_at_cell(self, x, y):
+        sx, sy = self.cell_to_sector(x, y)
+        return self.sectors.get((sx, sy))
+
     def step(self):
         self.n += 1
         if self.n % 200:
@@ -72,7 +88,7 @@ class Map(object):
         x, y = locator.x, locator.y
 
         sx, sy = self.pos_to_sector(x, y)
-        ox, oy = self.pos_to_sector_offset(x, y)
+        ox, oy = self.pos_to_offset(x, y)
 
         for sec in self.placedon[locator]:
             sec.unplace(locator)

@@ -37,11 +37,13 @@ class Steering(Component):
         cur = self.locator.pos()
 
         dx, dy = pos[0] - cur[0], pos[1] - cur[1]
-        s = sqrt(dx*dx + dy*dy) / self.stats.get('speed', 8)
+        d = sqrt(dx*dx + dy*dy)
 
-        if s:
-            self.dx = int(dx / s)
-            self.dy = int(dy / s)
+        if d:
+            s = min(d, self.stats.get('speed', 8)) / d
+        
+            self.dx = int(dx * s)
+            self.dy = int(dy * s)
         else:
             self.stop()
 

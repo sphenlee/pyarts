@@ -38,7 +38,7 @@ class Moving(Component):
         self.steering.towards(pt)
 
         d = distance(pt, self.locator.pos())
-        if d < 10:
+        if d < 2:
             self.waypoints.pop()
 
     def save(self):

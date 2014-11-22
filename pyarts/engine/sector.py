@@ -4,6 +4,8 @@ Sector
 A piece of the map
 '''
 
+from __future__ import division
+
 import array
 import binascii
 import time
@@ -113,30 +115,29 @@ class Sector(object):
             print 'sector is empty?'
 
     def footprint(self, loc):
-        x = loc.x/VERTEX_SZ - self.sx*NUM_TILES
-        y = loc.y/VERTEX_SZ - self.sy*NUM_TILES
-        r = loc.r/VERTEX_SZ
+        x = int(loc.x/VERTEX_SZ + 0.5) - self.sx*NUM_TILES
+        y = int(loc.y/VERTEX_SZ + 0.5) - self.sy*NUM_TILES
+        r = int(loc.r/VERTEX_SZ + 0.5)
         for i in xrange(x-r, x+r):
             for j in xrange(y-r, y+r):
                 if 0 <= i <= NUM_TILES and 0 <= j <= NUM_TILES:
-                    if distance2(i, j, x, y) < r*r:
-                        self.walkmap[i + j*NUM_TILES] |= Sector.WALK_FOOT
+                    #if distance2(i, j, x, y) <= r*r:
+                    self.walkmap[i + j*NUM_TILES] |= Sector.WALK_FOOT
 
     def occupied(self):
         return len(self.locators) > 0
 
-    def pointvisited(self, tid, pt):
+    def cellvisited(self, tid, pt):
         x, y = pt
-        return self.visited[x/VERTEX_SZ + y/VERTEX_SZ*NUM_TILES] & (1 << tid)
+        return self.visited[x + y*NUM_TILES] & (1 << tid)
 
-    def pointvisible(self, tid, pt):
+    def cellvisible(self, tid, pt):
         x, y = pt
-        return self.visible[x/VERTEX_SZ + y/VERTEX_SZ*NUM_TILES] & (1 << tid)
+        return self.visible[x + y*NUM_TILES] & (1 << tid)
 
-    def pointwalkable(self, walk, pt):
+    def cellwalkable(self, walk, pt):
         x, y = pt
-        print 'walkable', x/VERTEX_SZ, y/VERTEX_SZ
-        return (self.walkmap[x/VERTEX_SZ + y/VERTEX_SZ*NUM_TILES] & walk) == 0
+        return (self.walkmap[x + y*NUM_TILES] & walk) == 0
 
     def updatefog(self):
         start = time.time()
@@ -147,9 +148,9 @@ class Sector(object):
         # loop over locators and update visible and visited state
         for loc in self.locators:
             #print loc.ent, loc.x, loc.y, loc.sight
-            x = loc.x/VERTEX_SZ - self.sx*NUM_TILES
-            y = loc.y/VERTEX_SZ - self.sy*NUM_TILES
-            r = loc.sight/VERTEX_SZ
+            x = int(loc.x/VERTEX_SZ + 0.5) - self.sx*NUM_TILES
+            y = int(loc.y/VERTEX_SZ + 0.5) - self.sy*NUM_TILES
+            r = int(loc.sight/VERTEX_SZ + 0.5)
             for i in xrange(x-r, x+r):
                 for j in xrange(y-r, y+r):
                     if 0 <= i <= NUM_TILES and 0 <= j <= NUM_TILES:

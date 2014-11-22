@@ -3,7 +3,7 @@ sys.path.insert(0, '../pyglet')
 
 import pyglet
 
-from ui.mainmenu import MainMenu
+from pyarts.ui.mainmenu import MainMenu
 
 def main():
     window = pyglet.window.Window(MainMenu.WIDTH, MainMenu.HEIGHT)
