@@ -34,7 +34,7 @@ class Sector(object):
     A sector is a piece of the map
     '''
 
-    # constants for walkmap
+    # constants for walkmap - if the bit is set, it is NOT walkable for that walk type
     WALK_GROUND = 0x01
     WALK_SEA = 0x02
     WALK_AIR = 0x04
@@ -127,11 +127,16 @@ class Sector(object):
 
     def pointvisited(self, tid, pt):
         x, y = pt
-        return self.visited[x + y*NUM_TILES] & (1 << tid)
+        return self.visited[x/VERTEX_SZ + y/VERTEX_SZ*NUM_TILES] & (1 << tid)
 
     def pointvisible(self, tid, pt):
         x, y = pt
-        return self.visible[x + y*NUM_TILES] & (1 << tid)
+        return self.visible[x/VERTEX_SZ + y/VERTEX_SZ*NUM_TILES] & (1 << tid)
+
+    def pointwalkable(self, walk, pt):
+        x, y = pt
+        print 'walkable', x/VERTEX_SZ, y/VERTEX_SZ
+        return (self.walkmap[x/VERTEX_SZ + y/VERTEX_SZ*NUM_TILES] & walk) == 0
 
     def updatefog(self):
         start = time.time()

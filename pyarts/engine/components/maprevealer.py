@@ -16,7 +16,6 @@ class MapRevealer(Component):
 
     def configure(self, data):
         self.locator.sight = self.stats['sight']
-        print 'configure map revealer for %r, sight is %d' % (self.ent, self.locator.sight)
     
     def load(self, data):
         self.step()

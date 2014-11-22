@@ -11,7 +11,7 @@
         },
         "archer" : {
             "name" : "Archer",
-            "components" : ["steering", "appearance", "behaviour", "variables", "abilities", "maprevealer"],
+            "components" : ["steering", "appearance", "behaviour", "variables", "abilities", "maprevealer", "moving"],
             "appearance" : {
                 "sprite" : "res/unit-archer.png",
                 "portrait" : "res/unit-archer.png"

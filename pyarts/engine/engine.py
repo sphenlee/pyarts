@@ -8,6 +8,7 @@ from .map import Map
 from .entitymanager import EntityManager
 from .contentmanager import ContentManager
 from .spritemanager import SpriteManager
+from .pathfinder import Pathfinder
 from .team import Team
 from .scripting import setup
 
@@ -20,6 +21,7 @@ class Engine(object):
         self.map = Map(self)
         self.entities = EntityManager(self)
         self.content = ContentManager(self)
+        self.pathfinder = Pathfinder(self.map)
 
         self.sprites = SpriteManager(self.datasrc)
 

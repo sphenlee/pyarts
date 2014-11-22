@@ -8,7 +8,6 @@ from .event import Event
 from .sector import Sector, SECTOR_SZ
 
 
-
 class Map(object):
     def __init__(self, eng):
         self.eng = eng
@@ -51,6 +50,10 @@ class Map(object):
             self.dirty.add(s)
             self.onsectorloaded.emit(s)
             return s
+
+    def sector_at_point(self, x, y):
+        sx, sy = self.pos_to_sector(x, y)
+        return self.sectors.get((sx, sy))
 
     def step(self):
         self.n += 1
