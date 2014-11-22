@@ -32,7 +32,7 @@ class Behaviour(Component):
         Decide based on the target and this entity
         what the appropriate action is
         '''
-        if self.type == 'unit':
+        if self.type == 'unit' and self.ent.has('moving'):
             if target.ispos():
                 # move to the target position
                 action = MoveAction(target)

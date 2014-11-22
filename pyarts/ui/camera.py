@@ -51,8 +51,8 @@ class Camera(object):
         gl.glTranslatef(-self.lookx, -self.looky, 0)
 
     def move(self, dx, dy):
-        self.lookx += dx
-        self.looky += dy
+        self.lookx += int(dx)
+        self.looky += int(dy)
 
         sec = self.mapren.looksector
 

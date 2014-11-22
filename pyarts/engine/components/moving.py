@@ -50,8 +50,13 @@ class Moving(Component):
         start = self.locator.pos()
         goal = target.getpos()
 
-        for pt in self.pathfinder.findpath(start, goal, self.walk, range):
-            self.waypoints.append(pt)
+        path = self.pathfinder.findpath(start, goal, self.walk, range)
+        if path is not None:
+            for pt in path:
+                self.waypoints.append(pt)
+        else:
+            self.stop()
+
 
     def stop(self):
         self.intransit = False

@@ -43,7 +43,7 @@ class GameScreen(Screen):
 
     def update(self, dt, *args):
         if self.dx or self.dy:
-            self.camera.move(self.dx, self.dy)
+            self.camera.move(self.dx * 100 * dt, self.dy * 100 *dt)
         self.game.step()
 
     def entities_at_point(self, x, y):

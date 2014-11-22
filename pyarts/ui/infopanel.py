@@ -6,6 +6,7 @@ import pyglet
 from pyglet import gl
 
 from .panels.singleentitypanel import SingleEntityPanel
+from .panels.multientitypanel import MultiEntityPanel
 from .screen import Screen
 
 class InfoPanel(object):
@@ -33,8 +34,8 @@ class InfoPanel(object):
     def update(self):
         if len(self.game.selection) == 1:
             self.display = SingleEntityPanel(self)
-        #elif len(self.game.selection) > 1:
-        #    self.display = MultiEntityPanel(self)
+        elif len(self.game.selection) > 1:
+            self.display = MultiEntityPanel(self)
         else:
             self.display = None
 
@@ -43,7 +44,7 @@ class InfoPanel(object):
         gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
         gl.glEnable(gl.GL_BLEND)
         
-        gl.glColor4f(0, 0, 0, 0.5)
+        gl.glColor4f(0, 0, 0, 0.8)
         gl.glBegin(gl.GL_QUADS)
         gl.glVertex2f(0, 0)
         gl.glVertex2f(0, self.HEIGHT)

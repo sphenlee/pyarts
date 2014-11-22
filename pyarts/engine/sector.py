@@ -111,8 +111,8 @@ class Sector(object):
 
     def unplace(self, locator):
         self.locators.discard(locator)
-        if not self.occupied():
-            print 'sector is empty?'
+        #if not self.occupied():
+        #    print 'sector is empty?'
 
     def footprint(self, loc):
         x = int(loc.x/VERTEX_SZ + 0.5) - self.sx*NUM_TILES
