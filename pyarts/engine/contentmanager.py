@@ -19,7 +19,7 @@ class ContentManager(object):
 
     def load(self, datasrc):
         for name, data in datasrc.getcontent('abilities').iteritems():
-            self.abilities[name] = Ability(data, self.eng.lua)
+            self.abilities[name] = Ability(data, self.eng.scripting)
 
         
     def getability(self, name):

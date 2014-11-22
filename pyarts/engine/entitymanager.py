@@ -24,7 +24,7 @@ class EntityManager(object):
 
     def load(self):
         ''' Individual entities are loaded as the map loads sectors, juts grab misc data here '''
-        self.nextentid = self.datasrc.getmisc('entities.nextentid', 1)
+        self.nextentid = self.datasrc.getmisc('entities.nexteid', 1)
 
     def loadentity(self, eid):
         ''' Load a single entity by eid '''

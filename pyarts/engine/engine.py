@@ -10,7 +10,7 @@ from .contentmanager import ContentManager
 from .spritemanager import SpriteManager
 from .pathfinder import Pathfinder
 from .team import Team
-from .scripting import setup
+from .scripting import Scripting
 
 from .. import lua
 
@@ -19,18 +19,17 @@ class Engine(object):
         self.datasrc = datasrc
         self.teams = []
         self.map = Map(self)
+        self.scripting = Scripting(self)
         self.entities = EntityManager(self)
         self.content = ContentManager(self)
         self.pathfinder = Pathfinder(self.map)
-
         self.sprites = SpriteManager(self.datasrc)
-
-        self.lua = lua.State()
-        setup(self.lua)
 
         self.towns = [ ]
 
     def load(self):
+        self.scripting.setup()
+
         self.content.load(self.datasrc)
 
         for t in self.datasrc.getteams():

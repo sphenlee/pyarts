@@ -17,7 +17,7 @@ class Behaviour(Component):
         self.entities = entitymanager
 
     def configure(self, data):
-        pass
+        self.type = data['type']
 
     def save(self):
         return {
@@ -25,7 +25,8 @@ class Behaviour(Component):
         }
 
     def load(self, data):
-        self.type = data['type']
+        if data:
+            self.type = data.get('type', self.type)
 
     def autocommand(self, target, add):
         '''

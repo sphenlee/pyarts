@@ -7,7 +7,8 @@
                 "sprite" : "res/unit-pesant.png",
                 "portrait" : "res/unit-pesant.png"
             },
-            "locator" : { "r" : 32 }
+            "locator" : { "r" : 32 },
+            "behaviour" : { "type" : "unit" }
         },
         "archer" : {
             "name" : "Archer",
@@ -16,6 +17,7 @@
                 "sprite" : "res/unit-archer.png",
                 "portrait" : "res/unit-archer.png"
             },
+            "behaviour" : { "type" : "unit" },
             "locator" : { "r" : 32 },
             "variables" : {
                 "hp" : { "max" : "maxhp", "regen" : "hgregen" }
@@ -29,15 +31,17 @@
         },
         "townhall" : {
             "name" : "Town Hall",
-            "components" : ["appearance", "behaviour", "maprevealer", "footprint"],
+            "components" : ["appearance", "behaviour", "maprevealer", "footprint", "abilities"],
             "appearance" : {
                 "sprite" : "res/bldg-townhall.png",
                 "portrait" : "res/bldg-townhall.png"
             },
+            "behaviour" : { "type" : "building" },
             "locator" : { "r" : 128 },
             "stats" : {
                 "sight" : 1024
-            }
+            },
+            "abilities" : [ "train_archer" ]
         }
     },
 
@@ -47,32 +51,28 @@
             "proto" : "peasant",
             "locator" : {
                 "x" : 50, "y" : 50, "placed" : true
-            },
-            "behaviour" : { "type" : "unit" }
+            }
         },
         "2" : {
             "team" : 0,
             "proto" : "archer",
             "locator" : {
                 "x" : 100, "y" : 100, "placed" : true
-            },
-            "behaviour" : { "type" : "unit" }
+            }
         },
         "3" : {
             "team" : 0,
             "proto" : "archer",
             "locator" : {
                 "x" : 150, "y" : 150, "placed" : true
-            },
-            "behaviour" : { "type" : "unit" }
+            }
         },
         "4" : {
             "team" : 0,
             "proto" : "townhall",
             "locator" : {
                 "x" : 300, "y" : 300, "placed" : true
-            },
-            "behaviour" : { "type" : "building" }
+            }
         }
     },
 
@@ -86,6 +86,7 @@
                     "function(me, target)",
                     "    print('Inside Lua boost' .. me)",
                     "    print(target)",
+                    "    place_entity(me, 600, 600)",
                     "end"
                 ],
                 "group" : true,
@@ -106,6 +107,21 @@
                 "cooldown" : 60,
                 "cost" : 100,
                 "image" : "res/unit-pesant.png"
+            },
+            "train_archer" : {
+                "type" : "instant",
+                "name" : "Train Archer",
+                "description" : "Trains an Archer",
+                "effect" : [
+                    "function(me)",
+                    "    print('Inside train archer')",
+                    "    ent = create_entity(0, 'archer')",
+                    "    place_entity(ent, 500, 500)",
+                    "end"
+                ],
+                "cooldown" : 60,
+                "cost" : 100,
+                "image" : "res/unit-pesant.png"
             }
         }
     },
@@ -121,6 +137,7 @@
                         "sprite" : "res/unit-pesant.png",
                         "portrait" : "res/unit-pesant.png"
                     },
+                    "behaviour" : { "type" : "unit" },
                     "locator" : { "r" : 32 },
                     "stats" : {
                         "sight" : 256,
@@ -150,7 +167,8 @@
         "camera.initial.position" : {
             "0" : { "x" : 0, "y" : 0 },
             "1" : { "x" : 0, "y" : 0 }
-        }
+        },
+        "entities.nexteid" : 100
     },
 
     "tileset" : {

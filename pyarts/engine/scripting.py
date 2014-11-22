@@ -6,14 +6,30 @@ Various functions that get exposed to Lua
 
 from .. import lua
 
-@lua.func
-def print_(*args):
-    ''' Simulate Lua's print which tab separates args '''
-    print '\t'.join(str(a) for a in args)
+class Scripting(object):
+    def __init__(self, eng):
+        self.__lua_methods__ = {}
 
-@lua.func
-def apply_status_effect(ent, effect):
-    pass
+        self.lua = lua.State()
+        self.eng = eng
 
-def setup(lua):
-    lua.setglobal('print', print_)
+    def print_(self, *args):
+        ''' Simulate Lua's print which tab separates args '''
+        print '\t'.join(str(a) for a in args)
+        
+    def create_entity(self, tid, protoname):
+        team = self.eng.getteam(tid)
+        proto = team.getproto(protoname)
+        ent = self.eng.entities.create(proto)
+
+        return ent.eid
+
+    def place_entity(self, eid, x, y):
+        print 'placing %d at (%d, %d)' % (eid, x, y)
+        ent = self.eng.entities.get(eid)
+        ent.locator.place(x, y)
+
+    def setup(self):
+        self.lua.setglobal('print', self.print_)
+        self.lua.setglobal('create_entity', self.create_entity)
+        self.lua.setglobal('place_entity', self.place_entity)

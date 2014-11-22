@@ -11,7 +11,7 @@ class Ability(object):
     TARGETED = 'targeted'
     AREA_OF_EFFECT = 'area_of_effect'
 
-    def __init__(self, data, lua):
+    def __init__(self, data, scripting):
         self.name = data['name']
         self.description = data['description']
 
@@ -19,7 +19,7 @@ class Ability(object):
         if isinstance(code, list):
             code = '\n'.join(code)
         code = 'return ' + code
-        self.effect = lua.dostring(code)
+        self.effect = scripting.lua.dostring(code)
         
         self.type = data['type']
 
@@ -39,3 +39,5 @@ class Ability(object):
         elif self.type == Ability.AREA_OF_EFFECT:
             x, y = target.getpos()
             self.effect(me, x, y)
+        else:
+            raise Exception('Unknown ability type %s' % self.type)

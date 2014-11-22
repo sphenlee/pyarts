@@ -10,13 +10,19 @@ TODO:
 # exports
 __all__ = ['Lua', 'func', 'rawfunc', 'table']
 
+import types
+
 # load the library
 import ctypes
-lua = ctypes.cdll.LoadLibrary('liblua5.1.so')
+lua = ctypes.cdll.LoadLibrary('liblua5.2.so.0')
 
 # declare arg and return types
 lua.lua_tolstring.restype = ctypes.c_char_p
-lua.lua_tonumber.restype = ctypes.c_double
+
+lua.lua_tonumberx.argtypes = [ ctypes.c_void_p, ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
+lua.lua_tonumberx.restype = ctypes.c_double
+
+lua.lua_topointer.restype = ctypes.c_void_p
 
 lua.lua_pushnumber.argtypes = [ ctypes.c_void_p, ctypes.c_double ]
 lua.lua_pushinteger.argtypes = [ ctypes.c_void_p, ctypes.c_long ]
@@ -30,12 +36,19 @@ lua.luaL_unref.restype = None
 lua.lua_rawgeti.argtypes = [ ctypes.c_void_p, ctypes.c_int, ctypes.c_int ]
 lua.lua_rawgeti.restype = None
 
+lua.lua_pcallk.argtypes = [ ctypes.c_void_p, ctypes.c_int, ctypes.c_int,
+    ctypes.c_int, ctypes.c_int, ctypes.c_void_p]
+lua.lua_pcallk.restype  = ctypes.c_int
+
 # declare constants
 LUA_MULTIRET = -1
 
-LUA_REGISTRYINDEX = -10000
-LUA_ENVIRONINDEX = -10001
-LUA_GLOBALSINDEX = -10002
+LUA_REGISTRYINDEX = -1000000 - 1000
+
+def lua_upvalueindex(i):
+    return LUA_REGISTRYINDEX - i
+
+LUA_RIDX_GLOBALS = 2
 
 LUA_TNIL = 0
 LUA_TBOOLEAN = 1
@@ -95,12 +108,29 @@ def luapush(L, val):
         lua.lua_pushnumber(L, val)
     elif ty == rawfunc:
         lua.lua_pushcclosure(L, val, 0)
+    elif ty == types.MethodType:
+        push_method(L, val)
     elif ty == Table:
         val.ref.push()
     elif ty == LuaRef:
         val.push()
     else:
         raise TypeError('luapush: %r' % ty)
+
+# pushing methods only allowed if the object
+# has a __lua_methods__ attribute (which much be a dict)
+def push_method(L, val):
+    self = val.__self__
+    fn = func(val.__func__, ismeth=True)
+
+    # need to keep a reference
+    self.__lua_methods__[val.__func__.__name__] = fn
+
+    ptr = ctypes.py_object(self)
+    lua.lua_pushlightuserdata(L, ptr)
+
+    lua.lua_pushcclosure(L, fn, 1)
+
 
 # utility to get a python value off the stack
 def luaget(L, idx):
@@ -110,8 +140,15 @@ def luaget(L, idx):
         return None
     elif ty == LUA_TNUMBER:
         #print 'num'
-        n = lua.lua_tonumber(L, idx)
-        return n
+        isnum = ctypes.c_int(0)
+        n = lua.lua_tonumberx(L, idx, ctypes.byref(isnum))
+        if isnum:
+            if int(n) == n:
+                return int(n)
+            else:
+                return n
+        else:
+            raise TypeError('luaget: tonumber failed')
     elif ty == LUA_TSTRING:
         #print 'str'
         s = lua.lua_tolstring(L, idx, None)
@@ -158,12 +195,16 @@ class State(object):
         return self.loadstring(code)()
         
     def setglobal(self, name, val):
-        luapush(self.L, val)
-        lua.lua_setfield(self.L, LUA_GLOBALSINDEX, name)
+        with popper(self.L):
+            lua.lua_rawgeti(self.L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS)
+            luapush(self.L, val)
+            lua.lua_setfield(self.L, -2, name)
         
     def getglobal(self, name):
-        lua.lua_getfield(self.L, LUA_GLOBALSINDEX, name)
-        return luaget(self.L, -1)
+        with popper(self.L):
+            lua.lua_rawgeti(self.L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS)
+            lua.lua_getfield(self.L, -1, name)
+            return luaget(self.L, -1)
 
 # python wrapper for a lua table
 import collections
@@ -245,7 +286,7 @@ class function(object):
             self.ref.push()
             for a in args:
                 luapush(self.L, a)
-            ok = lua.lua_pcall(self.L, len(args), LUA_MULTIRET, 0)
+            ok = lua.lua_pcallk(self.L, len(args), LUA_MULTIRET, 0, 0, None)
             m = lua.lua_gettop(self.L)
             if m  - n == 1:
                 ret = luaget(self.L, -1)
@@ -265,12 +306,20 @@ rawfunc = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
 
 # decorator for making a python function into a lua function,
 # args are converted into python objects
-def func(func):
+def func(func, ismeth=False):
     @rawfunc
     def wrapper(L):
         try:
             nargs = lua.lua_gettop(L)
             args = [ ]
+            
+            if ismeth:
+                with popper(L):
+                    lua.lua_pushvalue(L, lua_upvalueindex(1))
+                    ptr = lua.lua_topointer(L, -1)
+                    self = ctypes.cast(ptr, ctypes.py_object).value
+                    args.append(self)
+            
             for i in xrange(1, nargs + 1):
                 args.append(luaget(L, i))
             ret = func(*args)
