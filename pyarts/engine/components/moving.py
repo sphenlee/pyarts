@@ -25,7 +25,9 @@ class Moving(Component):
         self.intransit = False
     
     def load(self, data):
-        pass
+        if data:
+            self.waypoints = data.get('waypoints')
+            self.intransit = bool(self.waypoints)
 
     def step(self):
         if not self.waypoints:
@@ -42,7 +44,9 @@ class Moving(Component):
             self.waypoints.pop()
 
     def save(self):
-        return { }
+        return {
+            'waypoints' : self.waypoints
+        }
 
     def moveto(self, target, range=10):
         self.intransit = True
@@ -52,6 +56,7 @@ class Moving(Component):
 
         path = self.pathfinder.findpath(start, goal, self.walk, range)
         if path is not None:
+            self.waypoints.append(goal)
             for pt in path:
                 self.waypoints.append(pt)
         else:

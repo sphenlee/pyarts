@@ -37,8 +37,6 @@ class SpriteManager(object):
         dx = self.offx - x
         dy = self.offy - y
 
-        print 'setoffset', dx, dy
-
         for s in self.sprites:
             s.offset(dx, dy)
 
