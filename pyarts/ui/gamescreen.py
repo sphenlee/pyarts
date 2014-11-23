@@ -22,8 +22,12 @@ class GameScreen(Screen):
         
         tidmask = 1
         self.mapren = MapRenderer(self.datasrc, self.game.engine.map, tidmask)
-
         self.camera = Camera(self.mapren, localpid=0)
+
+        # connect camera to map renderer
+        self.camera.onlookpointchanged.add(self.mapren.lookat)
+        # please ignore this gross layer violation
+        self.camera.onlookpointchanged.add(self.game.engine.sprites.lookat)
         
         self.click = None
         self.dragbox = None

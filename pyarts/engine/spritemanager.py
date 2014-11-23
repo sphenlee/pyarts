@@ -5,14 +5,20 @@ the game
 
 import pyglet
 
+from .sector import SECTOR_SZ
+
 class Sprite(object):
     def __init__(self, sm, sprite):
         self.sm = sm
         self.sprite = sprite
 
     def setpos(self, x, y):
-        self.sprite.x = self.sm.offx + x
-        self.sprite.y = self.sm.offy + y
+        self.sprite.x = x - self.sm.offx
+        self.sprite.y = y - self.sm.offy
+
+    def offset(self, dx, dy):
+        self.sprite.x += dx
+        self.sprite.y += dy
 
 SPRITE_SIZE = 128
 
@@ -24,12 +30,17 @@ class SpriteManager(object):
         self.offx = 0
         self.offy = 0
 
+    def lookat(self, sec):
+        self.setoffset(sec.sx * SECTOR_SZ, sec.sy * SECTOR_SZ)
+
     def setoffset(self, x, y):
-        dx = x - self.offx
-        dy = y - self.offy
+        dx = self.offx - x
+        dy = self.offy - y
+
+        print 'setoffset', dx, dy
 
         for s in self.sprites:
-            s.setpos(dx, dy)
+            s.offset(dx, dy)
 
         self.offx = x
         self.offy = y

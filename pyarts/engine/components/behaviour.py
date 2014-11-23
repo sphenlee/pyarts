@@ -48,4 +48,5 @@ class Behaviour(Component):
             else:
                 self.actions.give(action)
         else:
-            print 'building auto command', self, target, add
+            #print 'building auto command', self, target, add
+            pass

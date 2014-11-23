@@ -14,13 +14,17 @@ class EntityManager(object):
         self.eng = eng
         self.datasrc = eng.datasrc
         self.nextentid = 0
-        self.entities = { } # entid -> entitiy
+        self.entities = {} # entid -> entitiy
+        self.newentities = {} # entities created during this step
 
         self.eng.map.onsectorloaded.add(self.sectorloaded)
 
     def get(self, eid):
         ''' Get an entity by ID '''
-        return self.entities[eid]
+        try:
+            return self.entities[eid]
+        except KeyError:
+            return self.newentities[eid]
 
     def load(self):
         ''' Individual entities are loaded as the map loads sectors, juts grab misc data here '''
@@ -49,7 +53,7 @@ class EntityManager(object):
             self.nextentid += 1
 
         ent = Entity(eid, proto)
-        self.entities[eid] = ent
+        self.newentities[eid] = ent
 
         # loop until the deps stop changing (when we find all the dependencies)
         deps = set(proto.components)
@@ -108,6 +112,9 @@ class EntityManager(object):
 
     def step(self):
         ''' Step all entities '''
+        self.entities.update(self.newentities)
+        self.newentities.clear()
+
         for ent in self.entities.itervalues():
             ent.step()
 

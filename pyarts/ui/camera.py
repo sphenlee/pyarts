@@ -7,6 +7,7 @@ How the user looks at the game world
 from pyglet import gl
 
 from .screen import Screen
+from ..engine.event import Event
 from ..engine.map import SECTOR_SZ
 
 class Camera(object):
@@ -15,6 +16,8 @@ class Camera(object):
         self.lookx = 0.0
         self.looky = 0.0
         self.mapren = mapren
+
+        self.onlookpointchanged = Event()
 
     def load(self, datasrc):
         data = datasrc.getmisc('camera.initial.position')
@@ -55,8 +58,6 @@ class Camera(object):
         self.looky += int(dy)
 
         sec = self.mapren.looksector
-
-        #print self.lookx, self.looky
         
         # this bit clamps the viewport to loaded sectors
         if self.lookx > SECTOR_SZ - Screen.WIDTH:
@@ -78,18 +79,18 @@ class Camera(object):
         if self.lookx < -Screen.WIDTH//2:
             if sec.neighbour[-1, 0]:
                 self.lookx += SECTOR_SZ
-                self.mapren.lookat(sec.neighbour[-1, 0])
+                self.onlookpointchanged.emit(sec.neighbour[-1, 0])
         elif self.lookx > SECTOR_SZ - Screen.WIDTH//2:
             if sec.neighbour[1, 0]:
                 self.lookx -= SECTOR_SZ
-                self.mapren.lookat(sec.neighbour[1, 0])
+                self.onlookpointchanged.emit(sec.neighbour[1, 0])
         
         if self.looky < -Screen.HEIGHT//2:
             if sec.neighbour[0, -1]:
                 self.looky += SECTOR_SZ
-                self.mapren.lookat(sec.neighbour[0, -1])
+                self.onlookpointchanged.emit(sec.neighbour[0, -1])
         elif self.looky > SECTOR_SZ - Screen.HEIGHT//2:
             if sec.neighbour[0, 1]:
                 self.looky -= SECTOR_SZ
-                self.mapren.lookat(sec.neighbour[0, 1])
+                self.onlookpointchanged.emit(sec.neighbour[0, 1])
                 
