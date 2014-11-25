@@ -28,11 +28,12 @@ class Locator(Component):
         }
 
     def load(self, data):
-        self.x = data.get('x', 0)
-        self.y = data.get('y', 0)
-        self.placed = data.get('placed', False)
-        if self.placed:
-            self.map.place(self)
+        if data:
+            self.x = data.get('x', 0)
+            self.y = data.get('y', 0)
+            self.placed = data.get('placed', False)
+            if self.placed:
+                self.map.place(self)
 
     def place(self, x, y):
         ''' Put the entity onto the map '''

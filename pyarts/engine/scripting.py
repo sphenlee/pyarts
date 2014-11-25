@@ -29,7 +29,17 @@ class Scripting(object):
         ent = self.eng.entities.get(eid)
         ent.locator.place(x, y)
 
+    def place_entity_near(self, eid, me):
+        print 'placing %d near %d' % (eid, me)
+        ent = self.eng.entities.get(eid)
+        meent = self.eng.entities.get(me)
+
+        x, y = meent.locator.pos()
+
+        ent.locator.place(x + meent.locator.r, y)
+
     def setup(self):
         self.lua.setglobal('print', self.print_)
         self.lua.setglobal('create_entity', self.create_entity)
         self.lua.setglobal('place_entity', self.place_entity)
+        self.lua.setglobal('place_entity_near', self.place_entity_near)

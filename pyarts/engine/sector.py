@@ -59,19 +59,19 @@ class Sector(object):
 
         if 'visited' in data:
             bindata = get_hex_resource(map.datasrc, data['visited'])
-            self.visited = array.array('L')
+            self.visited = array.array('B')
             self.visited.fromstring(bindata)
         else:
-            self.visited = array.array('L', init)
+            self.visited = array.array('B', init)
 
         if 'walkmap' in data:
             bindata = get_hex_resource(map.datasrc, data['walkmap'])
-            self.walkmap = array.array('L')
+            self.walkmap = array.array('B')
             self.walkmap.fromstring(bindata)
         else:
-            self.walkmap = array.array('L', init)            
+            self.walkmap = array.array('B', init)            
 
-        self.visible = array.array('L', init)
+        self.visible = array.array('B', init)
         self.onfogupdated = Event()
 
         # locators near this sector
@@ -93,7 +93,7 @@ class Sector(object):
         datasink.addmapsector(self.sx, self.sy, {
                 'visited' : fname,
                 'tiles' : self.tiles,
-                'entities' : [loc.ent.eid for loc in self.locators]
+                'entities' : [loc.eid for loc in self.locators]
             })
 
 

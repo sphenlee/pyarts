@@ -73,7 +73,7 @@ class Map(object):
 
     def step(self):
         self.n += 1
-        if self.n % 100:
+        if self.n % 50:
             if self.dirty:
                 sec = self.dirty.pop()
                 sec.updatefog()
@@ -148,6 +148,6 @@ class Map(object):
         for loc in self.locators:
             if x1 - loc.r <= loc.x <= x2 + loc.r:
                 if y1 - loc.r <= loc.y <= y2 + loc.r:
-                    result.add(loc.ent.eid)
+                    result.add(loc.eid)
 
         return result

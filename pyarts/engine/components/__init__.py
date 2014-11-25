@@ -13,3 +13,4 @@ from .maprevealer import *
 from .steering import *
 from .footprint import *
 from .moving import *
+from .town import *

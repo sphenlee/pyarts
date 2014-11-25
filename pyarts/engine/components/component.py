@@ -11,15 +11,16 @@ class Component(object):
 
     def __init__(self, ent):
         self.ent = ent
+        self.eid = ent.eid
         self.ent.components[self.name] = self
         setattr(self.ent, self.name, self)
         self.configured = False
 
     def __hash__(self):
-        return hash((self.ent.eid, self.name))
+        return hash((self.eid, self.name))
 
     def __eq__(self, rhs):
-        return self.ent.eid == rhs.ent.eid and self.name == rhs.name
+        return self.eid == rhs.eid and self.name == rhs.name
 
     def inject(self, **comps):
         ''' Called with keyword args for each dependency declared '''

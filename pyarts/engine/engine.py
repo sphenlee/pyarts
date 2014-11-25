@@ -25,7 +25,6 @@ class Engine(object):
         self.pathfinder = Pathfinder(self.map)
         self.sprites = SpriteManager(self.datasrc)
 
-        self.towns = [ ]
 
     def load(self):
         self.scripting.setup()
@@ -58,4 +57,3 @@ class Engine(object):
 
     def getteam(self, tid):
         return self.teams[tid]
-    

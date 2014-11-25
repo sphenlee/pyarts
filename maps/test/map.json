@@ -2,7 +2,7 @@
     "entityprotos" : {
         "peasant" : {
             "name" : "Peasant",
-            "components" : ["steering", "appearance"],
+            "components" : ["moving", "appearance"],
             "appearance" : {
                 "sprite" : "res/unit-pesant.png",
                 "portrait" : "res/unit-pesant.png"
@@ -12,7 +12,7 @@
         },
         "archer" : {
             "name" : "Archer",
-            "components" : ["steering", "appearance", "behaviour", "variables", "abilities", "maprevealer", "moving"],
+            "components" : ["moving", "appearance", "behaviour", "variables", "abilities", "maprevealer"],
             "appearance" : {
                 "sprite" : "res/unit-archer.png",
                 "portrait" : "res/unit-archer.png"
@@ -31,7 +31,7 @@
         },
         "townhall" : {
             "name" : "Town Hall",
-            "components" : ["appearance", "behaviour", "maprevealer", "footprint", "abilities"],
+            "components" : ["town", "appearance", "behaviour", "maprevealer", "footprint", "abilities"],
             "appearance" : {
                 "sprite" : "res/bldg-townhall.png",
                 "portrait" : "res/bldg-townhall.png"
@@ -41,7 +41,8 @@
             "stats" : {
                 "sight" : 1024
             },
-            "abilities" : [ "train_archer" ]
+            "abilities" : [ "train_archer" ],
+            "town" : { "r" : 1024 }
         }
     },
 
@@ -72,7 +73,8 @@
             "proto" : "townhall",
             "locator" : {
                 "x" : 300, "y" : 300, "placed" : true
-            }
+            },
+            "town" : 0
         }
     },
 
@@ -116,7 +118,7 @@
                     "function(me)",
                     "    print('Inside train archer')",
                     "    ent = create_entity(0, 'archer')",
-                    "    place_entity(ent, 500, 500)",
+                    "    place_entity_near(ent, me)",
                     "end"
                 ],
                 "cooldown" : 60,
@@ -144,6 +146,9 @@
                         "speed" : 1
                     }
                 }
+            },    
+            "towns" : {
+                "0" : { }
             }
         },
         {

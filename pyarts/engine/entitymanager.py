@@ -8,6 +8,7 @@ from .components.component import getcomponentclass
 from .entity import Entity
 from .order import Order
 from .actions import AbilityAction
+from .event import Event
 
 class EntityManager(object):
     def __init__(self, eng):
@@ -18,6 +19,8 @@ class EntityManager(object):
         self.newentities = {} # entities created during this step
 
         self.eng.map.onsectorloaded.add(self.sectorloaded)
+
+        self.onentitycreated = Event()
 
     def get(self, eid):
         ''' Get an entity by ID '''
@@ -35,8 +38,14 @@ class EntityManager(object):
         data = self.datasrc.getentity(eid)
         team = self.eng.getteam(data['team'])
         proto = team.getproto(data['proto'])
-        ent = self.create(proto, eid=int(eid))
+        ent = self._docreate(proto, eid=int(eid))
         ent.load(data)
+
+    def create(self, proto, eid=None):
+        '''Create an entity from a proto and load it with no data (to indicate that it is freshly created)'''
+        ent = self._docreate(proto, eid)
+        ent.load({})
+        return ent
 
     def save(self, sink):
         ''' Save all the entities '''
@@ -46,8 +55,8 @@ class EntityManager(object):
 
         sink.setmisc('entities.nextentid', self.nextentid)
 
-    def create(self, proto, eid=None):
-        '''Create an entity from a proto'''
+    def _docreate(self, proto, eid=None):
+        '''Create an entity from a proto - implementation method'''
         if eid is None:
             eid = self.nextentid
             self.nextentid += 1
@@ -84,7 +93,9 @@ class EntityManager(object):
             'datasrc' : self.eng.datasrc,
             'entitymanager' : self,
             'content' : self.eng.content,
-            'pathfinder' : self.eng.pathfinder
+            'pathfinder' : self.eng.pathfinder,
+            'engine' : self.eng,
+            'team' : proto.team
         }
 
         # perform the injection
@@ -102,6 +113,8 @@ class EntityManager(object):
 
         # configure the new entity
         ent.configure()
+
+        self.onentitycreated.emit(ent)
 
         return ent
 
