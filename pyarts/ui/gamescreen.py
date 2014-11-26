@@ -10,6 +10,7 @@ from pyglet.window import key, mouse
 
 from .screen import Screen
 from .infopanel import InfoPanel
+from .panels.townspanel import TownsPanel
 from .camera import Camera
 from .maprenderer import MapRenderer
 from ..engine.game import Game
@@ -35,6 +36,10 @@ class GameScreen(Screen):
         self.dy = 0
 
         self.infopanel = InfoPanel(self.game, self.datasrc)
+
+        self.townspanel = TownsPanel(self.datasrc)
+        for team in self.game.engine.getteams(tidmask):
+            team.ontowncreated.add(self.townspanel.townadded)
 
         self.game.load()
         self.camera.load(self.datasrc)
@@ -152,6 +157,7 @@ class GameScreen(Screen):
         gl.glLoadIdentity()
 
         self.infopanel.draw()
+        self.townspanel.draw()
 
         if self.dragbox:
             gl.glDisable(gl.GL_TEXTURE_2D)

@@ -18,8 +18,8 @@ class DataSink(object):
     def addentity(self, eid, ent):
         self.save.setdefault('entities', {})[eid] = ent
 
-    def addteam(self, team):
-        self.save.setdefault('teams', []).append(team)
+    def addteam(self, tid, team):
+        self.save.setdefault('teams', {})[tid] = team
 
     def addplayer(self, player):
         self.save.setdefault('players', []).append(player)

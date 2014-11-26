@@ -16,6 +16,9 @@ class Entity(object):
         self.proto = proto
         self.components = { }
 
+    def __repr__(self):
+        return '<Entity %d proto %s owned by %r>' % (self.eid, self.proto.name, self.team)
+
     def configure(self):
         ''' Loads shared data from the entity proto into each component '''
         # do a basic bredth first traversal of the dependencies

@@ -18,7 +18,7 @@ class DataSource(object):
 
     def getentityprotos(self, tid):
         protos = self.map['entityprotos']
-        protos.update(self.getteams()[tid]['entityprotos'])
+        protos.update(self.getteams()[str(tid)]['entityprotos'])
         return protos
 
     def getcontent(self, type):
@@ -29,6 +29,9 @@ class DataSource(object):
 
     def getteams(self):
         return self.save['teams']
+
+    def getraces(self):
+        return self.save['races']
 
     def getplayers(self):
         return self.save['players']

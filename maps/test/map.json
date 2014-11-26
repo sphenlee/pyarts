@@ -128,9 +128,8 @@
         }
     },
 
-    "teams" : [
-        {
-            "tid" : 0,
+    "teams" : {
+        "0" : {
             "entityprotos" : {
                 "peasant" : {
                     "name" : "Peasant Upgraded",
@@ -148,14 +147,15 @@
                 }
             },    
             "towns" : {
-                "0" : { }
+                "0" : {
+                    "race" : "human"
+                }
             }
         },
-        {
-            "tid" : 1,
+        "1" : {
             "entityprotos" : {}
         }
-    ],
+    },
 
     "players" : [
         {
@@ -167,6 +167,22 @@
             "type" : "passive"
         }
     ],
+
+    "races" : {
+        "human" : {
+            "resource" : "Lumber",
+            "resource_icon" : "lumber.png",
+            "energy" : "Gold",
+            "energy_icon" : "sunlight.png"
+        },
+        "elves": {
+            "resource" : "Lumber",
+            "resource_icon" : "lumber.png",
+            "energy" : "Sunlight",
+            "energy_icon" : "sunlight.png"
+        }
+
+    },
 
     "misc" : {
         "camera.initial.position" : {

@@ -10,20 +10,24 @@ class Town(object):
     def __init__(self, twid, team):
         self.twid = twid
         self.team = team
+        self.eng = team.eng
 
         self.resources = ResourcePool()
 
         self.eids = set()
         self.towncomponents = set()
 
+    def __repr__(self):
+        return '<Town %d owned by %r>' % (self.twid, self.team)
+
     def load(self, data):
-        pass
+        self.race = self.eng.getrace(data['race'])
 
     def save(self):
         return { }
 
     def addentity(self, ent):
-        print 'adding entity %d to town %d' % (ent.eid, self.twid)
+        print 'adding entity %d to town %r' % (ent.eid, self)
         self.eids.add(ent.eid)
         self.towncomponents.add(ent.town)
 

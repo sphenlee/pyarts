@@ -31,8 +31,9 @@ class Stats(Component):
         self.basestats = {}
         self.stack = []
 
-        for name, val in data.iteritems():
-            self.basestats[name] = int(val)
+        if data:
+            for name, val in data.iteritems():
+                self.basestats[name] = int(val)
 
         self.stats = self.basestats.copy()
 

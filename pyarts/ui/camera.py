@@ -42,7 +42,6 @@ class Camera(object):
         sink.setmisc('camera.initial.position', data)
 
     def unproject(self, pos):
-        print pos, self.lookx, self.looky
         looksector = self.mapren.looksector
 
         return (pos[0] + self.lookx + looksector.sx * SECTOR_SZ,

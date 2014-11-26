@@ -17,13 +17,14 @@ from .. import lua
 class Engine(object):
     def __init__(self, datasrc):
         self.datasrc = datasrc
-        self.teams = []
+        self.teams = {}
         self.map = Map(self)
         self.scripting = Scripting(self)
         self.entities = EntityManager(self)
         self.content = ContentManager(self)
         self.pathfinder = Pathfinder(self.map)
         self.sprites = SpriteManager(self.datasrc)
+        self.races = {}
 
 
     def load(self):
@@ -31,19 +32,22 @@ class Engine(object):
 
         self.content.load(self.datasrc)
 
-        for t in self.datasrc.getteams():
-            team = Team(self)
+        self.races = self.datasrc.getraces()
+
+        for tid, t in self.datasrc.getteams().iteritems():
+            tid = int(tid)
+            team = Team(self, tid)
             team.load(t)
-            self.teams.append(team)
+            self.teams[tid] = team
 
         self.entities.load()
         self.map.load()
 
 
     def save(self, sink):
-        for t in self.teams:
+        for tid, t in self.teams.iteritems():
             data = t.save()
-            sink.addteam(data)
+            sink.addteam(tid, data)
 
         self.entities.save(sink)
         self.map.save(sink)
@@ -57,3 +61,9 @@ class Engine(object):
 
     def getteam(self, tid):
         return self.teams[tid]
+
+    def getteams(self, tidmask):
+        return [t for i, t in self.teams.iteritems() if (i & tidmask)]
+
+    def getrace(self, name):
+        return self.races[name]
