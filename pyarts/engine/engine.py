@@ -33,6 +33,8 @@ class Engine(object):
         self.content.load(self.datasrc)
 
         self.races = self.datasrc.getraces()
+        for name, race in self.races.items():
+            race['name'] = name
 
         for tid, t in self.datasrc.getteams().iteritems():
             tid = int(tid)
@@ -42,6 +44,8 @@ class Engine(object):
 
         self.entities.load()
         self.map.load()
+
+        self.scripting.runmain(self.datasrc)
 
 
     def save(self, sink):

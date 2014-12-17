@@ -43,3 +43,9 @@ class Scripting(object):
         self.lua.setglobal('create_entity', self.create_entity)
         self.lua.setglobal('place_entity', self.place_entity)
         self.lua.setglobal('place_entity_near', self.place_entity_near)
+
+    def runmain(self, datasrc):
+        main = datasrc.getresource('main.lua')
+
+        with open(main) as fp:
+            self.lua.dostring(fp.read())

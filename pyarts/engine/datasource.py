@@ -31,7 +31,7 @@ class DataSource(object):
         return self.save['teams']
 
     def getraces(self):
-        return self.save['races']
+        return self.map['races']
 
     def getplayers(self):
         return self.save['players']

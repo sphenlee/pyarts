@@ -87,7 +87,7 @@ class Sector(object):
 
     def save(self, datasink):
         data = binascii.hexlify(self.visited.tostring())
-        fname = 'visited_%d_%d.hex' % (self.sx, self.sy)
+        fname = 'visited/%d_%d.hex' % (self.sx, self.sy)
         datasink.addresource(fname, data)
 
         datasink.addmapsector(self.sx, self.sy, {

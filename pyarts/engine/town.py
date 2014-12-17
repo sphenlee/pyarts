@@ -24,7 +24,9 @@ class Town(object):
         self.race = self.eng.getrace(data['race'])
 
     def save(self):
-        return { }
+        return {
+            'race' : self.race['name']
+        }
 
     def addentity(self, ent):
         print 'adding entity %d to town %r' % (ent.eid, self)

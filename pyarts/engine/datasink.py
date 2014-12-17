@@ -4,6 +4,7 @@ DataSink
 
 import json
 import os.path as p
+import os
 
 class DataSink(object):
     def __init__(self, filename):
@@ -34,6 +35,12 @@ class DataSink(object):
         self.save.setdefault('misc', {})[key] = val
 
     def addresource(self, fname, data):
+        try:
+            os.makedirs(p.dirname(p.join(self.dirname, fname)))
+        except OSError as ose:
+            if ose.errno != 17: # file exists
+                raise
+
         with open(p.join(self.dirname, fname), 'w') as fp:
             fp.write(data)
 

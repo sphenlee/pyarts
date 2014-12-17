@@ -30,5 +30,8 @@ class Town(Component):
 
         self.town.addentity(self)
 
+    def save(self):
+        return self.town.twid
+
     def contains(self, pt):
         return distance(pt, self.locator.pos()) < self.r2

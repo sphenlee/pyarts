@@ -10,7 +10,6 @@ import pyglet
 from pyglet import gl
 from pyglet.graphics import OrderedGroup
 
-from .fogofwar import FogOfWar
 from .util import TextureGroup, TranslateGroup
 
 from ..engine.sector import NUM_TILES, VERTEX_SZ, SECTOR_SZ
@@ -70,7 +69,7 @@ class SectorRenderer(object):
         self.terrain_group = TranslateGroup(
             0,
             0,
-            parent=self.mapren.tileset_group
+            parent=TextureGroup(self.mapren.tileset_tex, parent=OrderedGroup(1))
         )
 
         self.terrain_vb = self.batch.add(NUM_TILES * NUM_TILES * 3 * 2,
@@ -82,7 +81,7 @@ class SectorRenderer(object):
         self.fog1_group = TranslateGroup(
             0,
             0,
-            parent=TextureGroup(self.mapren.fogofwar.tex, parent=OrderedGroup(3))
+            parent=TextureGroup(self.mapren.fog_tex, parent=OrderedGroup(3))
         )
         self.fog1_vb = self.batch.add(NUM_TILES * NUM_TILES * 3 * 2,
             gl.GL_TRIANGLES, self.fog1_group, 'v2f', 't2f')
@@ -92,7 +91,7 @@ class SectorRenderer(object):
         self.fog2_group = TranslateGroup(
             0,
             0,
-            parent=TextureGroup(self.mapren.fogofwar.tex, parent=OrderedGroup(2))
+            parent=TextureGroup(self.mapren.fog_tex, parent=OrderedGroup(2))
         )
         self.fog2_vb = self.batch.add(NUM_TILES * NUM_TILES * 3 * 2,
             gl.GL_TRIANGLES, self.fog2_group, 'v2f', 't2f')
@@ -173,12 +172,10 @@ class SectorRenderer(object):
 class MapRenderer(object):
     def __init__(self, datasrc, map, tidmask):
         self.datasrc = datasrc
-        self.map = map
         self.tidmask = tidmask
+        self.map = map
 
         self.loadtileset()
-
-        self.fogofwar = FogOfWar(datasrc)
 
         self.looksector = None # the sector being looked at
         self.renderers = {}
@@ -186,10 +183,14 @@ class MapRenderer(object):
 
     def loadtileset(self):
         data = self.datasrc.gettileset()
+
         res = self.datasrc.getresource(data['texture'])
         img = pyglet.image.load(res)
+        self.tileset_tex = img.get_texture()
 
-        self.tileset_group = TextureGroup(img.get_texture(), parent=OrderedGroup(1))
+        res = self.datasrc.getresource(data['fogofwar'])
+        img = pyglet.image.load(res)
+        self.fog_tex = img.get_texture()
 
     def setupsector(self, sector, dx, dy):
         try:

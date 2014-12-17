@@ -44,7 +44,7 @@ class Entity(object):
         }
         for name, comp in self.components.iteritems():
             tmp = comp.save()
-            if tmp:
+            if tmp is not None:
                 data[name] = tmp
         return data
 

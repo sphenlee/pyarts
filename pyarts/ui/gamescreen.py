@@ -14,6 +14,7 @@ from .panels.townspanel import TownsPanel
 from .camera import Camera
 from .maprenderer import MapRenderer
 from ..engine.game import Game
+from ..engine.datasink import DataSink
 
 class GameScreen(Screen):
     def pre_activate(self, datasrc):
