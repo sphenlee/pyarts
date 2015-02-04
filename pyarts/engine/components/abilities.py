@@ -34,17 +34,18 @@ class Abilities(Component):
         for i in range(len(self.cooldowns)):
             if self.cooldowns[i] > 0:
                 self.cooldowns[i] -= 1
-        
+
 
     def activate(self, idx, target):
         if self.cooldowns[idx] > 0:
-            print 'not ready'
+            print 'not ready - ability activate checked it'
             return False # not ready
 
         ability = self[idx]
         def start():
             ''' TODO - there might be a nicer way to do this '''
             self.cooldowns[idx] = ability.cooldown
+
         action = AbilityAction(ability, target, start)
         self.actions.now(action)
         return True

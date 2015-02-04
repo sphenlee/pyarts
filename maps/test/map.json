@@ -20,11 +20,14 @@
             "behaviour" : { "type" : "unit" },
             "locator" : { "r" : 32 },
             "variables" : {
-                "hp" : { "max" : "maxhp", "regen" : "hgregen" }
+                "hp" : { "max" : "maxhp", "regen" : "hpregen" },
+                "mana" : { "max" : "maxmp", "regen" : "mpregen" }
             },
             "stats" : {
                 "maxhp" : 250,
-                "hgregen" : 2,
+                "hpregen" : 2,
+                "maxmp" : 200,
+                "mpregen" : 2,
                 "sight" : 256
             },
             "abilities" : [ "boost", "heal" ]
@@ -148,7 +151,8 @@
             },    
             "towns" : {
                 "0" : {
-                    "race" : "human"
+                    "race" : "human",
+                    "resources" : { "resource" : 1000, "energy" : 1000 }
                 }
             }
         },

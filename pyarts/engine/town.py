@@ -22,10 +22,12 @@ class Town(object):
 
     def load(self, data):
         self.race = self.eng.getrace(data['race'])
+        self.resources.load(data['resources'])
 
     def save(self):
         return {
-            'race' : self.race['name']
+            'race' : self.race['name'],
+            'resources' : self.resources.save()
         }
 
     def addentity(self, ent):

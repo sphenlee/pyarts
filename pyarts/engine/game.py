@@ -174,7 +174,7 @@ class Game(object):
                 return False
 
             if e.abilities.cooldowns[idx] > 0:
-                print 'no ready'
+                print 'not ready - game checked it'
                 return False
 
             if not ability.check_cost(e):

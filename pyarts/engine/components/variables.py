@@ -57,3 +57,7 @@ class Variables(Component):
 
     def __getitem__(self, key):
         return self.vars[key].val
+
+    def __setitem__(self, key, val):
+        if 0 < val < self.vars[key].max:
+            self.vars[key].val = val

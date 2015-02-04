@@ -49,14 +49,24 @@ class Ability(object):
 
         return True
 
+    def deduct_cost(self, ent):
+        if self.cost.is_town_cost():
+            res = ent.town.town.resources
+            res.deduct(self.cost)
+
+        if self.cost.is_entity_cost():
+            ent.variables['mana'] -= self.cost.mana
+
     def activate(self, me, target):
+        self.deduct_cost(me)
+
         if self.type in (Ability.STATIC, Ability.INSTANT):
-            self.effect(me)
+            self.effect(me.eid)
         elif self.type == Ability.TARGETED:
             if target.isent():
-                self.effect(me, target.eid)
+                self.effect(me.eid, target.eid)
         elif self.type == Ability.AREA_OF_EFFECT:
             x, y = target.getpos()
-            self.effect(me, x, y)
+            self.effect(me.eid, x, y)
         else:
             raise Exception('Unknown ability type %s' % self.type)

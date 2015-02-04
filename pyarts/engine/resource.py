@@ -31,3 +31,16 @@ class ResourcePool(object):
     def sufficient(self, cost):
         return self.resource > cost.resource and self.energy > cost.energy
 
+    def deduct(self, cost):
+        self.resource -= cost.resource
+        self.energy -= cost.energy
+
+    def load(self, data):
+        self.resource = data.get('resource', 0)
+        self.energy = data.get('energy', 0)
+
+    def save(self):
+        return {
+            'resource' : self.resource,
+            'energy' : self.energy
+        }
