@@ -5,6 +5,8 @@ An ability is a special action an entity can do.
 They are bound to the buttons
 '''
 
+from .resource import Cost
+
 class Ability(object):
     STATIC = 'static'            
     INSTANT = 'instant'
@@ -26,9 +28,26 @@ class Ability(object):
         self.range = data.get('range', 0)
         self.group = data.get('group', False)
         self.cooldown = data.get('cooldown', 0)
-        self.cost = data['cost']
+        self.cost = Cost.from_data(data['cost'])
 
         self.image = data['image']
+
+    def check_cost(self, ent):
+        if self.cost.is_town_cost():
+            if not ent.has('town'):
+                return False
+            res = ent.town.town.resources
+            if not res.sufficient(self.cost):
+                return False
+
+        if self.cost.is_entity_cost():
+            if not ent.has('variables'):
+                return False
+            vars = ent.variables
+            if 'mana' not in vars or vars['mana'] < self.cost.mana:
+                return False
+
+        return True
 
     def activate(self, me, target):
         if self.type in (Ability.STATIC, Ability.INSTANT):

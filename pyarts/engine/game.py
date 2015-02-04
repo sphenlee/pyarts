@@ -142,6 +142,7 @@ class Game(object):
             # nothing selected
             return
 
+        # grab the ability - defined by the first entity in the selection
         ent = self.engine.entities.get(self.selection[0])
         if not ent.has('abilities'):
             # no abilities
@@ -154,12 +155,38 @@ class Game(object):
 
         # get the ents - non group abilities cannot be done by
         # multiple entities so we pick the first
-        ents = self.selection
         if not ability.group:
-            ents = ents[0]
+            entids = [ent.eid]
+        else:
+            entids = self.selection    
+
+        # verify if there are any entities in the selection that can actually
+        # do the ability right now
+        #  * do they have the same ability - for now we compare the protos
+        #  * enough resourcea
+        #  * cooldowns not active
+        # NOTE this is a Game check, the Engine will check again when activating
+        def check_ability(eid):
+            e = self.engine.entities.get(eid)
+
+            if e.proto.epid != ent.proto.epid:
+                print 'entity does not have ability %s' % ability.name
+                return False
+
+            if e.abilities.cooldowns[idx] > 0:
+                print 'no ready'
+                return False
+
+            if not ability.check_cost(e):
+                print 'cannot pay cost'
+                return False
+
+            return True
+
+        entids = [eid for eid in entids if check_ability(eid)]
 
         # create the order
-        order = AbilityOrder(self.selection, idx)
+        order = AbilityOrder(entids, idx)
 
         # based on ability type we either issue an order
         # or enter a new mode

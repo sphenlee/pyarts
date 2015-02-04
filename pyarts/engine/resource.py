@@ -12,10 +12,22 @@ class Cost(object):
         self.energy = energy
         self.mana = mana
 
+    def is_town_cost(self):
+        return self.resource is not None or self.energy is not None
+
+    def is_entity_cost(self):
+        return self.mana is not None
+
+
+    @staticmethod
+    def from_data(data):
+        return Cost(**data)
 
 class ResourcePool(object):
     def __init__(self):
         self.resource = 0
         self.energy = 0
 
-    
+    def sufficient(self, cost):
+        return self.resource > cost.resource and self.energy > cost.energy
+

@@ -52,5 +52,8 @@ class Variables(Component):
         for var in self.vars.itervalues():
             var.step(self.stats)
 
+    def __contains__(self, key):
+        return key in self.vars
+
     def __getitem__(self, key):
         return self.vars[key].val
