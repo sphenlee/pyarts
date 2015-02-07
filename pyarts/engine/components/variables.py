@@ -11,18 +11,24 @@ maximum and regeneration rate (which can be negative).
 from .component import Component, register
 
 class Variable(object):
-    def __init__(self, name, descr):
+    def __init__(self, name, descr, stats):
         self.name = name
         self.max = descr.get('max', 2**32)
         self.regen = descr.get('regen')
 
-        self.val = 0 # TODO initial value of a variable somewhere?
+        # start at a percentage of max by default
+        self.val = stats[self.max] * int(descr.get('initial', 100)) // 100
+        self.frac = 0
 
     def step(self, stats):
         ''' Apply regeneration '''
         max_ = stats[self.max]
         if self.val < max_:
-            self.val += stats[self.regen]
+            self.frac += stats[self.regen]
+            if self.frac > 1000:
+                self.val += 1
+                self.frac -= 1000
+                print self.name, self.val
             if self.val > max_:
                 self.val = max_
         
@@ -38,7 +44,7 @@ class Variables(Component):
         self.vars = {}
         
         for name, descr in data.iteritems():
-            self.vars[name] = Variable(name, descr)
+            self.vars[name] = Variable(name, descr, self.stats)
 
     def save(self):
         return dict((k, v.val) for k, v in self.vars.iteritems())

@@ -184,6 +184,7 @@ class Game(object):
             return True
 
         entids = [eid for eid in entids if check_ability(eid)]
+        print entids
 
         # create the order
         order = AbilityOrder(entids, idx)

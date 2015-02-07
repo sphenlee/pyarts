@@ -39,8 +39,7 @@ class GameScreen(Screen):
         self.infopanel = InfoPanel(self.game, self.datasrc)
 
         self.townspanel = TownsPanel(self.datasrc)
-        for team in self.game.engine.getteams(tidmask):
-            team.ontowncreated.add(self.townspanel.townadded)
+        self.game.engine.ontowncreated.add(self.townspanel.townadded)
 
         self.game.load()
         self.camera.load(self.datasrc)

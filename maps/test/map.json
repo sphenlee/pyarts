@@ -25,9 +25,9 @@
             },
             "stats" : {
                 "maxhp" : 250,
-                "hpregen" : 2,
+                "hpregen" : 20,
                 "maxmp" : 200,
-                "mpregen" : 2,
+                "mpregen" : 20,
                 "sight" : 256
             },
             "abilities" : [ "boost", "heal" ]
@@ -175,15 +175,15 @@
     "races" : {
         "human" : {
             "resource" : "Lumber",
-            "resource_icon" : "lumber.png",
+            "resource_icon" : "res/lumber.png",
             "energy" : "Gold",
-            "energy_icon" : "sunlight.png"
+            "energy_icon" : "res/sunlight.png"
         },
         "elves": {
             "resource" : "Lumber",
-            "resource_icon" : "lumber.png",
+            "resource_icon" : "res/lumber.png",
             "energy" : "Sunlight",
-            "energy_icon" : "sunlight.png"
+            "energy_icon" : "res/sunlight.png"
         }
 
     },

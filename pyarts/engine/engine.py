@@ -11,6 +11,7 @@ from .spritemanager import SpriteManager
 from .pathfinder import Pathfinder
 from .team import Team
 from .scripting import Scripting
+from .event import Event
 
 from .. import lua
 
@@ -25,6 +26,8 @@ class Engine(object):
         self.pathfinder = Pathfinder(self.map)
         self.sprites = SpriteManager(self.datasrc)
         self.races = {}
+
+        self.ontowncreated = Event(debug='ontowncreated')
 
 
     def load(self):

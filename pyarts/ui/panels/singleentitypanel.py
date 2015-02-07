@@ -19,6 +19,12 @@ class SingleEntityPanel(object):
             self.portrait = pyglet.sprite.Sprite(img,
                 20, 20,
                 batch=self.batch)
+
+        if ent.has('variables'):
+            vars = ent.variables
+
+            
+
         
     def draw(self):
         self.batch.draw()

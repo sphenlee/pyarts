@@ -21,8 +21,6 @@ class Team(object):
         self.tid = tid
         self.entityprotos = {}
         self.towns = {}
-
-        self.ontowncreated = Event()
         
     def __repr__(self):
         return '<Team %d>' % self.tid
@@ -41,7 +39,7 @@ class Team(object):
             town.load(twdata)
             self.towns[twid] = town
 
-            self.ontowncreated.emit(town)
+            self.eng.ontowncreated.emit(self, town)
 
         print self.towns
 
@@ -76,4 +74,4 @@ class Team(object):
         town = Town(twid, self)
         town.addentity(founder)
         self.towns[twid] = town
-        self.ontowncreated.emit(town)
+        self.eng.ontowncreated.emit(self, town)

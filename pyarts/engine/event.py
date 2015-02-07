@@ -3,8 +3,9 @@ Event
 '''
 
 class Event(object):
-    def __init__(self):
+    def __init__(self, debug=None):
         self.listeners = []
+        self.debug = debug
 
     def add(self, func):
         self.listeners.append(func)
@@ -18,5 +19,7 @@ class Event(object):
             print 'remove failed...'
 
     def emit(self, *args, **kwargs):
+        if self.debug:
+            print 'emitting', self.debug
         for func in self.listeners:
             func(*args, **kwargs)
