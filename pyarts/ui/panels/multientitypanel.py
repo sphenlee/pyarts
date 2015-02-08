@@ -25,6 +25,9 @@ class MultiEntityPanel(object):
                 self.portraits.append(portrait)
 
                 x += 1
-        
+
+    def step(self):
+        pass
+
     def draw(self):
         self.batch.draw()

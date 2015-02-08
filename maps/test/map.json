@@ -21,7 +21,7 @@
             "locator" : { "r" : 32 },
             "variables" : {
                 "hp" : { "max" : "maxhp", "regen" : "hpregen" },
-                "mana" : { "max" : "maxmp", "regen" : "mpregen" }
+                "mana" : { "max" : "maxmp", "regen" : "mpregen", "initial" : "70" }
             },
             "stats" : {
                 "maxhp" : 250,
@@ -107,6 +107,7 @@
                     "function(me, target)",
                     "    print('Inside Lua heal' .. me)",
                     "    print(target)",
+                    "    write_variable(target, 'hp', 'add', -100)",
                     "end"
                 ],
                 "cooldown" : 60,

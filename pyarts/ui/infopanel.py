@@ -31,6 +31,10 @@ class InfoPanel(object):
             self.images[fname] = img
             return img
 
+    def step(self):
+        if self.display:
+            self.display.step()
+
     def update(self):
         if len(self.game.selection) == 1:
             self.display = SingleEntityPanel(self)

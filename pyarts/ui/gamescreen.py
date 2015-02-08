@@ -55,6 +55,8 @@ class GameScreen(Screen):
             self.camera.move(self.dx * 100 * dt, self.dy * 100 *dt)
         self.game.step()
 
+        self.infopanel.step()
+
     def entities_at_point(self, x, y):
         ''' Ask the map for entities within 16 pixels of (x, y) '''
         return self.game.engine.map.entities_in_rect(x - 16, y - 16, x + 16, y + 16)
@@ -171,13 +173,13 @@ class GameScreen(Screen):
             gl.glVertex2f(self.click[0],   self.click[1])
             gl.glEnd()
 
-        gl.glColor4f(0, 1, 1, 1)
-        gl.glBegin(gl.GL_QUADS)
-        gl.glVertex2f(-10, -10)
-        gl.glVertex2f( 10, -10)
-        gl.glVertex2f( 10,  10)
-        gl.glVertex2f(-10,  10)
-        gl.glEnd()
+        #gl.glColor4f(0, 1, 1, 1)
+        #gl.glBegin(gl.GL_QUADS)
+        #gl.glVertex2f(-10, -10)
+        #gl.glVertex2f( 10, -10)
+        #gl.glVertex2f( 10,  10)
+        #gl.glVertex2f(-10,  10)
+        #gl.glEnd()
 
         return True
 

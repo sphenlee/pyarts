@@ -10,10 +10,10 @@ from pyglet import gl
 from ..screen import Screen
 
 class TownsPanel(object):
-    WIDTH = Screen.WIDTH // 4
-    HEIGHT = Screen.HEIGHT - 36
-
     def __init__(self, datasrc):
+        self.WIDTH = Screen.WIDTH // 4
+        self.HEIGHT = Screen.HEIGHT - 36
+
         self.datasrc = datasrc
 
         self.batch = pyglet.graphics.Batch()

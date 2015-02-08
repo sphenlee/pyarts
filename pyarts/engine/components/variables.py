@@ -13,6 +13,7 @@ from .component import Component, register
 class Variable(object):
     def __init__(self, name, descr, stats):
         self.name = name
+        # NOTE: max and regen are the names of stats, not the actual values!
         self.max = descr.get('max', 2**32)
         self.regen = descr.get('regen')
 
@@ -67,3 +68,6 @@ class Variables(Component):
     def __setitem__(self, key, val):
         if 0 < val < self.vars[key].max:
             self.vars[key].val = val
+
+    def getmax(self, key):
+        return self.stats[self.vars[key].max]

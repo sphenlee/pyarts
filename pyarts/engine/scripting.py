@@ -38,11 +38,21 @@ class Scripting(object):
 
         ent.locator.place(x + meent.locator.r, y)
 
+    def write_variable(self, eid, var, op, val):
+        print 'write variable', eid, op, val
+        ent = self.eng.entities.get(eid)
+        if ent.has('variables'):
+            if op == 'set':
+                ent.variables[var] = int(val)
+            elif op == 'add':
+                ent.variables[var] += int(val)
+
     def setup(self):
         self.lua.setglobal('print', self.print_)
         self.lua.setglobal('create_entity', self.create_entity)
         self.lua.setglobal('place_entity', self.place_entity)
         self.lua.setglobal('place_entity_near', self.place_entity_near)
+        self.lua.setglobal('write_variable', self.write_variable)
 
     def runmain(self, datasrc):
         main = datasrc.getresource('main.lua')
