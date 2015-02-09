@@ -28,7 +28,7 @@ class Town(Component):
             # founding a town requires that an empty town is created first
             self.town = self.team.gettownat(self.locator.pos())
 
-        self.town.addentity(self)
+        self.town.addentity(self.ent)
 
     def save(self):
         return self.town.twid

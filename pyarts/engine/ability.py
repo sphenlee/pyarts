@@ -11,6 +11,7 @@ class Ability(object):
     STATIC = 'static'            
     INSTANT = 'instant'
     TARGETED = 'targeted'
+    BUILD = 'build'
     AREA_OF_EFFECT = 'area_of_effect'
 
     def __init__(self, data, scripting):
@@ -29,6 +30,9 @@ class Ability(object):
         self.group = data.get('group', False)
         self.cooldown = data.get('cooldown', 0)
         self.cost = Cost.from_data(data['cost'])
+
+        if self.type == Ability.BUILD:
+            self.ghost = data['ghost']
 
         self.image = data['image']
 
@@ -62,10 +66,10 @@ class Ability(object):
 
         if self.type in (Ability.STATIC, Ability.INSTANT):
             self.effect(me.eid)
-        elif self.type == Ability.TARGETED:
+        elif self.type in (Ability.TARGETED,):
             if target.isent():
-                self.effect(me.eid, target.eid)
-        elif self.type == Ability.AREA_OF_EFFECT:
+                self.effect(me.eid, target.eid)    
+        elif self.type in (Ability.AREA_OF_EFFECT,  Ability.BUILD):
             x, y = target.getpos()
             self.effect(me.eid, x, y)
         else:

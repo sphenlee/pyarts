@@ -131,9 +131,13 @@ class Map(object):
         del self.placedon[locator]
 
     def footprint(self, locator):
-        secs = self.placedon[locator]
-        for sec in secs:
-            sec.footprint(locator)
+        try:
+            secs = self.placedon[locator]
+        except KeyError:
+            pass
+        else:
+            for sec in secs:
+                sec.footprint(locator)
 
 
     def entities_in_rect(self, x1, y1, x2, y2):

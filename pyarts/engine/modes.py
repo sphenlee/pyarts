@@ -4,6 +4,8 @@ Modes
 
 from target import Target
 
+import pyglet
+
 class NormalMode(object):
     '''
     The mode the game is usually in
@@ -11,6 +13,9 @@ class NormalMode(object):
 
     def __init__(self, game):
         self.game = game
+
+    def leave(self):
+        pass
 
     def left_click_pos(self, x, y, add):
         ''' Do nothing for a left click in empty space '''
@@ -47,6 +52,9 @@ class TargetingMode(object):
         self.allowent = allowent
         self.allowpos = allowpos
 
+    def leave(self):
+        pass
+
     def left_click_pos(self, x, y, add):
         ''' Select a position target '''
         if self.allowpos:
@@ -72,3 +80,21 @@ class TargetingMode(object):
     def draw(self):
         ''' Nothing special to draw (yet) '''
         pass
+
+class BuildMode(TargetingMode):
+    '''
+    A mode used to place new buildings
+    '''
+
+    def __init__(self, game, order, ghost=None, **kwargs):
+        super(BuildMode, self).__init__(game, order, **kwargs)
+
+        res = game.datasrc.getresource(ghost)
+        img = pyglet.image.load(res)
+        self.sprite = pyglet.sprite.Sprite(img)
+
+    def leave(self):
+        pass
+
+    def draw(self):
+        self.sprite.draw()

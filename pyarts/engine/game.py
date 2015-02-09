@@ -184,8 +184,7 @@ class Game(object):
             return True
 
         entids = [eid for eid in entids if check_ability(eid)]
-        print entids
-
+        
         # create the order
         order = AbilityOrder(entids, idx)
 
@@ -195,6 +194,8 @@ class Game(object):
             self.order(order)
         elif ability.type == ability.TARGETED:
             self.push_mode(TargetingMode(self, order, allowpos=False))
+        elif ability.type == ability.BUILD:
+            self.push_mode(BuildMode(self, order, ghost=ability.ghost, allowent=False))
         elif ability.type == ability.AREA_OF_EFFECT:
             self.push_mode(TargetingMode(self, order))
         elif ability.type == ability.STATIC:

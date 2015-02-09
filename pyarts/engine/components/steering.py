@@ -42,6 +42,7 @@ class Steering(Component):
         if d:
             s = min(d, self.stats.get('speed', 8)) / d
         
+            # add 1 to round up
             self.dx = int(dx * s)
             self.dy = int(dy * s)
         else:

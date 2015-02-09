@@ -2,7 +2,7 @@
     "entityprotos" : {
         "peasant" : {
             "name" : "Peasant",
-            "components" : ["moving", "appearance"],
+            "components" : ["moving", "appearance","behaviour"],
             "appearance" : {
                 "sprite" : "res/unit-pesant.png",
                 "portrait" : "res/unit-pesant.png"
@@ -128,6 +128,22 @@
                 "cooldown" : 60,
                 "cost" : { "energy" : 100, "resource" : 100 },
                 "image" : "res/unit-pesant.png"
+            },
+            "build_townhall" : {
+                "type" : "build",
+                "name" : "Build Townhall",
+                "description" : "Builds a Townhall",
+                "effect" : [
+                    "function(me, x, y)",
+                    "    print('here')",
+                    "    ent = create_entity(0, 'townhall')",
+                    "    place_entity(ent, x, y)",
+                    "end"
+                ],
+                "cooldown" : 60,
+                "cost" : { },
+                "image" : "res/bldg-townhall.png",
+                "ghost" : "res/bldg-townhall.png"
             }
         }
     },
@@ -137,16 +153,17 @@
             "entityprotos" : {
                 "peasant" : {
                     "name" : "Peasant Upgraded",
-                    "components" : ["steering", "appearance", "behaviour", "maprevealer"],
+                    "components" : ["moving", "appearance", "behaviour", "maprevealer","abilities"],
                     "appearance" : {
                         "sprite" : "res/unit-pesant.png",
                         "portrait" : "res/unit-pesant.png"
                     },
+                    "abilities" : [ "build_townhall" ],
                     "behaviour" : { "type" : "unit" },
                     "locator" : { "r" : 32 },
                     "stats" : {
                         "sight" : 256,
-                        "speed" : 1
+                        "speed" : 16
                     }
                 }
             },    
