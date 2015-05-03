@@ -7,8 +7,20 @@ import json
 import os
 p = os.path
 
+from pyarts.container import component
+
+@component
 class DataSource(object):
-    def __init__(self, save, map, core):
+    name = 'datasrc'
+    depends = []
+
+    def __init__(self):
+        pass
+
+    def inject(self):
+        pass
+
+    def load(self, save, map, core):
         self.save = json.load(open(save))
         self.map = json.load(open(map))
         self.core = json.load(open(core))

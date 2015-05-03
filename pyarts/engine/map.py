@@ -7,12 +7,12 @@ Holds the state of the terrain and fog-of-war.
 from .event import Event
 from .sector import Sector, SECTOR_SZ, VERTEX_SZ
 
+from pyarts.container import component
 
+@component
 class Map(object):
-    def __init__(self, eng):
-        self.eng = eng
-        self.datasrc = eng.datasrc
-
+    depends = ['engine', 'datasrc']
+    def __init__(self):
         self.sectors = { }
         self.dirty = set()
         self.locators = set()
@@ -21,6 +21,10 @@ class Map(object):
         self.onsectorloaded = Event()
 
         self.n = 0
+
+    def inject(self, engine, datasrc):
+        self.eng = engine
+        self.datasrc = datasrc
 
     def load(self):
         for sx, sy in self.datasrc.getloadedsectors():

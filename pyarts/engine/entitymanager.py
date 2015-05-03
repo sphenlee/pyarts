@@ -10,17 +10,23 @@ from .order import Order
 from .actions import AbilityAction
 from .event import Event
 
+from pyarts.container import component
+
+@component
 class EntityManager(object):
-    def __init__(self, eng):
-        self.eng = eng
-        self.datasrc = eng.datasrc
+    depends = ['engine', 'datasrc', 'map']
+
+    def __init__(self):
         self.nextentid = 0
         self.entities = {} # entid -> entitiy
         self.newentities = {} # entities created during this step
 
-        self.eng.map.onsectorloaded.add(self.sectorloaded)
-
         self.onentitycreated = Event()
+
+    def inject(self, engine, datasrc, map):
+        self.eng = engine
+        self.datasrc = datasrc
+        self.map = map
 
     def get(self, eid):
         ''' Get an entity by ID '''
@@ -32,6 +38,9 @@ class EntityManager(object):
     def load(self):
         ''' Individual entities are loaded as the map loads sectors, juts grab misc data here '''
         self.nextentid = self.datasrc.getmisc('entities.nexteid', 1)
+
+        self.map.onsectorloaded.add(self.sectorloaded)
+
 
     def loadentity(self, eid):
         ''' Load a single entity by eid '''
@@ -87,6 +96,7 @@ class EntityManager(object):
                 cls = getcomponentclass(cname)
                 cls(ent)
 
+        # TODO - tie this with the real global components
         globalcomponents = {
             'sprites' : self.eng.sprites,
             'map' : self.eng.map,

@@ -10,15 +10,23 @@ A place to store various other game objects that need configuration data:
 
 from .ability import Ability
 
+from pyarts.container import component
+
+@component
 class ContentManager(object):
-    def __init__(self, eng):
-        self.eng = eng
+    depends = ['engine', 'datasrc']
+
+    def __init__(self):
         self.abilities = {}
         self.activities = {}
         self.statuseffects = {}
 
-    def load(self, datasrc):
-        for name, data in datasrc.getcontent('abilities').iteritems():
+    def inject(self, engine, datasrc):
+        self.eng = engine
+        self.datasrc = datasrc
+
+    def load(self):
+        for name, data in self.datasrc.getcontent('abilities').iteritems():
             self.abilities[name] = Ability(data, self.eng.scripting)
 
         

@@ -14,6 +14,8 @@ from .util import TextureGroup, TranslateGroup
 
 from ..engine.sector import NUM_TILES, VERTEX_SZ, SECTOR_SZ
 
+from pyarts.container import component
+
 TEX_SZ = 1 / 8.0 # the size of each tile in tex units
 
 
@@ -168,18 +170,22 @@ class SectorRenderer(object):
 
         #print 'updated fog renderer gl, took %fs' % (time.time() - start)
 
-
+@component
 class MapRenderer(object):
-    def __init__(self, datasrc, map, tidmask):
-        self.datasrc = datasrc
-        self.tidmask = tidmask
-        self.map = map
+    depends = ['map', 'datasrc']
 
-        self.loadtileset()
-
+    def __init__(self):
         self.looksector = None # the sector being looked at
         self.renderers = {}
         self.activerenderers = []
+
+    def inject(self, map, datasrc):
+        self.map = map
+        self.datasrc = datasrc
+
+    def load(self, tidmask):
+        self.tidmask = tidmask
+        self.loadtileset()
 
     def loadtileset(self):
         data = self.datasrc.gettileset()

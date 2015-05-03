@@ -153,7 +153,7 @@ class Sector(object):
             r = int(loc.sight/VERTEX_SZ + 0.5)
             for i in xrange(x-r, x+r):
                 for j in xrange(y-r, y+r):
-                    if 0 <= i <= NUM_TILES and 0 <= j <= NUM_TILES:
+                    if 0 <= i < NUM_TILES and 0 <= j < NUM_TILES:
                         if distance2(i, j, x, y) < r*r:
                             tid = loc.ent.team.tid
                             self.visible[i + j*NUM_TILES] |= (1 << tid)

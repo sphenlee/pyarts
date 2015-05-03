@@ -6,9 +6,10 @@ import pyglet
 from pyglet.window import key
 
 from .screen import Screen
-from .gamescreen import GameScreen
 from ..engine.datasource import DataSource
 from ..engine.datasink import DataSink
+
+from pyarts.container import construct
 
 mapfile = 'maps/test/map.json'
 savefile = 'maps/test/map_save.json'
@@ -29,9 +30,9 @@ class MainMenu(Screen):
 
     def on_key_press(self, symbol, mod):
         if symbol == key.S:
-            datasrc = DataSource(mapfile, mapfile, mapfile)
-            self.gs = GameScreen(self)
-            self.gs.activate(datasrc)
+            self.gs = construct('gamescreen')
+            self.gs.load(mapfile, mapfile, mapfile, localpid=0)
+            self.gs.activate(parent=self)
 
         elif symbol == key.F5:
             print '*********** saving game'
@@ -41,9 +42,9 @@ class MainMenu(Screen):
             self.gs.pause()
 
             print '************* loading new game'
-            datasrc = DataSource(savefile, mapfile, mapfile)
-            self.gs = GameScreen(self)
-            self.gs.activate(datasrc)
+            self.gs = construct('gamescreen')
+            self.gs.load(savefile, mapfile, mapfile, localpid=0)
+            self.gs.activate(parent=self)
 
         elif symbol == key.Q:
             pyglet.app.exit()

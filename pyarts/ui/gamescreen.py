@@ -11,26 +11,31 @@ from pyglet.window import key, mouse
 from .screen import Screen
 from .infopanel import InfoPanel
 from .panels.townspanel import TownsPanel
-from .camera import Camera
-from .maprenderer import MapRenderer
-from ..engine.game import Game
+
+# debug only
 from ..engine.datasink import DataSink
 
+from pyarts.container import component
+
+@component
 class GameScreen(Screen):
-    def pre_activate(self, datasrc):
+    depends = ['game', 'datasrc', 'maprenderer', 'camera', 'engine', 'map']
+
+    def inject(self, game, datasrc, maprenderer, camera, engine, map):
+        self.game = game
         self.datasrc = datasrc
+        self.mapren = maprenderer
+        self.camera = camera
+        self.engine = engine
+        self.map = map
 
-        self.game = Game(self.datasrc, localpid=0)
-        
-        tidmask = 1
-        self.mapren = MapRenderer(self.datasrc, self.game.engine.map, tidmask)
-        self.camera = Camera(self.mapren, localpid=0)
+    def load(self, save, map, core, localpid):
+        self.datasrc.load(save, map, core)
+        self.game.load(localpid)
+        self.mapren.load(tidmask=1)
+        self.camera.load(localpid)
 
-        # connect camera to map renderer
-        self.camera.onlookpointchanged.add(self.mapren.lookat)
-        # please ignore this gross layer violation
-        self.camera.onlookpointchanged.add(self.game.engine.sprites.lookat)
-        
+    def pre_activate(self):
         self.click = None
         self.dragbox = None
         self.dx = 0
@@ -39,10 +44,7 @@ class GameScreen(Screen):
         self.infopanel = InfoPanel(self.game, self.datasrc)
 
         self.townspanel = TownsPanel(self.datasrc)
-        self.game.engine.ontowncreated.add(self.townspanel.townadded)
-
-        self.game.load()
-        self.camera.load(self.datasrc)
+        self.engine.ontowncreated.add(self.townspanel.townadded)
 
         pyglet.clock.schedule(self.update, 0.5)
 
@@ -59,11 +61,11 @@ class GameScreen(Screen):
 
     def entities_at_point(self, x, y):
         ''' Ask the map for entities within 16 pixels of (x, y) '''
-        return self.game.engine.map.entities_in_rect(x - 16, y - 16, x + 16, y + 16)
+        return self.map.entities_in_rect(x - 16, y - 16, x + 16, y + 16)
 
     def entities_in_rect(self, x1, y1, x2, y2):
         ''' Ask the map for entities within a box '''
-        return self.game.engine.map.entities_in_rect(x1, y1, x2, y2)
+        return self.map.entities_in_rect(x1, y1, x2, y2)
 
     def on_mouse_motion(self, x, y, dx, dy):
         ''' Mouse motion event - check for edge scrolling '''

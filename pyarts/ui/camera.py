@@ -10,24 +10,40 @@ from .screen import Screen
 from ..engine.event import Event
 from ..engine.map import SECTOR_SZ
 
+from pyarts.container import component
+
+@component
 class Camera(object):
-    def __init__(self, mapren, localpid):
-        self.localpid = localpid
+    depends = ['datasrc', 'maprenderer', 'map', 'spritemanager']
+
+    def __init__(self):
         self.lookx = 0.0
         self.looky = 0.0
-        self.mapren = mapren
 
         self.onlookpointchanged = Event()
 
-    def load(self, datasrc):
-        data = datasrc.getmisc('camera.initial.position')
+    def inject(self, datasrc, maprenderer, map, spritemanager):
+        self.datasrc = datasrc
+        self.mapren = maprenderer
+        self.map = map
+        self.sprites = spritemanager
+
+    def load(self, localpid):
+        self.localpid = localpid
+
+        # connect camera to map renderer
+        # TODO connect these the other way around
+        self.onlookpointchanged.add(self.mapren.lookat)
+        self.onlookpointchanged.add(self.sprites.lookat)
+
+        data = self.datasrc.getmisc('camera.initial.position')
         look = data[str(self.localpid)]
         self.lookx = look['x']
         self.looky = look['y']
 
         # camera should not really be doing this
-        sx, sy = self.mapren.map.pos_to_sector(self.lookx, self.looky)
-        sec = self.mapren.map.sectors[(sx, sy)]
+        sx, sy = self.map.pos_to_sector(self.lookx, self.looky)
+        sec = self.map.sectors[(sx, sy)]
 
         self.mapren.lookat(sec)
 

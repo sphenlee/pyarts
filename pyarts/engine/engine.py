@@ -4,36 +4,34 @@ The Engine holds all of the state that is shared by all players.
 This includes the EntityManager, Map and the list of teams.
 '''
 
-from .map import Map
-from .entitymanager import EntityManager
-from .contentmanager import ContentManager
-from .spritemanager import SpriteManager
-from .pathfinder import Pathfinder
 from .team import Team
-from .scripting import Scripting
 from .event import Event
 
-from .. import lua
+from pyarts.container import component
 
+@component
 class Engine(object):
-    def __init__(self, datasrc):
-        self.datasrc = datasrc
+    depends = ['datasrc', 'map', 'scripting', 'entitymanager', 'contentmanager', 'pathfinder', 'spritemanager']
+
+    def __init__(self):
         self.teams = {}
-        self.map = Map(self)
-        self.scripting = Scripting(self)
-        self.entities = EntityManager(self)
-        self.content = ContentManager(self)
-        self.pathfinder = Pathfinder(self.map)
-        self.sprites = SpriteManager(self.datasrc)
         self.races = {}
 
         self.ontowncreated = Event(debug='ontowncreated')
 
+    def inject(self, datasrc, map, scripting, entitymanager, contentmanager, pathfinder, spritemanager):
+        self.datasrc = datasrc
+        self.map = map
+        self.scripting = scripting
+        self.entities = entitymanager
+        self.content = contentmanager
+        self.pathfinder = pathfinder
+        self.sprites = spritemanager
 
     def load(self):
         self.scripting.setup()
 
-        self.content.load(self.datasrc)
+        self.content.load()
 
         self.races = self.datasrc.getraces()
         for name, race in self.races.items():
@@ -48,7 +46,7 @@ class Engine(object):
         self.entities.load()
         self.map.load()
 
-        self.scripting.runmain(self.datasrc)
+        self.scripting.runmain()
 
 
     def save(self, sink):

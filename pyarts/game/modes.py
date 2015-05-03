@@ -2,7 +2,7 @@
 Modes
 '''
 
-from target import Target
+from pyarts.engine.target import Target
 
 import pyglet
 

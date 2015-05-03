@@ -9,11 +9,16 @@ import math
 
 from .sector import VERTEX_SZ, NEIGHBOURS
 
+from pyarts.container import component
+
 def distance(p1, p2):
     return (p1[0] - p2[0])**2 + (p1[1] - p2[1])**2
 
+@component
 class Pathfinder(object):
-    def __init__(self, map):
+    depends = ['map']
+
+    def inject(self, map):
         self.map = map
 
     def findpath(self, start, goal, walk, range):

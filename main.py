@@ -13,8 +13,8 @@ def main():
     Screen.WIDTH = window.width
     Screen.HEIGHT = window.height
 
-    menu = MainMenu(window=window)
-    menu.activate()
+    menu = MainMenu()
+    menu.activate(window=window)
     pyglet.app.run()
 
 if __name__ == '__main__':

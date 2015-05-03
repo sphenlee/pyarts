@@ -1,0 +1,1 @@
+print('in main.lua')

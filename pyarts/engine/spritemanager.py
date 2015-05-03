@@ -7,6 +7,8 @@ import pyglet
 
 from .sector import SECTOR_SZ
 
+from pyarts.container import component
+
 class Sprite(object):
     def __init__(self, sm, sprite):
         self.sm = sm
@@ -22,14 +24,19 @@ class Sprite(object):
 
 SPRITE_SIZE = 128
 
+@component
 class SpriteManager(object):
-    def __init__(self, datasrc):
-        self.datasrc = datasrc
+    depends = ['datasrc']
+
+    def __init__(self):
         self.batch = pyglet.graphics.Batch()
         self.sprites = set()
         self.offx = 0
         self.offy = 0
 
+    def inject(self, datasrc):
+        self.datasrc = datasrc
+        
     def lookat(self, sec):
         self.setoffset(sec.sx * SECTOR_SZ, sec.sy * SECTOR_SZ)
 

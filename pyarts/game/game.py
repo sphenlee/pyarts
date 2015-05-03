@@ -9,18 +9,18 @@ It also holds the Engine which has all the shared stuff.
 
 from pyglet import gl
 
-
-from .engine import Engine
 from .player import Player
 from .order import *
-from .event import Event
 from .modes import *
 
+from pyarts.engine.event import Event
+from pyarts.container import component
+
+@component
 class Game(object):
-    def __init__(self, datasrc, localpid):
-        self.datasrc = datasrc
-        self.localpid = localpid
-        self.engine = Engine(datasrc)
+    depends = ['engine', 'datasrc']
+
+    def __init__(self):
         self.selection = []
         self.players = []
         self.cycle = 0
@@ -32,7 +32,13 @@ class Game(object):
 
         self.onselectionchange = Event()
 
-    def load(self):
+    def inject(self, engine, datasrc):
+        self.engine = engine
+        self.datasrc = datasrc
+
+    def load(self, localpid):
+        self.localpid = localpid
+        
         self.engine.load()
 
         data = self.datasrc.getplayers()
