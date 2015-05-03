@@ -34,7 +34,7 @@ class Component(object):
         '''
         raise NotImplementedError
 
-    def load(self):
+    def load(self, data):
         '''
         Load entity specific data
         '''
