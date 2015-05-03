@@ -106,11 +106,10 @@ class Game(object):
     def render(self):
         self.engine.render() # FIXME - engine should not have any graphics in it
 
-        for eid in self.selection:
-            self.render_selection(eid)
+        for ent in self.selection:
+            self.render_selection(ent)
 
-    def render_selection(self, eid):
-        ent = self.engine.entities.get(eid)
+    def render_selection(self, ent):
         loc = ent.locator
 
         gl.glDisable(gl.GL_TEXTURE_2D)        
@@ -134,7 +133,8 @@ class Game(object):
     def autocommand(self, target, add):
         ''' Give an autocommand on target to the selected entities '''
         if self.selection:
-            self.order(AutoCommandOrder(self.selection, target, add))
+            eids = [e.eid for e in self.selection]
+            self.order(AutoCommandOrder(eids, target, add))
 
     def ability(self, idx):
         ''' Do the ability at idx for the currently selected entities '''
@@ -143,7 +143,7 @@ class Game(object):
             return
 
         # grab the ability - defined by the first entity in the selection
-        ent = self.engine.entities.get(self.selection[0])
+        ent = self.selection[0]
         if not ent.has('abilities'):
             # no abilities
             return
@@ -158,7 +158,7 @@ class Game(object):
         if not ability.group:
             entids = [ent.eid]
         else:
-            entids = self.selection    
+            entids = [e.eid for e in self.selection]
 
         # verify if there are any entities in the selection that can actually
         # do the ability right now

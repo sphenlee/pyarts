@@ -29,7 +29,6 @@ class Variable(object):
             if self.frac > 1000:
                 self.val += 1
                 self.frac -= 1000
-                print self.name, self.val
             if self.val > max_:
                 self.val = max_
         

@@ -16,6 +16,7 @@ class EntityProto(object):
     def load(self, data):
         self.name = data['name']
         self.components = data['components']
+        self.tier = data.get('tier', 1000)
         self.data = data
 
     def save(self):

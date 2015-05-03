@@ -16,7 +16,7 @@ HP_RAMP = [
 class SingleEntityPanel(object):
     def __init__(self, infopanel):
         game = infopanel.game
-        self.ent = game.engine.entities.get(game.selection[0])
+        self.ent = game.selection[0]
 
         self.batch = pyglet.graphics.Batch()
         self.name = pyglet.text.Label(self.ent.proto.name,

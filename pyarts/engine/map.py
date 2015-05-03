@@ -152,6 +152,6 @@ class Map(object):
         for loc in self.locators:
             if x1 - loc.r <= loc.x <= x2 + loc.r:
                 if y1 - loc.r <= loc.y <= y2 + loc.r:
-                    result.add(loc.eid)
+                    result.add(loc.ent)
 
         return result

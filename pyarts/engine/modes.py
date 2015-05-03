@@ -28,9 +28,9 @@ class NormalMode(object):
     def right_click(self, x, y, ents, add):
         ''' Right click issues an auto command '''
         if ents:
-            target = Target(self.game.engine.entities, next(iter(ents)))
+            target = Target(next(iter(ents)))
         else:
-            target = Target(self.game.engine.entities, (x, y))
+            target = Target((x, y))
 
         self.game.autocommand(target, add)
 
@@ -58,14 +58,14 @@ class TargetingMode(object):
     def left_click_pos(self, x, y, add):
         ''' Select a position target '''
         if self.allowpos:
-            self.order.target = Target(self.game.engine.entities, (x, y))
+            self.order.target = Target((x, y))
             self.game.order(self.order)
         self.game.pop_mode()
 
     def left_click_ents(self, ents, add):
         ''' Select an entity target '''
         if self.allowent:
-            self.order.target = Target(self.game.engine.entities, next(iter(ents)))
+            self.order.target = Target(next(iter(ents)))
             self.game.order(self.order)
         self.game.pop_mode()
 

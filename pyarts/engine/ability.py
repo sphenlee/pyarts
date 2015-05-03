@@ -68,7 +68,7 @@ class Ability(object):
             self.effect(me.eid)
         elif self.type in (Ability.TARGETED,):
             if target.isent():
-                self.effect(me.eid, target.eid)    
+                self.effect(me.eid, target.ent.eid)    
         elif self.type in (Ability.AREA_OF_EFFECT,  Ability.BUILD):
             x, y = target.getpos()
             self.effect(me.eid, x, y)

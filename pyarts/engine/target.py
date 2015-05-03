@@ -4,25 +4,24 @@ Target
 
 class Target(object):
     pos = None
-    eid = None
+    ent = None
 
-    def __init__(self, entities, obj):
-        self.entities = entities
-
+    def __init__(self, obj):
         if isinstance(obj, tuple) and len(obj) == 2:
             self.pos = obj
         elif isinstance(obj, int):
-            self.eid = obj
+            raise TypeError('Target can\'t take EIDs now')
+        else:
+            self.ent = obj
 
     def ispos(self):
         return self.pos is not None
 
     def isent(self):
-        return self.eid is not None
+        return self.ent is not None
 
     def getpos(self):
         if self.ispos():
             return self.pos
         else:
-            ent = self.entities.get(self.eid)
-            return ent.locator.pos()
+            return self.ent.locator.pos()

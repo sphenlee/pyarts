@@ -13,8 +13,7 @@ class MultiEntityPanel(object):
         
         x = 0
 
-        for eid in game.selection:
-            ent = game.engine.entities.get(eid)
+        for ent in game.selection:
             if ent.has('appearance'):
                 img = infopanel.getimage(ent.appearance.portrait)
                 portrait = pyglet.sprite.Sprite(img,
