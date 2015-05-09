@@ -2,6 +2,7 @@
     "entityprotos" : {
         "peasant" : {
             "name" : "Peasant",
+            "rank" : 30,
             "components" : ["moving", "appearance","behaviour"],
             "appearance" : {
                 "sprite" : "res/unit-pesant.png",
@@ -12,6 +13,7 @@
         },
         "archer" : {
             "name" : "Archer",
+            "rank" : 20,
             "components" : ["moving", "appearance", "behaviour", "variables", "abilities", "maprevealer"],
             "appearance" : {
                 "sprite" : "res/unit-archer.png",
@@ -34,6 +36,7 @@
         },
         "townhall" : {
             "name" : "Town Hall",
+            "rank" : 100,
             "components" : ["town", "appearance", "behaviour", "maprevealer", "footprint", "abilities"],
             "appearance" : {
                 "sprite" : "res/bldg-townhall.png",
@@ -49,6 +52,7 @@
         },
         "goldmine" : {
             "name" : "Gold Mine",
+            "rank" : 200,
             "components" : ["appearance", "footprint", "resource"],
             "appearance" : {
                 "sprite" : "res/bldg-goldmine.png",
@@ -172,6 +176,7 @@
             "entityprotos" : {
                 "peasant" : {
                     "name" : "Peasant Upgraded",
+                    "rank" : 30,
                     "components" : ["moving", "appearance", "behaviour", "maprevealer","abilities"],
                     "appearance" : {
                         "sprite" : "res/unit-pesant.png",

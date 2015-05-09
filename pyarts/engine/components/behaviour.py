@@ -40,7 +40,6 @@ class Behaviour(Component):
             else:
                 # TODO - check if the entity is friend or enemy (Follow, Attack,
                 # or all of the other possible actions)
-                ent = self.entities.get(target.eid)
                 action = MoveAction(target)
 
             if add:

@@ -130,10 +130,14 @@ class Game(object):
 
     def select(self, ents, add):
         ''' Select ents or add ents to the current selection '''
-        if not add:
-            del self.selection[:]
+        if add:
+            ents = ents | set(self.selection)
+            tier = self.selection[0].tier
+        else:
+            tier = min(e.tier for e in ents)
 
-        self.selection.extend(ents)
+        self.selection = [e for e in ents if e.tier == tier]
+
         self.onselectionchange.emit()
 
     def autocommand(self, target, add):

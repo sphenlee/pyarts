@@ -62,3 +62,13 @@ class Entity(object):
     def has(self, comp):
         ''' Check if this entity has a certain component '''
         return comp in self.components
+
+    @property
+    def tier(self):
+        '''Convenience for getting an Entity's selection tier'''
+        return self.proto.rank // 100
+
+    @property
+    def rank(self):
+        '''Convenience for getting an Entity's selection rank'''
+        return self.proto.rank
