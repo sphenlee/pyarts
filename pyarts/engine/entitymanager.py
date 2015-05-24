@@ -6,7 +6,7 @@ Container holding all of the entities
 
 from .components.component import getcomponentclass
 from .entity import Entity
-from .order import Order
+from pyarts.game.order import Order
 from .actions import AbilityAction
 from .event import Event
 
@@ -14,7 +14,7 @@ from pyarts.container import component
 
 @component
 class EntityManager(object):
-    depends = ['engine', 'datasrc', 'map']
+    depends = ['engine', 'datasrc', 'map', 'collisions']
 
     def __init__(self):
         self.nextentid = 0
@@ -23,10 +23,11 @@ class EntityManager(object):
 
         self.onentitycreated = Event()
 
-    def inject(self, engine, datasrc, map):
+    def inject(self, engine, datasrc, map, collisions):
         self.eng = engine
         self.datasrc = datasrc
         self.map = map
+        self.collisions = collisions
 
     def get(self, eid):
         ''' Get an entity by ID '''
@@ -105,7 +106,8 @@ class EntityManager(object):
             'content' : self.eng.content,
             'pathfinder' : self.eng.pathfinder,
             'engine' : self.eng,
-            'team' : proto.team
+            'team' : proto.team,
+            'collisions' : self.collisions
         }
 
         # perform the injection
@@ -135,6 +137,8 @@ class EntityManager(object):
 
     def step(self):
         ''' Step all entities '''
+        self.collisions.step()
+
         self.entities.update(self.newentities)
         self.newentities.clear()
 

@@ -23,7 +23,7 @@ class Footprint(Component):
         self.step()
 
     def step(self):
-        if not self.ready:
+        if not self.ready and self.locator.placed:
             self.map.footprint(self.locator)
             self.ready = True
     
