@@ -23,6 +23,18 @@ class Scripting(object):
         self.entities = entitymanager
         self.datasrc = datasrc
 
+    def code(self, code):
+        if isinstance(code, list):
+            code = 'return ' + '\n'.join(code)
+            return self.lua.dostring(code)
+        elif isinstance(code, basestring):
+            code = 'return ' + code
+            return self.lua.dostring(code)
+        elif isinstance(code, dict):
+            return self.get_func(code['file'], code['function'])
+        else:
+            raise ValueError('lua code must be string, list or dict')
+
     def get_func(self, file, func):
         if file in self.codecache:
             return self.lua.getglobal(func)

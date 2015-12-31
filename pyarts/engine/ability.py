@@ -18,18 +18,7 @@ class Ability(object):
         self.name = data['name']
         self.description = data['description']
 
-        code = data['effect']
-        
-        if isinstance(code, list):
-            code = 'return ' + '\n'.join(code)
-            self.effect = scripting.lua.dostring(code)
-        elif isinstance(code, basestring):
-            code = 'return ' + code
-            self.effect = scripting.lua.dostring(code)
-        elif isinstance(code, dict):
-            self.effect = scripting.get_func(code['file'], code['function'])
-        else:
-            raise ValueError('ability effect must be string, list or dict')
+        self.effect = scripting.code(data['effect'])
 
         self.type = data['type']
 

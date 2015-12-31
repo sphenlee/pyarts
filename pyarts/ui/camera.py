@@ -78,14 +78,14 @@ class Camera(object):
         if self.lookx > SECTOR_SZ - Screen.WIDTH:
             if not sec.neighbour[1, 0]:
                 self.lookx = SECTOR_SZ - Screen.WIDTH
-        elif self.lookx < 0:
+        if self.lookx < 0:
             if not sec.neighbour[-1, 0]:
                 self.lookx = 0
 
         if self.looky > SECTOR_SZ - Screen.HEIGHT:
             if not sec.neighbour[0, 1]:
                 self.looky = SECTOR_SZ - Screen.HEIGHT
-        elif self.looky < 0:
+        if self.looky < 0:
             if not sec.neighbour[0, -1]:
                 self.looky = 0
 

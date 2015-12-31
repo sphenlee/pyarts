@@ -2,23 +2,43 @@
 Resource
 
 Component to allow an entity to be a source of resources.
-This is similar to a variable but not a complex (for things
+This is similar to a variable but not as complex (for things
     like a Gold Mine having stats and variables is overkill)
+
+The component triggers a function when the resource runs out,
+this can for example destroy the entity, or change it's behaviour.
 '''
 
 from .component import Component, register
 
 @register
 class Resource(Component):
-    depends = []
+    depends = ['@scripting']
+
+    def inject(self, scripting):
+        self.scripting = scripting
 
     def configure(self, data):
-        pass
+        if data is None:
+            data = {} # hack...
+
+        self.kind = data.get('kind', 'resource')
+
+        if 'deplete' in data:
+            self.deplete = self.scripting.code(data['deplete'])
+        else:
+            self.deplete = None
 
     def load(self, data):
-        self.resource = data['resource']
+        self.quantity = data['quantity']
     
     def save(self):
         return { 
-            'resource' : self.resource
+            'quantity' : self.quantity
         }
+
+    def deduct(self, amt):
+        self.quantity -= amt
+        if self.quantity <= 0:
+            if self.deplete:
+                self.deplete(self.eid)

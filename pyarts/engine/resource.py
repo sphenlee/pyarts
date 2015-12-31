@@ -38,6 +38,12 @@ class ResourcePool(object):
         print 'paid %d, %d, resources now %d, %d' % (cost.resource, cost.energy,
             self.resource, self.energy)
 
+    def add(self, kind, amt):
+        if kind == 'resource':
+            self.resource += amt
+        elif kind == 'energy':
+            self.energy += amt
+
     def load(self, data):
         self.resource = data.get('resource', 0)
         self.energy = data.get('energy', 0)

@@ -105,6 +105,7 @@ class EntityManager(object):
             'content' : self.eng.content,
             'pathfinder' : self.eng.pathfinder,
             'engine' : self.eng,
+            'scripting' : self.eng.scripting,
             'team' : proto.team
         }
 

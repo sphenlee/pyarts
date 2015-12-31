@@ -12,23 +12,20 @@ from ..target import Target
 
 @register
 class Harvester(Component):
-    depends = [ 'variables', 'stats', 'moving', 'locator', '@map' ]
+    depends = [ 'variables', 'stats', 'moving',
+        'locator', '@map', '@team']
 
     def init(self):
         self.effect = None
 
-    def inject(self, variables, stats, moving, locator, map):
-        self.variables = variables
-        self.stats = stats
-        self.moving = moving
-        self.locator = locator
-        self.map = map
+    def inject(self, **kwargs):
+        self.__dict__.update(kwargs)
 
     def configure(self, data):
-        self.data = data
+        self.rate = data['rate']
 
         # add stats and a variable, is this naughty?
-        self.stats.basestats['max_carrying'] = 10
+        self.stats.basestats['max_carrying'] = data['capacity']
         self.stats.basestats['carrying_regen'] = 0
         self.stats.recalculate()
 
@@ -62,9 +59,9 @@ class Harvester(Component):
     def intransit(self):
         return self.moving.intransit
 
-    def startharvest(self):
+    def startharvest(self, res):
         self.locator.unplace()
-        self.effect = self.stats.apply(StatusEffect('carrying_regen', add=self.data['rate']))
+        self.effect = self.stats.apply(StatusEffect('carrying_regen', add=self.rate))
 
     @property
     def carrying(self):
@@ -74,7 +71,9 @@ class Harvester(Component):
         v = self.variables.get('carrying')
         return v.val == v.max
 
-    def stopharvest(self):
+    def stopharvest(self, res):
+        res.deduct(self.carrying)
+
         if not self.locator.placed:
             self.locator.replace()
         
@@ -82,6 +81,7 @@ class Harvester(Component):
             self.stats.remove(self.effect)
             self.effect = None
 
-    def dropoff(self):
+    def dropoff(self, res):
         print 'droped off %r resources' % self.variables['carrying']
+        #self.team.resources
         self.variables['carrying'] = 0
