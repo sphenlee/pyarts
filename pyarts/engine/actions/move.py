@@ -7,8 +7,6 @@ Performs high level motion of an entity
 from .action import Action
 
 class MoveAction(Action):
-    ent = None
-
     def __init__(self, target, range=10, follow=False):
         self.target = target
         self.range = range

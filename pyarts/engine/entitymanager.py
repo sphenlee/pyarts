@@ -6,7 +6,7 @@ Container holding all of the entities
 
 from .components.component import getcomponentclass
 from .entity import Entity
-from .order import Order
+from pyarts.game.order import Order
 from .actions import AbilityAction
 from .event import Event
 

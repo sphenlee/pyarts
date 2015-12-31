@@ -15,12 +15,17 @@ class Component(object):
         self.ent.components[self.name] = self
         setattr(self.ent, self.name, self)
         self.configured = False
+        self.init()
 
     def __hash__(self):
         return hash((self.eid, self.name))
 
     def __eq__(self, rhs):
         return self.eid == rhs.eid and self.name == rhs.name
+
+    def init(self):
+        '''Called during component creation to setup any instance variables'''
+        pass
 
     def inject(self, **comps):
         ''' Called with keyword args for each dependency declared '''

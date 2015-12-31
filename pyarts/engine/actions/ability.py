@@ -9,8 +9,6 @@ from .move import MoveAction
 from ..pathfinder import distance
 
 class AbilityAction(Action):
-    ent = None
-
     def __init__(self, ability, target=None, start=None):
         self.ability = ability
         self.target = target

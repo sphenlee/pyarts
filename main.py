@@ -7,8 +7,8 @@ from pyarts.ui.screen import Screen
 from pyarts.ui.mainmenu import MainMenu
 
 def main():
-    #window = pyglet.window.Window(MainMenu.WIDTH, MainMenu.HEIGHT)
-    window = pyglet.window.Window(fullscreen=True)
+    window = pyglet.window.Window(MainMenu.WIDTH, MainMenu.HEIGHT)
+    #window = pyglet.window.Window(fullscreen=True)
     
     Screen.WIDTH = window.width
     Screen.HEIGHT = window.height

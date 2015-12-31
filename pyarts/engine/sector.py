@@ -140,7 +140,7 @@ class Sector(object):
         return (self.walkmap[x + y*NUM_TILES] & walk) == 0
 
     def updatefog(self):
-        start = time.time()
+        #start = time.time()
         # clear visible data, needs to be recalculated from scratch
         for i in xrange(len(self.visible)):
             self.visible[i] = 0

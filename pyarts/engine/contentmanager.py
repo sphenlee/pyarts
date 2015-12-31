@@ -18,8 +18,6 @@ class ContentManager(object):
 
     def __init__(self):
         self.abilities = {}
-        self.activities = {}
-        self.statuseffects = {}
 
     def inject(self, engine, datasrc):
         self.eng = engine

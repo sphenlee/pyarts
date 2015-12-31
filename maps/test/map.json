@@ -156,13 +156,7 @@
                 "type" : "build",
                 "name" : "Build Townhall",
                 "description" : "Builds a Townhall",
-                "effect" : [
-                    "function(me, x, y)",
-                    "    print('here')",
-                    "    ent = create_entity(0, 'townhall')",
-                    "    place_entity(ent, x, y)",
-                    "end"
-                ],
+                "effect" : { "file": "abilities.lua", "function": "build_townhall" },
                 "cooldown" : 60,
                 "cost" : { },
                 "image" : "res/bldg-townhall.png",
@@ -177,7 +171,7 @@
                 "peasant" : {
                     "name" : "Peasant Upgraded",
                     "rank" : 30,
-                    "components" : ["moving", "appearance", "behaviour", "maprevealer","abilities"],
+                    "components" : ["moving", "appearance", "behaviour", "maprevealer","abilities", "harvester"],
                     "appearance" : {
                         "sprite" : "res/unit-pesant.png",
                         "portrait" : "res/unit-pesant.png"
@@ -188,7 +182,8 @@
                     "stats" : {
                         "sight" : 256,
                         "speed" : 16
-                    }
+                    },
+                    "harvester" : { "rate": 100 }
                 }
             },    
             "towns" : {

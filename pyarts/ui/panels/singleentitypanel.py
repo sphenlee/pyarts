@@ -47,12 +47,12 @@ class SingleEntityPanel(object):
             vars = self.ent.variables
 
             if 'hp' in vars:
-                hp, max = vars['hp'], vars.getmax('hp')
+                hp, max = vars.get('hp').val, vars.get('hp').max
                 idx = int((float(hp) / max) * 5)
                 self.hp.color = HP_RAMP[idx]
                 self.hp.text = '%d/%d' % (hp, max)
             if 'mana' in vars:
-                self.mana.text = '%d/%d' % (vars['mana'], vars.getmax('mana'))
+                self.mana.text = '%d/%d' % (vars.get('mana').val, vars.get('mana').max)
 
         
     def draw(self):
