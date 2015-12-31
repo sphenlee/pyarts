@@ -13,6 +13,7 @@ import time
 from .event import Event
 
 NUM_TILES = 32 # the number of tiles in a sector
+NUM_VERTS = NUM_TILES + 1 # the number of vertices in a sector
 VERTEX_SZ = 64 # the number of pixels per tile
 SECTOR_SZ = NUM_TILES * VERTEX_SZ
 
@@ -55,7 +56,7 @@ class Sector(object):
 
         # fog info
 
-        init = '\0' * 8 * (NUM_TILES + 1) * (NUM_TILES + 1)
+        init = '\0' * 8 * NUM_VERTS * NUM_VERTS
 
         if 'visited' in data:
             bindata = get_hex_resource(map.datasrc, data['visited'])
@@ -120,24 +121,24 @@ class Sector(object):
         r = int(loc.r/VERTEX_SZ + 0.5)
         for i in xrange(x-r, x+r):
             for j in xrange(y-r, y+r):
-                if 0 <= i <= NUM_TILES and 0 <= j <= NUM_TILES:
+                if 0 <= i < NUM_VERTS and 0 <= j < NUM_VERTS:
                     #if distance2(i, j, x, y) <= r*r:
-                    self.walkmap[i + j*NUM_TILES] |= Sector.WALK_FOOT
+                    self.walkmap[i + j*NUM_VERTS] |= Sector.WALK_FOOT
 
     def occupied(self):
         return len(self.locators) > 0
 
     def cellvisited(self, tid, pt):
         x, y = pt
-        return self.visited[x + y*NUM_TILES] & (1 << tid)
+        return self.visited[x + y*NUM_VERTS] & (1 << tid)
 
     def cellvisible(self, tid, pt):
         x, y = pt
-        return self.visible[x + y*NUM_TILES] & (1 << tid)
+        return self.visible[x + y*NUM_VERTS] & (1 << tid)
 
     def cellwalkable(self, walk, pt):
         x, y = pt
-        return (self.walkmap[x + y*NUM_TILES] & walk) == 0
+        return (self.walkmap[x + y*NUM_VERTS] & walk) == 0
 
     def updatefog(self):
         #start = time.time()
@@ -153,11 +154,11 @@ class Sector(object):
             r = int(loc.sight/VERTEX_SZ + 0.5)
             for i in xrange(x-r, x+r):
                 for j in xrange(y-r, y+r):
-                    if 0 <= i < NUM_TILES and 0 <= j < NUM_TILES:
+                    if 0 <= i < NUM_VERTS and 0 <= j < NUM_VERTS:
                         if distance2(i, j, x, y) < r*r:
                             tid = loc.ent.team.tid
-                            self.visible[i + j*NUM_TILES] |= (1 << tid)
-                            self.visited[i + j*NUM_TILES] |= (1 << tid)
+                            self.visible[i + j*NUM_VERTS] |= (1 << tid)
+                            self.visited[i + j*NUM_VERTS] |= (1 << tid)
         #print 'updated fog (%d,%d) took %fs' % (self.sx, self.sy, time.time() - start)
 
         self.onfogupdated.emit()
