@@ -53,6 +53,10 @@ class Locator(Component):
         self.placed = False
         self.map.unplace(self)
 
+    def replace(self):
+        ''' Replace entity back on the map where it was unplaced from '''
+        self.place(self.x, self.y)
+
     def pos(self):
         ''' Get the entity position as a tuple '''
         return self.x, self.y

@@ -58,7 +58,8 @@
                 "sprite" : "res/bldg-goldmine.png",
                 "portrait" : "res/bldg-goldmine.png"
             },
-            "locator" : { "r" : 128 }
+            "locator" : { "r" : 128 },
+            "resource" : { "kind": "resource" }
         }
     },
 
@@ -67,28 +68,28 @@
             "team" : 0,
             "proto" : "peasant",
             "locator" : {
-                "x" : 400, "y" : 400, "placed" : true
+                "x" : 700, "y" : 700, "placed" : true
             }
         },
         "2" : {
             "team" : 0,
             "proto" : "archer",
             "locator" : {
-                "x" : 440, "y" : 400, "placed" : true
+                "x" : 800, "y" : 800, "placed" : true
             }
         },
         "3" : {
             "team" : 0,
             "proto" : "archer",
             "locator" : {
-                "x" : 400, "y" : 450, "placed" : true
+                "x" : 250, "y" : 250, "placed" : true
             }
         },
         "4" : {
             "team" : 0,
             "proto" : "townhall",
             "locator" : {
-                "x" : 300, "y" : 300, "placed" : true
+                "x" : 500, "y" : 500, "placed" : true
             },
             "town" : 0
         },
@@ -96,10 +97,10 @@
             "team" : 0,
             "proto" : "goldmine",
             "locator" : {
-                "x" : 1000, "y" : 300, "placed" : true
+                "x" : 2000, "y" : 500, "placed" : true
             },
             "resource" : {
-                "resource" : 20000
+                "quantity" : 100
             }
         }
     },
@@ -156,13 +157,7 @@
                 "type" : "build",
                 "name" : "Build Townhall",
                 "description" : "Builds a Townhall",
-                "effect" : [
-                    "function(me, x, y)",
-                    "    print('here')",
-                    "    ent = create_entity(0, 'townhall')",
-                    "    place_entity(ent, x, y)",
-                    "end"
-                ],
+                "effect" : { "file": "abilities.lua", "function": "build_townhall" },
                 "cooldown" : 60,
                 "cost" : { },
                 "image" : "res/bldg-townhall.png",
@@ -177,7 +172,7 @@
                 "peasant" : {
                     "name" : "Peasant Upgraded",
                     "rank" : 30,
-                    "components" : ["moving", "appearance", "behaviour", "maprevealer","abilities"],
+                    "components" : ["moving", "appearance", "behaviour", "maprevealer","abilities", "harvester"],
                     "appearance" : {
                         "sprite" : "res/unit-pesant.png",
                         "portrait" : "res/unit-pesant.png"
@@ -187,8 +182,9 @@
                     "locator" : { "r" : 32 },
                     "stats" : {
                         "sight" : 256,
-                        "speed" : 5
-                    }
+                        "speed" : 16
+                    },
+                    "harvester" : { "rate": 100, "capacity": 10 }
                 }
             },    
             "towns" : {

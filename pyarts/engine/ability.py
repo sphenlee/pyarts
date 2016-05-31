@@ -18,12 +18,8 @@ class Ability(object):
         self.name = data['name']
         self.description = data['description']
 
-        code = data['effect']
-        if isinstance(code, list):
-            code = '\n'.join(code)
-        code = 'return ' + code
-        self.effect = scripting.lua.dostring(code)
-        
+        self.effect = scripting.code(data['effect'])
+
         self.type = data['type']
 
         self.range = data.get('range', 0)

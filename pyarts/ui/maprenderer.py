@@ -12,7 +12,7 @@ from pyglet.graphics import OrderedGroup
 
 from .util import TextureGroup, TranslateGroup
 
-from ..engine.sector import NUM_TILES, VERTEX_SZ, SECTOR_SZ
+from ..engine.sector import NUM_TILES, VERTEX_SZ, SECTOR_SZ, NUM_VERTS
 
 from pyarts.container import component
 
@@ -122,21 +122,21 @@ class SectorRenderer(object):
         # fog texture
         for y in xrange(NUM_TILES):
             for x in xrange(NUM_TILES):
-                a = visible[ x      +  y     *NUM_TILES] & tidmask != 0
-                b = visible[(x + 1) +  y     *NUM_TILES] & tidmask != 0
-                c = visible[ x      + (y + 1)*NUM_TILES] & tidmask != 0
-                d = visible[(x + 1) + (y + 1)*NUM_TILES] & tidmask != 0
+                a = visible[ x      +  y     *NUM_VERTS] & tidmask != 0
+                b = visible[(x + 1) +  y     *NUM_VERTS] & tidmask != 0
+                c = visible[ x      + (y + 1)*NUM_VERTS] & tidmask != 0
+                d = visible[(x + 1) + (y + 1)*NUM_VERTS] & tidmask != 0
 
                 # useful debug - renders the walkmap as the fog of war
-                #a = sec.walkmap[ x      +  y     *NUM_TILES] != 0
-                #b = sec.walkmap[(x + 1) +  y     *NUM_TILES] != 0
-                #c = sec.walkmap[ x      + (y + 1)*NUM_TILES] != 0
-                #d = sec.walkmap[(x + 1) + (y + 1)*NUM_TILES] != 0
+                #a = sec.walkmap[ x      +  y     *NUM_VERTS] != 0
+                #b = sec.walkmap[(x + 1) +  y     *NUM_VERTS] != 0
+                #c = sec.walkmap[ x      + (y + 1)*NUM_VERTS] != 0
+                #d = sec.walkmap[(x + 1) + (y + 1)*NUM_VERTS] != 0
 
-                e = visited[ x      +  y     *NUM_TILES] & tidmask != 0
-                f = visited[(x + 1) +  y     *NUM_TILES] & tidmask != 0
-                g = visited[ x      + (y + 1)*NUM_TILES] & tidmask != 0
-                h = visited[(x + 1) + (y + 1)*NUM_TILES] & tidmask != 0
+                e = visited[ x      +  y     *NUM_VERTS] & tidmask != 0
+                f = visited[(x + 1) +  y     *NUM_VERTS] & tidmask != 0
+                g = visited[ x      + (y + 1)*NUM_VERTS] & tidmask != 0
+                h = visited[(x + 1) + (y + 1)*NUM_VERTS] & tidmask != 0
 
                 tx = (4*b + 2*c + d) * TEX_SZ
                 ty = 1 - (a + 2) * TEX_SZ

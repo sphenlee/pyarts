@@ -102,6 +102,8 @@ def luapush(L, val):
         lua.lua_pushnil(L)
     elif ty == str:
         lua.lua_pushstring(L, val)
+    elif ty == unicode:
+        lua.lua_pushstring(L, val.encode('utf-8'))
     elif ty == int:
         lua.lua_pushinteger(L, val)
     elif ty == float:
@@ -191,6 +193,23 @@ class State(object):
         else:
             raise LuaError(ret)
 
+    def loadmodule(self, code):
+        lua.lua_createtable(self.L, 0, 0) # push env
+        ok = lua.luaL_loadstring(self.L, code.encode('ascii')) # push func
+        if ok != 0:
+            ret = luaget(self.L, -1)
+            raise LuaError(ret)
+
+        lua.lua_pushvalue(self.L, -2) # dup the env
+        lua.lua_setupvalue(self.L, -2, 1) # set the env to func
+        ok = lua.lua_pcallk(self.L, 0, 0, 0, 0, None)
+        if ok != 0:
+            ret = luaget(self.L, -1)
+            raise LuaError(ret)
+
+        return luaget(self.L, -1)
+
+
     def dostring(self, code):
         return self.loadstring(code)()
         
@@ -203,7 +222,7 @@ class State(object):
     def getglobal(self, name):
         with popper(self.L):
             lua.lua_rawgeti(self.L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS)
-            lua.lua_getfield(self.L, -1, name)
+            lua.lua_getfield(self.L, -1, name.encode('ascii'))
             return luaget(self.L, -1)
 
 # python wrapper for a lua table

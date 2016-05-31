@@ -9,11 +9,16 @@ They change infrequently, as a result of StatusEffects.
 from .component import Component, register
 
 class StatusEffect(object):
-    def __init__(self, name, add, mult, timeout):
+    def __init__(self, name, add=0, mult=1, timeout=None, seid=None):
+        self.id = seid if seid is not None else id(self)
         self.name = name
         self.add = add
         self.mult = mult
         self.timeout = timeout
+
+    def __repr__(self):
+        return 'StatusEffect(%r, add=%d, mult=%d, timeout=%r, seid=%r)' % (
+            self.name, self.add, self.mult, self.timeout, self.id)
 
     def save(self):
         return self.__dict__
@@ -26,11 +31,12 @@ class StatusEffect(object):
 class Stats(Component):
     depends = []
 
-    def configure(self, data):
-        ''' Load the base stats from the proto and copy it for the initial stats '''
+    def init(self):
         self.basestats = {}
         self.stack = []
 
+    def configure(self, data):
+        ''' Load the base stats from the proto and copy it for the initial stats '''
         if data:
             for name, val in data.iteritems():
                 self.basestats[name] = int(val)
@@ -71,9 +77,12 @@ class Stats(Component):
         '''
         newstack = [] # TODO this could be smarter
         for eff in self.stack:
-            eff.timeout -= 1
-            if eff.timeout > 0:
+            if eff.timeout is None:
                 newstack.append(eff)
+            else:
+                eff.timeout -= 1
+                if eff.timeout > 0:
+                    newstack.append(eff)
 
         if len(self.stack) != len(newstack):
             self.stack = newstack
@@ -82,6 +91,11 @@ class Stats(Component):
     def apply(self, eff):
         ''' Apply a new effect to this entity '''
         self.stack.append(eff)
+        self.recalculate()
+        return eff.id
+
+    def remove(self, seid):
+        self.stack = [s for s in self.stack if s.id != seid]
         self.recalculate()
 
     def __getitem__(self, key):

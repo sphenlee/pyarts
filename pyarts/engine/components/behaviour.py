@@ -6,7 +6,7 @@ Component to control what auto commands do for each kind of entity
 
 from .component import Component, register
 
-from ..actions import MoveAction#, AttackAction
+from ..actions import MoveAction, HarvestAction #, AttackAction
 
 @register
 class Behaviour(Component):
@@ -38,9 +38,13 @@ class Behaviour(Component):
                 # move to the target position
                 action = MoveAction(target)
             else:
-                # TODO - check if the entity is friend or enemy (Follow, Attack,
-                # or all of the other possible actions)
-                action = MoveAction(target)
+                ent = target.ent
+                if self.ent.has('harvester') and ent.has('resource'):
+                    action = HarvestAction(ent)
+                else:
+                    # TODO - check if the entity is friend or enemy (Follow, Attack,
+                    # or all of the other possible actions)
+                    action = MoveAction(target)
 
             if add:
                 self.actions.later(action)

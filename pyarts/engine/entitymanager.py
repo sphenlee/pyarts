@@ -106,8 +106,9 @@ class EntityManager(object):
             'content' : self.eng.content,
             'pathfinder' : self.eng.pathfinder,
             'engine' : self.eng,
-            'team' : proto.team,
-            'collisions' : self.collisions
+            'collisions' : self.collisions,
+            'scripting' : self.eng.scripting,
+            'team' : proto.team
         }
 
         # perform the injection

@@ -15,12 +15,37 @@ class Scripting(object):
     def __init__(self):
         self.__lua_methods__ = {}
 
+        self.codecache = set()
         self.lua = lua.State()
 
     def inject(self, engine, entitymanager, datasrc):
         self.eng = engine
         self.entities = entitymanager
         self.datasrc = datasrc
+
+    def code(self, code):
+        if isinstance(code, list):
+            code = 'return ' + '\n'.join(code)
+            return self.lua.dostring(code)
+        elif isinstance(code, basestring):
+            code = 'return ' + code
+            return self.lua.dostring(code)
+        elif isinstance(code, dict):
+            return self.get_func(code['file'], code['function'])
+        else:
+            raise ValueError('lua code must be string, list or dict')
+
+    def get_func(self, file, func):
+        if file in self.codecache:
+            return self.lua.getglobal(func)
+        else:
+            code = open(self.datasrc.getresource(file)).read()
+            self.lua.dostring(code)
+            self.codecache.add(file)
+            return self.get_func(file, func)
+
+    # ________________________________________________________
+    # functions exported to Lua from here
 
     def print_(self, *args):
         ''' Simulate Lua's print which tab separates args '''
@@ -55,6 +80,8 @@ class Scripting(object):
                 ent.variables[var] = int(val)
             elif op == 'add':
                 ent.variables[var] += int(val)
+
+    # _____________________________________________________________
 
     def setup(self):
         self.lua.setglobal('print', self.print_)
