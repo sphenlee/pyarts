@@ -53,8 +53,8 @@ class Steering(Component):
 
             #if hard:
             s = -r * exp(-d/r)# * 8
-            print self.eid, 'rds', r, d, s
-            print self.eid, 'dxdy', dx, dy
+            #print self.eid, 'rds', r, d, s
+            #print self.eid, 'dxdy', dx, dy
             #    #/ d #-min(d, self.stats.get('speed', 4)) / d
             #else:
             #    s = -4.0 / d
@@ -65,7 +65,7 @@ class Steering(Component):
             fx += dx * s
             fy += dy * s
 
-            print self.eid, 'col', ent.eid, fx, fy, d
+            #print self.eid, 'col', ent.eid, fx, fy, d
 
         if self.dest:
             dx, dy = self.dest[0] - cur[0], self.dest[1] - cur[1]
@@ -78,13 +78,13 @@ class Steering(Component):
                 fy += dy * s
 
         d = sqrt(fx*fx + fy*fy)
-        print self.eid, 'f', fx, fy, d
+        #print self.eid, 'f', fx, fy, d
         if d:
             s = min(d, speed) / d
 
             self.dx = int(fx * s)
             self.dy = int(fy * s)
-            print self.eid, 'fd', fx, fy, self.dx, self.dy
+            #print self.eid, 'fd', fx, fy, self.dx, self.dy
         else:
             self.dx = 0
             self.dy = 0

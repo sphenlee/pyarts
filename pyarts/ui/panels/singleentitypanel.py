@@ -3,14 +3,15 @@ SingleEntityPanel
 '''
 
 import pyglet
+from .. import cairosg as sg
 
 HP_RAMP = [
-    (0xFF, 0x00, 0x00, 0xFF),
-    (0xFF, 0x7F, 0x00, 0xFF),
-    (0xFF, 0xFF, 0x00, 0xFF),
-    (0x7F, 0xFF, 0x00, 0xFF),
-    (0x00, 0xFF, 0x00, 0xFF),
-    (0x00, 0xFF, 0x00, 0xFF),
+    (1.0, 0.0, 0.0),
+    (1.0, 0.5, 0.0),
+    (1.0, 1.0, 0.0),
+    (0.5, 1.0, 0.0),
+    (0.0, 1.0, 0.0),
+    (0.0, 1.0, 0.0),
 ]
 
 class SingleEntityPanel(object):
@@ -18,29 +19,39 @@ class SingleEntityPanel(object):
         game = infopanel.game
         self.ent = game.selection[0]
 
-        self.batch = pyglet.graphics.Batch()
-        self.name = pyglet.text.Label(self.ent.proto.name,
-            x=20 + 128 + 10, y=100,
-            batch=self.batch)
+        self.sg = sg.SceneGraph(infopanel.WIDTH, infopanel.HEIGHT)
+
+        g = sg.Grid(1, 3)
+
+        # portrait and HP display
+        g2 = sg.Grid(2, 1)
+
+        r = sg.Rect(10, 10, 128, 128)
+        g2.append(r)
 
         if self.ent.has('appearance'):
             img = infopanel.getimage(self.ent.appearance.portrait)
-            self.portrait = pyglet.sprite.Sprite(img,
-                20, 20,
-                batch=self.batch)
+            r.paint = img
 
         if self.ent.has('variables'):
             vars = self.ent.variables
 
+            g3 = sg.Grid(2, 1)
             if 'hp' in vars:
-                self.hp = pyglet.text.Label('',
-                    x=20 + 128 + 10, y=80,
-                    batch=self.batch)
+                self.hp = sg.Text('')
+                self.hp.paint = sg.ColourPaint(*HP_RAMP[-1])
+                g3.append(self.hp)
             if 'mana' in vars:
-                self.mana = pyglet.text.Label('',
-                    x=20 + 128 + 10, y=60,
-                    batch=self.batch)
-                self.mana.color = (0x00, 0x00, 0xFF, 0xFF)
+                self.mana = sg.Text('')
+                self.mana.paint = sg.ColourPaint(0, 0, 1)
+                g3.append(self.mana)
+
+            g2.append(g3)
+
+        g.append(g2)
+
+        self.sg.append(g)
+
 
     def step(self):
         if self.ent.has('variables'):
@@ -49,11 +60,13 @@ class SingleEntityPanel(object):
             if 'hp' in vars:
                 hp, max = vars.get('hp').val, vars.get('hp').max
                 idx = int((float(hp) / max) * 5)
-                self.hp.color = HP_RAMP[idx]
+                self.hp.paint = sg.ColourPaint(*HP_RAMP[idx])
                 self.hp.text = '%d/%d' % (hp, max)
             if 'mana' in vars:
                 self.mana.text = '%d/%d' % (vars.get('mana').val, vars.get('mana').max)
 
         
     def draw(self):
-        self.batch.draw()
+        img = self.sg.getimage()
+        s = pyglet.sprite.Sprite(img)
+        s.draw()

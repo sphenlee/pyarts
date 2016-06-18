@@ -5,6 +5,8 @@ InfoPanel
 import pyglet
 from pyglet import gl
 
+from .cairosg import ImagePaint
+
 from .panels.singleentitypanel import SingleEntityPanel
 from .panels.multientitypanel import MultiEntityPanel
 from .screen import Screen
@@ -27,7 +29,7 @@ class InfoPanel(object):
             return self.images[fname]
         except KeyError:
             res = self.datasrc.getresource(fname)
-            img = pyglet.image.load(res)
+            img = ImagePaint(res)
             self.images[fname] = img
             return img
 
