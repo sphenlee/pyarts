@@ -49,7 +49,7 @@ class Node(object):
 
 class Canvas(Node):
     def __init__(self):
-        Node.__init__(self)
+        super(Canvas, self).__init__()
         self.children = []
 
     def append(self, node):
@@ -66,7 +66,7 @@ class Canvas(Node):
 
 class Grid(Canvas):
     def __init__(self, rows, cols):
-        Canvas.__init__(self)
+        super(Grid, self).__init__()
         self.rows = rows
         self.cols = cols
 
@@ -86,16 +86,24 @@ class Grid(Canvas):
 
 class Paintable(Node):
     def __init__(self):
-        self.paint = None
+        super(Paintable, self).__init__()
+        self._paint = None
+
+    def paint(self, *args):
+        if len(args) == 1:
+            self._paint = args[0]
+        else:
+            self._paint = ColourPaint(*args)
+        return self
 
     def apply_paint(self, ctx):
-        if self.paint:
-            self.paint.apply(ctx)
+        if self._paint:
+            self._paint.apply(ctx)
 
 
 class Text(Paintable):
     def __init__(self, text, size=24, origin=(0, 0)):
-        Node.__init__(self)
+        super(Text, self).__init__()
         self.text = text
         self.origin = origin
         self.size = size
@@ -111,7 +119,7 @@ class Text(Paintable):
 
 class Rect(Paintable):
     def __init__(self, x=None, y=None, w=None, h=None):
-        Node.__init__(self)
+        super(Rect, self).__init__()
         self.x = x if x is not None else 0
         self.y = y if y is not None else 0
         self.w = w if w is not None else 0
@@ -130,9 +138,9 @@ class Rect(Paintable):
 
 # __________________________________________________
 
-class SceneGraph(Canvas):
+class SceneGraph(Canvas, Paintable):
     def __init__(self, w, h):
-        Canvas.__init__(self)
+        super(SceneGraph, self).__init__()
         self.w = w
         self.h = h
         self.surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
@@ -142,11 +150,15 @@ class SceneGraph(Canvas):
 
     def getimage(self):
         with self.ctx:
+            self.ctx.set_operator(cairo.OPERATOR_SOURCE)
+            self.apply_paint(self.ctx)
             self.ctx.paint()
+
+        with self.ctx:
             self.render(self.ctx, self.w, self.h)
 
         data = self.surf.get_data()
-        return pyglet.image.ImageData(self.w, self.h, 'RGBA', str(data))
+        return pyglet.image.ImageData(self.w, self.h, 'BGRA', str(data))
 
 
 if __name__ == '__main__':

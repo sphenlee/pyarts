@@ -9,17 +9,24 @@ from pyglet import gl
 
 from ..screen import Screen
 
+from pyarts.container import component
+
+@component
 class TownsPanel(object):
-    def __init__(self, datasrc):
+    depends = ['datasrc', 'engine']
+
+
+    def __init__(self):
         self.WIDTH = Screen.WIDTH // 4
         self.HEIGHT = Screen.HEIGHT - 36
 
-        self.datasrc = datasrc
-
-        self.batch = pyglet.graphics.Batch()
         self.towns = []
 
         self.images = {}
+
+    def inject(self, datasrc, engine):
+        self.datasrc = datasrc
+        engine.ontowncreated.add(self.townadded)
         
     def getimage(self, fname):
         try:
