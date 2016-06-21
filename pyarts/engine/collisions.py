@@ -37,10 +37,10 @@ class Collisions(object):
                 d = distance2(ax, ay, b.x, b.y)
                 r2 = ar2 + b.r*b.r
                 if d < r2:
-                    print 'entity %d has hard-collided with %d' % (a.eid, b.eid)
+                    #print 'entity %d has hard-collided with %d' % (a.eid, b.eid)
                     coll.append((True, b.ent))
-                elif d < r2 * 1.5:
-                    print 'entity %d has soft-collided with %d' % (a.eid, b.eid)
+                elif d < r2 * 5:
+                    #print 'entity %d has soft-collided with %d' % (a.eid, b.eid)
                     coll.append((False, b.ent))
 
             self.collisions[a.eid] = coll

@@ -40,32 +40,32 @@ class Steering(Component):
 
     def step(self):
         fx, fy = 0.0, 0.0
+        #gx, gy = 0.0, 0.0
+
         cur = self.locator.pos()
         r = self.locator.r
         speed = self.stats.get('speed', 4)
 
-        collision = False
-        for hard, ent in self.collisions.getcollisions(self.eid):
-            collision = True
-            other = ent.locator.pos()
-            dx, dy = other[0] - cur[0], other[1] - cur[1]
-            d = sqrt(dx*dx + dy*dy)
+        # for hard, ent in self.collisions.getcollisions(self.eid):
+        #     other = ent.locator.pos()
+        #     dx, dy = other[0] - cur[0], other[1] - cur[1]
+        #     d = sqrt(dx*dx + dy*dy)
 
-            #if hard:
-            s = -r * exp(-d/r)# * 8
-            #print self.eid, 'rds', r, d, s
-            #print self.eid, 'dxdy', dx, dy
-            #    #/ d #-min(d, self.stats.get('speed', 4)) / d
-            #else:
-            #    s = -4.0 / d
+        #     #if hard:
+        #     #s = -r * exp(-d/r)# * 8
+        #     #print self.eid, 'rds', r, d, s
+        #     #print self.eid, 'dxdy', dx, dy
+        #     #    #/ d #-min(d, self.stats.get('speed', 4)) / d
+        #     #else:
+        #     #    s = -4.0 / d
 
-            if dx == 0 and dy == 0:
-                dx += 0.1 * (1 if self.eid % 2 else -1)
+        #     #if dx == 0 and dy == 0:
+        #     #    dx += 0.1 * (1 if self.eid % 2 else -1)
+        #     if d != 0:
+        #         fx += dx / (d*d)
+        #         fy += dy / (d*d)
 
-            fx += dx * s
-            fy += dy * s
-
-            #print self.eid, 'col', ent.eid, fx, fy, d
+        #     print self.eid, 'col', ent.eid, fx, fy, d
 
         if self.dest:
             dx, dy = self.dest[0] - cur[0], self.dest[1] - cur[1]
@@ -74,17 +74,20 @@ class Steering(Component):
             if d:
                 s = min(d, speed) / d
             
-                fx += dx * s
-                fy += dy * s
+                fx = dx * s
+                fy = dy * s
+
+                #print self.eid, 'dest', gx, gy
+
+        # fx = 0.5 * (fx + gx)
+        # fy = 0.5 * (fy + gy)
 
         d = sqrt(fx*fx + fy*fy)
-        #print self.eid, 'f', fx, fy, d
-        if d:
+        if d != 0:
             s = min(d, speed) / d
 
             self.dx = int(fx * s)
             self.dy = int(fy * s)
-            #print self.eid, 'fd', fx, fy, self.dx, self.dy
         else:
             self.dx = 0
             self.dy = 0
