@@ -3,52 +3,52 @@ TownsPanel
 
 Shows towns and resource info
 '''
-
 import pyglet
-from pyglet import gl
 
 from ..screen import Screen
+from .. import cairosg as sg
 
 from pyarts.container import component
 
 @component
 class TownsPanel(object):
-    depends = ['datasrc', 'engine']
+    depends = ['imagecache', 'engine']
 
 
     def __init__(self):
         self.WIDTH = Screen.WIDTH // 4
-        self.HEIGHT = Screen.HEIGHT - 36
+        self.HEIGHT = 36
 
         self.towns = []
 
-        self.images = {}
+        self.sg = sg.SceneGraph(self.WIDTH, self.HEIGHT).paint(0, 0, 0, 0.8)
+        self.grid = sg.Grid(0, 4)
+        self.sg.append(self.grid)
 
-    def inject(self, datasrc, engine):
-        self.datasrc = datasrc
+    def inject(self, imagecache, engine):
+        self.imagecache = imagecache
         engine.ontowncreated.add(self.townadded)
-        
-    def getimage(self, fname):
-        try:
-            return self.images[fname]
-        except KeyError:
-            res = self.datasrc.getresource(fname)
-            img = pyglet.image.load(res)
-            self.images[fname] = img
-            return img
 
     def townadded(self, team, town):
         print 'added town', team, town
-        resource = self.getimage(town.race['resource_icon'])
-        icon1 = pyglet.sprite.Sprite(resource, self.WIDTH * 3, self.HEIGHT, batch=self.batch)
-        icon1.scale = 1/8.0
 
-        energy = self.getimage(town.race['energy_icon'])
-        icon2 = pyglet.sprite.Sprite(energy, self.WIDTH * 3.5, self.HEIGHT, batch=self.batch)
-        icon2.scale = 1/8.0
+        resource = self.imagecache.getimage(town.race['resource_icon'])
+        icon1 = sg.Rect().paint(resource)
+        #icon1.scale = 1/8.0
 
-        text1 = pyglet.text.Label('', x=self.WIDTH * 3 + 36, y=self.HEIGHT, batch=self.batch)
-        text2 = pyglet.text.Label('', x=self.WIDTH * 3.5 + 36, y=self.HEIGHT, batch=self.batch)
+        energy = self.imagecache.getimage(town.race['energy_icon'])
+        icon2 = sg.Rect().paint(energy)
+        #icon2.scale = 1/8.0
+
+        text1 = sg.Text('').paint(1, 1, 1)
+        text2 = sg.Text('').paint(1, 1, 1)
+
+        g = self.grid
+        g.rows += 1
+        g.append(icon1)
+        g.append(text1)
+        g.append(icon2)
+        g.append(text2)
 
         self.towns.append((text1, text2, icon1, icon2))
 
@@ -59,16 +59,6 @@ class TownsPanel(object):
         self.towns[0][1].text = str(town.resources.energy)
 
     def draw(self):
-        gl.glDisable(gl.GL_TEXTURE_2D)
-        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
-        gl.glEnable(gl.GL_BLEND)
-        
-        gl.glColor4f(0, 0, 0, 0.8)
-        gl.glBegin(gl.GL_QUADS)
-        gl.glVertex2f(self.WIDTH*3, self.HEIGHT)
-        gl.glVertex2f(self.WIDTH*3, Screen.HEIGHT)
-        gl.glVertex2f(self.WIDTH*4, Screen.HEIGHT)
-        gl.glVertex2f(self.WIDTH*4, self.HEIGHT)
-        gl.glEnd()
-        
-        self.batch.draw()
+        img = self.sg.getimage()
+        s = pyglet.sprite.Sprite(img, x=Screen.WIDTH - self.WIDTH, y=Screen.HEIGHT - self.HEIGHT)
+        s.draw()

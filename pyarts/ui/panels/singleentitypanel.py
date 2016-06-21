@@ -30,7 +30,7 @@ class SingleEntityPanel(object):
         g2.append(r)
 
         if self.ent.has('appearance'):
-            img = infopanel.getimage(self.ent.appearance.portrait)
+            img = infopanel.imagecache.getimage(self.ent.appearance.portrait)
             r.paint(img)
 
         if self.ent.has('variables'):

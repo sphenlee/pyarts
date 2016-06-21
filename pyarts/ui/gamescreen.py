@@ -9,8 +9,6 @@ from pyglet import gl
 from pyglet.window import key, mouse
 
 from .screen import Screen
-from .infopanel import InfoPanel
-from .panels.townspanel import TownsPanel
 
 # debug only
 from ..engine.datasink import DataSink

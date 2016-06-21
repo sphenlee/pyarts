@@ -16,7 +16,7 @@ class MultiEntityPanel(object):
 
         for ent in game.selection:
             if ent.has('appearance'):
-                img = infopanel.getimage(ent.appearance.portrait)
+                img = infopanel.imagecache.getimage(ent.appearance.portrait)
                 r = sg.Rect(20, 20, 64).paint(img)
                 g.append(r)
 

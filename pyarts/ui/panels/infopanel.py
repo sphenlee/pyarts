@@ -5,39 +5,27 @@ InfoPanel
 import pyglet
 from pyglet import gl
 
-from .cairosg import ImagePaint
-
-from .panels.singleentitypanel import SingleEntityPanel
-from .panels.multientitypanel import MultiEntityPanel
-from .screen import Screen
+from .singleentitypanel import SingleEntityPanel
+from .multientitypanel import MultiEntityPanel
+from ..screen import Screen
 
 from pyarts.container import component
 
 @component
 class InfoPanel(object):
-    depends = ['datasrc', 'game']
+    depends = ['imagecache', 'game']
 
     WIDTH = Screen.WIDTH / 2
     HEIGHT = Screen.HEIGHT / 4
 
     def __init__(self):
         self.display = None
-        self.images = {}
 
-    def inject(self, datasrc, game):
+    def inject(self, imagecache, game):
         self.game = game
-        self.datasrc = datasrc
+        self.imagecache = imagecache
 
         self.game.onselectionchange.add(self.update)
-
-    def getimage(self, fname):
-        try:
-            return self.images[fname]
-        except KeyError:
-            res = self.datasrc.getresource(fname)
-            img = ImagePaint(res)
-            self.images[fname] = img
-            return img
 
     def step(self):
         if self.display:

@@ -4,7 +4,7 @@ AbilitiesPanel
 Renders the buttons for entity abilities
 '''
 
-from . import cairosg as sg
+from .. import cairosg as sg
 
 class AbilityPanel(object):
     WIDTH = 64*2
