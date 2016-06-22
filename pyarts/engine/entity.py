@@ -34,6 +34,7 @@ class Entity(object):
             comp.configure(tmp)
 
         for name in self.components.iterkeys():
+            print 'configure ', name
             configureone(name)
 
     def save(self):

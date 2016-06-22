@@ -78,7 +78,7 @@ class Map(object):
     def step(self):
         self.n += 1
         if self.n % 50:
-            if self.dirty:
+            while self.dirty:
                 sec = self.dirty.pop()
                 sec.updatefog()
 
@@ -138,10 +138,11 @@ class Map(object):
         try:
             secs = self.placedon[locator]
         except KeyError:
-            pass
+            return False
         else:
             for sec in secs:
                 sec.footprint(locator)
+            return True
 
 
     def entities_in_rect(self, x1, y1, x2, y2):

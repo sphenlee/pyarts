@@ -7,6 +7,9 @@ Abstract base class for all actions
 class Action(object):
     ent = None
 
+    def done(self):
+        self.ent.actions.done()
+
     def start(self):
         pass
 

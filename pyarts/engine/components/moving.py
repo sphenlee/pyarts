@@ -48,17 +48,19 @@ class Moving(Component):
             'waypoints' : self.waypoints
         }
 
-    def moveto(self, target, range=10):
+    def moveto(self, target, range=None):
         self.intransit = True
 
         start = self.locator.pos()
         goal = target.getpos()
+        if target.isent():
+            range = target.ent.locator.r
 
         path = self.pathfinder.findpath(start, goal, self.walk, range)
         if path is not None:
-            self.waypoints.append(goal)
-            for pt in list(path)[:-1]:
-                self.waypoints.append(pt)
+            self.waypoints[:] = path
+            if range is None:
+                self.waypoints[0] = goal
         else:
             self.stop()
 

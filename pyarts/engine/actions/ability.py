@@ -37,4 +37,4 @@ class AbilityAction(Action):
 
         self.ability.activate(self.ent, self.target)
 
-        self.ent.actions.done()
+        self.done()

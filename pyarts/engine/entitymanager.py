@@ -66,6 +66,8 @@ class EntityManager(object):
 
     def _docreate(self, proto, eid=None):
         '''Create an entity from a proto - implementation method'''
+        print 'creating ', proto.name
+
         if eid is None:
             eid = self.nextentid
             self.nextentid += 1

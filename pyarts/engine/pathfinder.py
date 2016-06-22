@@ -21,11 +21,13 @@ class Pathfinder(object):
     def inject(self, map):
         self.map = map
 
-    def findpath(self, start, goal, walk, range):
+    def findpath(self, start, goal, walk, range=None):
         start = self.map.pos_to_cell(*start)
         goal = self.map.pos_to_cell(*goal)
-        range = range/VERTEX_SZ
-
+        if range is None:
+            range = VERTEX_SZ ** 2
+        else:
+            range = (range/VERTEX_SZ) ** 2
 
         def reconstruct_path(current):
             yield self.map.cell_to_pos(*current)

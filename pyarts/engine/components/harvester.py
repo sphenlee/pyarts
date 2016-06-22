@@ -49,11 +49,25 @@ class Harvester(Component):
             if e.proto.name == proto.name:
                 return e
 
+    def finddropoff(self, pos):
+        x, y = pos
+        R = 1024 * 128
+        for e in self.map.entities_in_rect(x-R, y-R, x+R, y+R):
+            if e.has('harveststore'):
+                return e
+
     def gotopickup(self, seed):
-        self.moving.moveto(Target(self.findlike(seed)))
+        pickup = self.findlike(seed)
+        if pickup:
+            print pickup.locator.r
+            self.moving.moveto(Target(pickup))
+            return True
 
     def gotodropoff(self):
-        self.moving.moveto(Target((100, 100)))
+        e = self.finddropoff(self.locator.pos())
+        if e is not None:
+            self.moving.moveto(Target(e))
+            return True
 
     @property
     def intransit(self):

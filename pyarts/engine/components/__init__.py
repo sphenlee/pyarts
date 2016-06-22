@@ -16,3 +16,4 @@ from .moving import *
 from .town import *
 from .resource import *
 from .harvester import *
+from .harveststore import *

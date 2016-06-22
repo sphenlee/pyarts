@@ -30,8 +30,10 @@ class HarvestAction(Action):
         h = self.ent.harvester
 
         if self.state == INIT:
-            h.gotopickup(self.seed)
-            self.state = MOVING
+            if h.gotopickup(self.seed):
+                self.state = MOVING
+            else:
+                self.done()
 
         elif self.state == MOVING:
             if not h.intransit:
@@ -41,8 +43,10 @@ class HarvestAction(Action):
         elif self.state == HARVESTING:
             if h.full():
                 h.stopharvest(self.resource)
-                h.gotodropoff()
-                self.state = RETURNING
+                if h.gotodropoff():
+                    self.state = RETURNING
+                else:
+                    self.done()
 
         elif self.state == RETURNING:
             if not h.intransit:
@@ -50,5 +54,5 @@ class HarvestAction(Action):
                 self.state = INIT
 
     def stop(self):
-        self.ent.harvester.stopharvest()
+        self.ent.harvester.stopharvest(self.resource)
         self.ent.moving.stop()

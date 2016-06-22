@@ -37,7 +37,7 @@
         "townhall" : {
             "name" : "Town Hall",
             "rank" : 100,
-            "components" : ["town", "appearance", "behaviour", "maprevealer", "footprint", "abilities"],
+            "components" : ["town", "appearance", "behaviour", "maprevealer", "footprint", "abilities", "harveststore"],
             "appearance" : {
                 "sprite" : "res/bldg-townhall.png",
                 "portrait" : "res/bldg-townhall.png"
@@ -94,7 +94,7 @@
             "town" : 0
         },
         "5" : {
-            "team" : 0,
+            "team" : 1,
             "proto" : "goldmine",
             "locator" : {
                 "x" : 2000, "y" : 500, "placed" : true

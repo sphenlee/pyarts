@@ -20,7 +20,7 @@ class MoveAction(Action):
             if self.follow:
                 self.start() # start action again
             else:
-                self.ent.actions.done()
+                self.done()
         
     def stop(self):
         self.ent.moving.stop()
