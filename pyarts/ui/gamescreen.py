@@ -9,8 +9,6 @@ from pyglet import gl
 from pyglet.window import key, mouse
 
 from .screen import Screen
-from .infopanel import InfoPanel
-from .panels.townspanel import TownsPanel
 
 # debug only
 from ..engine.datasink import DataSink
@@ -19,15 +17,16 @@ from pyarts.container import component
 
 @component
 class GameScreen(Screen):
-    depends = ['game', 'datasrc', 'maprenderer', 'camera', 'engine', 'map']
+    depends = ['game', 'datasrc', 'maprenderer', 'camera', 'townspanel', 'map', 'infopanel']
 
-    def inject(self, game, datasrc, maprenderer, camera, engine, map):
+    def inject(self, game, datasrc, maprenderer, camera, townspanel, map, infopanel):
         self.game = game
         self.datasrc = datasrc
         self.mapren = maprenderer
         self.camera = camera
-        self.engine = engine
         self.map = map
+        self.infopanel = infopanel
+        self.townspanel = townspanel
 
     def load(self, save, map, core, localpid):
         self.datasrc.load(save, map, core)
@@ -41,11 +40,7 @@ class GameScreen(Screen):
         self.dx = 0
         self.dy = 0
 
-        self.infopanel = InfoPanel(self.game, self.datasrc)
-
-        self.townspanel = TownsPanel(self.datasrc)
-        self.engine.ontowncreated.add(self.townspanel.townadded)
-
+        
         pyglet.clock.schedule(self.update, 0.5)
 
     def save(self, datasink):

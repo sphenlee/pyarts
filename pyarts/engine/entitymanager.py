@@ -14,7 +14,7 @@ from pyarts.container import component
 
 @component
 class EntityManager(object):
-    depends = ['engine', 'datasrc', 'map']
+    depends = ['engine', 'datasrc', 'map', 'collisions']
 
     def __init__(self):
         self.nextentid = 0
@@ -23,10 +23,11 @@ class EntityManager(object):
 
         self.onentitycreated = Event()
 
-    def inject(self, engine, datasrc, map):
+    def inject(self, engine, datasrc, map, collisions):
         self.eng = engine
         self.datasrc = datasrc
         self.map = map
+        self.collisions = collisions
 
     def get(self, eid):
         ''' Get an entity by ID '''
@@ -107,6 +108,7 @@ class EntityManager(object):
             'content' : self.eng.content,
             'pathfinder' : self.eng.pathfinder,
             'engine' : self.eng,
+            'collisions' : self.collisions,
             'scripting' : self.eng.scripting,
             'team' : proto.team
         }
@@ -138,6 +140,8 @@ class EntityManager(object):
 
     def step(self):
         ''' Step all entities '''
+        self.collisions.step()
+
         self.entities.update(self.newentities)
         self.newentities.clear()
 

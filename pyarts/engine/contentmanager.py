@@ -14,18 +14,19 @@ from pyarts.container import component
 
 @component
 class ContentManager(object):
-    depends = ['engine', 'datasrc']
+    depends = ['engine', 'datasrc', 'scripting']
 
     def __init__(self):
         self.abilities = {}
 
-    def inject(self, engine, datasrc):
+    def inject(self, engine, datasrc, scripting):
         self.eng = engine
         self.datasrc = datasrc
+        self.scripting = scripting
 
     def load(self):
         for name, data in self.datasrc.getcontent('abilities').iteritems():
-            self.abilities[name] = Ability(data, self.eng.scripting)
+            self.abilities[name] = Ability(data, self.scripting)
 
         
     def getability(self, name):
