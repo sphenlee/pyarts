@@ -14,6 +14,9 @@ class Target(object):
         else:
             self.ent = obj
 
+    def __repr__(self):
+        return '<Target %r>' % (self.pos if self.ispos() else self.ent)
+
     def ispos(self):
         return self.pos is not None
 

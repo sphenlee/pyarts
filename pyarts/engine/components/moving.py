@@ -62,6 +62,7 @@ class Moving(Component):
             if range is None:
                 self.waypoints[0] = goal
         else:
+            print 'no path to', target
             self.stop()
 
 

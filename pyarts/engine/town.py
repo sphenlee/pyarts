@@ -12,7 +12,7 @@ class Town(object):
         self.team = team
         self.eng = team.eng
 
-        self.resources = ResourcePool()
+        self.resources = ResourcePool(self)
 
         self.eids = set()
         self.towncomponents = set()

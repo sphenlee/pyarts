@@ -3,7 +3,6 @@ TownsPanel
 
 Shows towns and resource info
 '''
-import pyglet
 
 from ..screen import Screen
 from .. import cairosg as sg
@@ -52,13 +51,13 @@ class TownsPanel(object):
 
         self.towns.append((text1, text2, icon1, icon2))
 
-        self.update_resources(town)
+        town.resources.onchange.add(self.update_resources)
+        # refresh the number right now
+        self.update_resources(town.resources)
 
-    def update_resources(self, town):
-        self.towns[0][0].text = str(town.resources.resource)
-        self.towns[0][1].text = str(town.resources.energy)
+    def update_resources(self, resources):
+        self.towns[0][0].text = str(resources.resource)
+        self.towns[0][1].text = str(resources.energy)
 
     def draw(self):
-        img = self.sg.getimage()
-        s = pyglet.sprite.Sprite(img, x=Screen.WIDTH - self.WIDTH, y=Screen.HEIGHT - self.HEIGHT)
-        s.draw()
+        self.sg.drawat(x=Screen.WIDTH - self.WIDTH, y=Screen.HEIGHT - self.HEIGHT)

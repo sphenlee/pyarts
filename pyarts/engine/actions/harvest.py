@@ -36,7 +36,7 @@ class HarvestAction(Action):
                 self.done()
 
         elif self.state == MOVING:
-            if not h.intransit:
+            if h.arrived:
                 h.startharvest(self.resource)
                 self.state = HARVESTING
 
@@ -49,7 +49,7 @@ class HarvestAction(Action):
                     self.done()
 
         elif self.state == RETURNING:
-            if not h.intransit:
+            if h.arrived:
                 h.dropoff(self.resource)
                 self.state = INIT
 

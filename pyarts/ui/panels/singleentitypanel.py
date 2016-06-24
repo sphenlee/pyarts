@@ -2,7 +2,6 @@
 SingleEntityPanel
 '''
 
-import pyglet
 from .. import cairosg as sg
 
 HP_RAMP = [
@@ -65,6 +64,4 @@ class SingleEntityPanel(object):
 
         
     def draw(self):
-        img = self.sg.getimage()
-        s = pyglet.sprite.Sprite(img)
-        s.draw()
+        self.sg.drawat(0, 0)

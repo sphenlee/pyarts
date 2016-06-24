@@ -17,6 +17,7 @@ class Harvester(Component):
 
     def init(self):
         self.effect = None
+        self.target = None
 
     def inject(self, **kwargs):
         self.__dict__.update(kwargs)
@@ -44,9 +45,11 @@ class Harvester(Component):
     def findlike(self, seed):
         proto = seed.proto
         x, y = seed.locator.pos()
+        print 'looking for ', seed, proto, x, y
         R = 20
         for e in self.map.entities_in_rect(x-R, y-R, x+R, y+R):
             if e.proto.name == proto.name:
+                print 'found', e, e.proto
                 return e
 
     def finddropoff(self, pos):
@@ -68,10 +71,6 @@ class Harvester(Component):
         if e is not None:
             self.moving.moveto(Target(e))
             return True
-
-    @property
-    def intransit(self):
-        return self.moving.intransit
 
     def startharvest(self, res):
         self.locator.unplace()

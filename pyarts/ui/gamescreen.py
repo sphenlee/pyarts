@@ -17,21 +17,15 @@ from pyarts.container import component
 
 @component
 class GameScreen(Screen):
-    depends = ['game', 'datasrc', 'maprenderer', 'camera', 'townspanel', 'map', 'infopanel']
+    depends = ['game', 'datasrc', 'maprenderer', 'camera', 'townspanel', 'map', 'infopanel', 'abilitypanel']
 
-    def inject(self, game, datasrc, maprenderer, camera, townspanel, map, infopanel):
-        self.game = game
-        self.datasrc = datasrc
-        self.mapren = maprenderer
-        self.camera = camera
-        self.map = map
-        self.infopanel = infopanel
-        self.townspanel = townspanel
+    def inject(self, **kwargs):
+        self.__dict__.update(kwargs)
 
     def load(self, save, map, core, localpid):
         self.datasrc.load(save, map, core)
         self.game.load(localpid)
-        self.mapren.load(tidmask=1)
+        self.maprenderer.load(tidmask=1)
         self.camera.load(localpid)
 
     def pre_activate(self):
@@ -149,7 +143,7 @@ class GameScreen(Screen):
         gl.gluOrtho2D(0, self.WIDTH, 0, self.HEIGHT)
 
         self.camera.setup()
-        self.mapren.draw()
+        self.maprenderer.draw()
         self.game.render()
 
         gl.glMatrixMode(gl.GL_MODELVIEW)
@@ -157,6 +151,7 @@ class GameScreen(Screen):
 
         self.infopanel.draw()
         self.townspanel.draw()
+        self.abilitypanel.draw()
 
         if self.dragbox:
             gl.glDisable(gl.GL_TEXTURE_2D)

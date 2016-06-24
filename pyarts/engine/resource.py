@@ -4,6 +4,8 @@ Resource
 Hold Costs and ResourcePool
 '''
 
+from .event import Event
+
 class Cost(object):
     __slots__ = ['resource', 'energy', 'mana']
 
@@ -24,9 +26,12 @@ class Cost(object):
         return Cost(**data)
 
 class ResourcePool(object):
-    def __init__(self):
+    def __init__(self, town):
+        # might not need this? self.town = town
         self.resource = 0
         self.energy = 0
+
+        self.onchange = Event()
 
     def sufficient(self, cost):
         return self.resource > cost.resource and self.energy > cost.energy
@@ -38,11 +43,15 @@ class ResourcePool(object):
         print 'paid %d, %d, resources now %d, %d' % (cost.resource, cost.energy,
             self.resource, self.energy)
 
+        self.onchange.emit(self)
+
     def add(self, kind, amt):
         if kind == 'resource':
             self.resource += amt
         elif kind == 'energy':
             self.energy += amt
+
+        self.onchange.emit(self)
 
     def load(self, data):
         self.resource = data.get('resource', 0)

@@ -102,7 +102,7 @@ class Paintable(Node):
 
 
 class Text(Paintable):
-    def __init__(self, text, size=24, origin=(0, 0)):
+    def __init__(self, text, size=16, origin=(0, 0)):
         super(Text, self).__init__()
         self.text = text
         self.origin = origin
@@ -160,6 +160,10 @@ class SceneGraph(Canvas, Paintable):
         data = self.surf.get_data()
         return pyglet.image.ImageData(self.w, self.h, 'BGRA', str(data))
 
+    def drawat(self, x, y):
+        img = self.getimage()
+        s = pyglet.sprite.Sprite(img, x=x, y=y)
+        s.draw()
 
 if __name__ == '__main__':
     c = Canvas()

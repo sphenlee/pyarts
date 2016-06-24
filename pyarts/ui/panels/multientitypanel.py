@@ -2,7 +2,6 @@
 MultiEntityPanel
 '''
 
-import pyglet
 from .. import cairosg as sg
 
 class MultiEntityPanel(object):
@@ -24,6 +23,4 @@ class MultiEntityPanel(object):
         pass
 
     def draw(self):
-        img = self.sg.getimage()
-        s = pyglet.sprite.Sprite(img)
-        s.draw()
+        self.sg.drawat(0, 0)
