@@ -30,21 +30,21 @@ class MainMenu(Screen):
 
     def on_key_press(self, symbol, mod):
         if symbol == key.S:
-            self.gs = construct('gamescreen')
-            self.gs.load(mapfile, mapfile, mapfile, localpid=0)
-            self.gs.activate(parent=self)
+            self.root = construct('root')
+            self.root.load(mapfile, mapfile, localpid=0)
+            self.root.gamescreen.activate(parent=self)
 
         elif symbol == key.F5:
             print '*********** saving game'
             sink = DataSink(savefile)
-            self.gs.save(sink)
+            self.root.save(sink)
             sink.commit()
-            self.gs.pause()
+            self.root.gamescreen.pause()
 
             print '************* loading new game'
-            self.gs = construct('gamescreen')
-            self.gs.load(savefile, mapfile, mapfile, localpid=0)
-            self.gs.activate(parent=self)
+            self.root = construct('root')
+            self.root.load(savefile, mapfile, localpid=0)
+            self.root.gamescreen.activate(parent=self)
 
         elif symbol == key.Q:
             pyglet.app.exit()

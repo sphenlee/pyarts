@@ -17,15 +17,13 @@ from pyarts.container import component
 
 @component
 class GameScreen(Screen):
-    depends = ['game', 'datasrc', 'maprenderer', 'camera', 'townspanel', 'map', 'infopanel', 'abilitypanel']
+    depends = ['game', 'maprenderer', 'camera', 'townspanel', 'map', 'infopanel', 'abilitypanel']
 
     def inject(self, **kwargs):
         self.__dict__.update(kwargs)
 
-    def load(self, save, map, core, localpid):
-        self.datasrc.load(save, map, core)
-        self.game.load(localpid)
-        self.maprenderer.load(tidmask=1)
+    def load(self, localpid):
+        self.maprenderer.load(tidmask=(1 << localpid))
         self.camera.load(localpid)
 
     def pre_activate(self):
