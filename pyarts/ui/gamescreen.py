@@ -32,11 +32,9 @@ class GameScreen(Screen):
         self.dx = 0
         self.dy = 0
 
-        
         pyglet.clock.schedule(self.update, 0.5)
 
     def save(self, datasink):
-        self.game.save(datasink)
         self.camera.save(datasink)
 
     def update(self, dt, *args):

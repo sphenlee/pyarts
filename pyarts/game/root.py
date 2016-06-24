@@ -20,4 +20,7 @@ class Root(object):
         self.game.load(localpid)
         self.gamescreen.load(localpid)
         
+    def save(self, datasink):
+        self.game.save(datasink)
+        self.gamescreen.save(datasink)
         
