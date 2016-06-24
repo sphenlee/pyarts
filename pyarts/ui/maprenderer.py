@@ -110,7 +110,7 @@ class SectorRenderer(object):
 
     def updatefog(self):
         start = time.time()
-        tidmask = self.mapren.tidmask
+        tidmask = self.mapren.localplayer.tidmask
         sec = self.sector
         visible = sec.visible
         visited = sec.visited
@@ -172,19 +172,20 @@ class SectorRenderer(object):
 
 @component
 class MapRenderer(object):
-    depends = ['map', 'datasrc']
+    depends = ['map', 'datasrc', 'game']
 
     def __init__(self):
         self.looksector = None # the sector being looked at
         self.renderers = {}
         self.activerenderers = []
 
-    def inject(self, map, datasrc):
+    def inject(self, map, datasrc, game):
         self.map = map
         self.datasrc = datasrc
+        self.game = game
 
-    def load(self, tidmask):
-        self.tidmask = tidmask
+    def load(self):
+        self.localplayer = self.game.localplayer
         self.loadtileset()
 
     def loadtileset(self):

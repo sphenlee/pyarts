@@ -22,11 +22,13 @@ if __name__ == '__main__':
     p.add_argument('-r', '--resolution', help='Set the screen resolution')
     p.add_argument('-f', '--fullscreen', help='Run in fullscreen')
     p.add_argument('-j', '--join', type=str, metavar='ADDR', help='Join a multiplayer game at ADDR')
-    p.add_argument('-s', '--server', help='Start a multiplayer server')
+    p.add_argument('-s', '--server', action='store_true', help='Start a multiplayer server')
 
-    opts, args = p.parse_args()
+    opts = p.parse_args()
 
-    settings.join = opts.join
-    settings.server = opts.server
+    if opts.join:
+        Settings.localpid = 1
+    Settings.join = opts.join
+    Settings.server = opts.server
 
     main()

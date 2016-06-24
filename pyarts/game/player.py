@@ -23,6 +23,10 @@ class Player(object):
     def load(self, data):
         self.teams = data["teams"]
         self.type = data["type"]
+        self.tidmask = 0
+
+        for t in self.teams:
+            self.tidmask |= (1 << t)
 
     def getorder(self, cycle):
         return self.orders[cycle & 0xFF]
@@ -30,5 +34,8 @@ class Player(object):
     def clearorder(self, cycle):
         self.orders[cycle & 0xFF] = None
 
-    def addorder(self, cycle, order):
-        self.orders[cycle & 0xFF] = order
+    def addorder(self, order):
+        #if self.orders[order.cycle & 0xFF] is not None:
+        #    print 'WARNING multiple orders for a single player'
+        #else:
+        self.orders[order.cycle & 0xFF] = order

@@ -9,8 +9,8 @@ from pyarts.container import component
 class Settings(object):
     depends = []
 
-    def __init__(self):
-        self.core = 'maps/test/map.json'
+    localpid = 0
+    core = 'maps/test/map.json'
 
     def inject(self):
         pass

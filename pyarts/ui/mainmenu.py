@@ -31,7 +31,7 @@ class MainMenu(Screen):
     def on_key_press(self, symbol, mod):
         if symbol == key.S:
             self.root = construct('root')
-            self.root.load(mapfile, mapfile, localpid=0)
+            self.root.load(mapfile, mapfile)
             self.root.gamescreen.activate(parent=self)
 
         elif symbol == key.F5:
@@ -43,7 +43,7 @@ class MainMenu(Screen):
 
             print '************* loading new game'
             self.root = construct('root')
-            self.root.load(savefile, mapfile, localpid=0)
+            self.root.load(savefile, mapfile)
             self.root.gamescreen.activate(parent=self)
 
         elif symbol == key.Q:

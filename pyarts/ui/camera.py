@@ -14,7 +14,7 @@ from pyarts.container import component
 
 @component
 class Camera(object):
-    depends = ['datasrc', 'maprenderer', 'map', 'spritemanager']
+    depends = ['datasrc', 'maprenderer', 'map', 'spritemanager', 'settings']
 
     def __init__(self):
         self.lookx = 0.0
@@ -22,15 +22,14 @@ class Camera(object):
 
         self.onlookpointchanged = Event()
 
-    def inject(self, datasrc, maprenderer, map, spritemanager):
+    def inject(self, datasrc, maprenderer, map, spritemanager, settings):
         self.datasrc = datasrc
         self.mapren = maprenderer
         self.map = map
         self.sprites = spritemanager
+        self.localpid = settings.localpid
 
-    def load(self, localpid):
-        self.localpid = localpid
-
+    def load(self):
         # connect camera to map renderer
         # TODO connect these the other way around
         self.onlookpointchanged.add(self.mapren.lookat)

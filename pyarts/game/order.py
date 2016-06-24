@@ -3,26 +3,26 @@ Order
 '''
 
 class Order(object):
-    NONE = 0
-    AUTOCOMMAND = 1
-    ABILITY = 2
+    NONE = 'none'
+    AUTOCOMMAND = 'autocommand'
+    ABILITY = 'ability'
 
-    def __init__(self, type, ents):
+    def __init__(self, type, ents, target):
         self.type = type
         self.ents = ents
+        self.target = target
+        self.cycle = None # filled in by the game
 
 class NoOrder(Order):
     def __init__(self):
-        Order.__init__(self, Order.NONE, None)
+        Order.__init__(self, Order.NONE, None, None)
 
 class AutoCommandOrder(Order):
     def __init__(self, ents, target, add):
-        Order.__init__(self, Order.AUTOCOMMAND, ents)
-        self.target = target
+        Order.__init__(self, Order.AUTOCOMMAND, ents, target)
         self.add = add
 
 class AbilityOrder(Order):
     def __init__(self, ents, idx):
-        Order.__init__(self, Order.ABILITY, ents)
+        Order.__init__(self, Order.ABILITY, ents, None) # target is optional
         self.idx = idx
-        self.target = None # target is optional

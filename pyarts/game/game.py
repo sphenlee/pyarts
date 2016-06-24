@@ -18,7 +18,7 @@ from pyarts.container import component
 
 @component
 class Game(object):
-    depends = ['engine', 'datasrc']
+    depends = ['engine', 'datasrc', 'network', 'settings']
 
     def __init__(self):
         self.selection = []
@@ -32,13 +32,14 @@ class Game(object):
 
         self.onselectionchange = Event()
 
-    def inject(self, engine, datasrc):
+    def inject(self, engine, datasrc, network, settings):
         self.engine = engine
         self.datasrc = datasrc
-
-    def load(self, localpid):
-        self.localpid = localpid
+        self.network = network
+        self.localpid = settings.localpid
         
+    def load(self):
+        self.network.load()
         self.engine.load()
 
         data = self.datasrc.getplayers()
@@ -53,6 +54,10 @@ class Game(object):
         for p in self.players:
             data = p.save()
             sink.addplayer(data)
+
+    @property
+    def localplayer(self):
+        return self.players[self.localpid]
 
     @property
     def mode(self):
@@ -78,14 +83,22 @@ class Game(object):
     def endturn(self):
         ''' Called to end the current turn '''
         p = self.players[self.localpid]
-        if not self.orderthisturn:
-            self.orderthisturn = NoOrder()
+        order = self.orderthisturn 
+        if not order:
+            order = NoOrder()
 
-        p.addorder(self.cycle + self.latency, self.orderthisturn)
+        order.cycle = self.cycle + self.latency
+
+        p.addorder(order)
+        self.network.sendorder(order)
 
     def order(self, order):
         assert not self.orderthisturn
         self.orderthisturn = order
+
+    def orderfor(self, order, pid):
+        p = self.players[pid]
+        p.addorder(order)
 
     def step(self):
         '''
@@ -93,6 +106,8 @@ class Game(object):
         the next turn, and then step the engine, finally we assign
         orders to entities
         '''
+        self.network.step()
+
         orders = [p.getorder(self.cycle) for p in self.players if p.type == Player.HUMAN]
         if not all(orders):
             print 'No Order for player in cycle %d' % self.cycle 

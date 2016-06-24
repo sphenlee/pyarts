@@ -15,10 +15,10 @@ class Root(object):
     def inject(self, **kwargs):
         self.__dict__.update(kwargs)
 
-    def load(self, save, map, localpid):
+    def load(self, save, map):
         self.datasrc.load(save, map, self.settings.core)
-        self.game.load(localpid)
-        self.gamescreen.load(localpid)
+        self.game.load()
+        self.gamescreen.load()
         
     def save(self, datasink):
         self.game.save(datasink)

@@ -22,9 +22,9 @@ class GameScreen(Screen):
     def inject(self, **kwargs):
         self.__dict__.update(kwargs)
 
-    def load(self, localpid):
-        self.maprenderer.load(tidmask=(1 << localpid))
-        self.camera.load(localpid)
+    def load(self):
+        self.maprenderer.load()
+        self.camera.load()
 
     def pre_activate(self):
         self.click = None
