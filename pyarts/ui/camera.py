@@ -17,35 +17,31 @@ class Camera(object):
     depends = ['datasrc', 'maprenderer', 'map', 'spritemanager', 'settings']
 
     def __init__(self):
-        self.lookx = 0.0
-        self.looky = 0.0
+        self.lookx = 0
+        self.looky = 0
 
         self.onlookpointchanged = Event()
 
     def inject(self, datasrc, maprenderer, map, spritemanager, settings):
         self.datasrc = datasrc
+        self.datasrc.onload.add(self.load_data)
         self.mapren = maprenderer
         self.map = map
         self.sprites = spritemanager
+        settings.onload.add(self.load)
+        
+    def load(self, settings):
         self.localpid = settings.localpid
 
-    def load(self):
+    def load_data(self):
         # connect camera to map renderer
         # TODO connect these the other way around
-        self.onlookpointchanged.add(self.mapren.lookat)
         self.onlookpointchanged.add(self.sprites.lookat)
 
         data = self.datasrc.getmisc('camera.initial.position')
         look = data[str(self.localpid)]
-        self.lookx = look['x']
-        self.looky = look['y']
-
-        # camera should not really be doing this
-        sx, sy = self.map.pos_to_sector(self.lookx, self.looky)
-        sec = self.map.sectors[(sx, sy)]
-
-        self.mapren.lookat(sec)
-
+        self.lookx = int(look['x'])
+        self.looky = int(look['y'])
 
     def save(self, sink):
         data = {

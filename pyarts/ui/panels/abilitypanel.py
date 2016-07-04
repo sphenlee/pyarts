@@ -36,7 +36,7 @@ class AbilityPanel(object):
     def update(self):
         ent = self.game.selection[0]
 
-        if ent.has('abilities'):
+        if ent.has('abilities') and ent.ownedby(self.game.localplayer):
             ab = ent.abilities
             n = len(ent.abilities.abilities)
 

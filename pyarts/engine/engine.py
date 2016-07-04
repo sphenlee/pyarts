@@ -21,6 +21,7 @@ class Engine(object):
 
     def inject(self, datasrc, map, scripting, entitymanager, contentmanager, pathfinder, spritemanager):
         self.datasrc = datasrc
+        self.datasrc.onload.add(self.load)
         self.map = map
         self.scripting = scripting
         self.entities = entitymanager
@@ -29,10 +30,6 @@ class Engine(object):
         self.sprites = spritemanager
 
     def load(self):
-        self.scripting.setup()
-
-        self.content.load()
-
         self.races = self.datasrc.getraces()
         for name, race in self.races.items():
             race['name'] = name
@@ -43,10 +40,7 @@ class Engine(object):
             team.load(t)
             self.teams[tid] = team
 
-        self.entities.load()
-        self.map.load()
-
-        self.scripting.runmain()
+        self.scripting.runmain() # where should this go?
 
 
     def save(self, sink):

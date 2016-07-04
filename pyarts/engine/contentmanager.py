@@ -14,14 +14,14 @@ from pyarts.container import component
 
 @component
 class ContentManager(object):
-    depends = ['engine', 'datasrc', 'scripting']
+    depends = ['datasrc', 'scripting']
 
     def __init__(self):
         self.abilities = {}
 
-    def inject(self, engine, datasrc, scripting):
-        self.eng = engine
+    def inject(self, datasrc, scripting):
         self.datasrc = datasrc
+        self.datasrc.onload.add(self.load)
         self.scripting = scripting
 
     def load(self):

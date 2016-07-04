@@ -26,7 +26,9 @@ class EntityManager(object):
     def inject(self, engine, datasrc, map, collisions):
         self.eng = engine
         self.datasrc = datasrc
+        self.datasrc.onload.add(self.load)
         self.map = map
+        self.map.onsectorloaded.add(self.sectorloaded)
         self.collisions = collisions
 
     def get(self, eid):
@@ -39,9 +41,6 @@ class EntityManager(object):
     def load(self):
         ''' Individual entities are loaded as the map loads sectors, juts grab misc data here '''
         self.nextentid = self.datasrc.getmisc('entities.nexteid', 1)
-
-        self.map.onsectorloaded.add(self.sectorloaded)
-
 
     def loadentity(self, eid):
         ''' Load a single entity by eid '''

@@ -32,7 +32,9 @@ class SingleEntityPanel(object):
             img = infopanel.imagecache.getimage(self.ent.appearance.portrait)
             r.paint(img)
 
-        if self.ent.has('variables'):
+        self.showvars = (self.ent.ownedby(game.localplayer) and self.ent.has('variables'))
+
+        if self.showvars:
             vars = self.ent.variables
 
             g3 = sg.Grid(2, 1)
@@ -51,7 +53,7 @@ class SingleEntityPanel(object):
 
 
     def step(self):
-        if self.ent.has('variables'):
+        if self.showvars:
             vars = self.ent.variables
 
             if 'hp' in vars:

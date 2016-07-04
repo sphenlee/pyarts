@@ -109,8 +109,8 @@ class SectorRenderer(object):
         self.fog2_group.y = dy * SECTOR_SZ
 
     def updatefog(self):
-        start = time.time()
-        tidmask = self.mapren.localplayer.tidmask
+        #start = time.time()
+        tidmask = self.mapren.game.localplayer.tidmask
         sec = self.sector
         visible = sec.visible
         visited = sec.visited
@@ -162,7 +162,7 @@ class SectorRenderer(object):
                     tx + TEX_SZ, ty - TEX_SZ
                 ])
 
-        #print 'updated fog renderer data, took %fs' % (time.time() - start)
+        #print 'updated fog renderer data, %d, took %fs' % (tidmask, time.time() - start)
         start = time.time()
 
         self.fog1_vb.tex_coords = fdata1
@@ -172,21 +172,21 @@ class SectorRenderer(object):
 
 @component
 class MapRenderer(object):
-    depends = ['map', 'datasrc', 'game']
+    depends = ['map', 'datasrc', 'game', 'camera']
 
     def __init__(self):
         self.looksector = None # the sector being looked at
         self.renderers = {}
         self.activerenderers = []
 
-    def inject(self, map, datasrc, game):
+    def inject(self, map, datasrc, game, camera):
         self.map = map
         self.datasrc = datasrc
+        self.datasrc.onload.add(self.loadtileset)
         self.game = game
 
-    def load(self):
-        self.localplayer = self.game.localplayer
-        self.loadtileset()
+        self.camera = camera
+        self.camera.onlookpointchanged.add(self.lookat)
 
     def loadtileset(self):
         data = self.datasrc.gettileset()

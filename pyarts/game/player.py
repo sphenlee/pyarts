@@ -11,8 +11,9 @@ class Player(object):
 
     def __init__(self):
         self.teams = []
-        noorder = NoOrder()
-        self.orders = [noorder] * 256
+        self.orders = {}
+        for i in range(16):
+            self.orders[i] = NoOrder()
 
     def save(self):
         return {
@@ -29,13 +30,13 @@ class Player(object):
             self.tidmask |= (1 << t)
 
     def getorder(self, cycle):
-        return self.orders[cycle & 0xFF]
+        return self.orders.get(cycle)
 
     def clearorder(self, cycle):
-        self.orders[cycle & 0xFF] = None
+        self.orders.pop(cycle, None)
 
     def addorder(self, order):
-        #if self.orders[order.cycle & 0xFF] is not None:
-        #    print 'WARNING multiple orders for a single player'
-        #else:
-        self.orders[order.cycle & 0xFF] = order
+        if order.cycle in self.orders:
+            print 'WARNING multiple orders for a single player'
+        
+        self.orders[order.cycle] = order

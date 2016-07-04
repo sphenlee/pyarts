@@ -15,9 +15,9 @@ class Root(object):
     def inject(self, **kwargs):
         self.__dict__.update(kwargs)
 
-    def load(self, save, map):
-        self.datasrc.load(save, map, self.settings.core)
-        self.game.load()
+    def load(self, settings):
+        self.settings.load(settings)
+
         self.gamescreen.load()
         
     def save(self, datasink):

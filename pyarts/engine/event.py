@@ -19,7 +19,7 @@ class Event(object):
             print 'remove failed...'
 
     def emit(self, *args, **kwargs):
-        if self.debug:
-            print 'emitting', self.debug
         for func in self.listeners:
+            if self.debug:
+                print 'emitting %s to %s(*%r, **%r)' % (self.debug, func, args, kwargs)
             func(*args, **kwargs)

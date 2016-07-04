@@ -128,14 +128,14 @@ class Network(object):
 
     def inject(self, game, settings, entitymanager):
         self.game = game
-        self.settings = settings
+        settings.onload.add(self.load)
         self.entitymanager = entitymanager # to resolve target eids
 
-    def load(self):
-        if self.settings.server:
+    def load(self, settings):
+        if settings.server:
             self.impl = MasterNetwork(self)
-        elif self.settings.join:
-            self.impl = SlaveNetwork(self, self.settings.join)
+        elif settings.join:
+            self.impl = SlaveNetwork(self, settings.join)
         else:
             self.impl = NullNetwork()
 

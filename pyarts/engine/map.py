@@ -25,8 +25,9 @@ class Map(object):
     def inject(self, engine, datasrc):
         self.eng = engine
         self.datasrc = datasrc
+        self.datasrc.onready.add(self.ready)
 
-    def load(self):
+    def ready(self):
         for sx, sy in self.datasrc.getloadedsectors():
             self.loadsector(sx, sy)
 

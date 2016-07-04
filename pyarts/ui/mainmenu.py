@@ -8,6 +8,7 @@ from pyglet.window import key
 from .screen import Screen
 from ..engine.datasource import DataSource
 from ..engine.datasink import DataSink
+from pyarts.game.settings import Settings
 
 from pyarts.container import construct
 
@@ -31,7 +32,14 @@ class MainMenu(Screen):
     def on_key_press(self, symbol, mod):
         if symbol == key.S:
             self.root = construct('root')
-            self.root.load(mapfile, mapfile)
+            self.root.load({
+                'localpid': Settings.localpid,
+                'data': {
+                    'core': mapfile,
+                    'map': mapfile,
+                    'save': mapfile
+                }
+            })
             self.root.gamescreen.activate(parent=self)
 
         elif symbol == key.F5:

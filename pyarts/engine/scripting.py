@@ -18,6 +18,8 @@ class Scripting(object):
         self.codecache = set()
         self.lua = lua.State()
 
+        self.setup()
+
     def inject(self, engine, entitymanager, datasrc):
         self.eng = engine
         self.entities = entitymanager

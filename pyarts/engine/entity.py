@@ -64,6 +64,10 @@ class Entity(object):
         ''' Check if this entity has a certain component '''
         return comp in self.components
 
+    def ownedby(self, player):
+        '''Check if a player owns this entity'''
+        return bool(player.tidmask & (1 << self.team.tid))
+
     @property
     def tier(self):
         '''Convenience for getting an Entity's selection tier'''

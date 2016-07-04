@@ -7,23 +7,28 @@ import json
 import os
 p = os.path
 
+from .event import Event
 from pyarts.container import component
 
 @component
 class DataSource(object):
     name = 'datasrc'
-    depends = []
+    depends = ['settings']
 
     def __init__(self):
-        pass
+        self.onload = Event(debug='datasrc.onload')
+        self.onready = Event(debug='datasrc.onready')
 
-    def inject(self):
-        pass
+    def inject(self, settings):
+        settings.onload.add(self.load)
 
-    def load(self, save, map, core):
-        self.save = json.load(open(save))
-        self.map = json.load(open(map))
-        self.core = json.load(open(core))
+    def load(self, settings):
+        self.save = json.load(open(settings.data_save))
+        self.map = json.load(open(settings.data_map))
+        self.core = json.load(open(settings.data_core))
+
+        self.onload.emit()
+        self.onready.emit()
 
     def getresource(self, name):
         return p.join('maps', 'test', name)

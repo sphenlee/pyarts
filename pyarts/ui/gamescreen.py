@@ -23,8 +23,11 @@ class GameScreen(Screen):
         self.__dict__.update(kwargs)
 
     def load(self):
-        self.maprenderer.load()
-        self.camera.load()
+        # loadtileset should not really be doing this
+        sx, sy = self.map.pos_to_sector(self.camera.lookx, self.camera.looky)
+        sec = self.map.sectors[(sx, sy)]
+
+        self.maprenderer.lookat(sec)
 
     def pre_activate(self):
         self.click = None

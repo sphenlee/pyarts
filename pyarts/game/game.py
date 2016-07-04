@@ -26,6 +26,7 @@ class Game(object):
         self.cycle = 0
         self.latency = 16
         self.orderthisturn = None
+        self.localpid = None
 
         self.modes = []
         self.push_mode(NormalMode(self))
@@ -36,12 +37,12 @@ class Game(object):
         self.engine = engine
         self.datasrc = datasrc
         self.network = network
+        settings.onload.add(self.load)
+
+        
+    def load(self, settings):
         self.localpid = settings.localpid
         
-    def load(self):
-        self.network.load()
-        self.engine.load()
-
         data = self.datasrc.getplayers()
         for pdata in data:
             player = Player()
@@ -82,7 +83,7 @@ class Game(object):
 
     def endturn(self):
         ''' Called to end the current turn '''
-        p = self.players[self.localpid]
+        p = self.localplayer
         order = self.orderthisturn 
         if not order:
             order = NoOrder()
@@ -145,19 +146,36 @@ class Game(object):
 
     def select(self, ents, add):
         ''' Select ents or add ents to the current selection '''
-        if add:
-            ents = ents | set(self.selection)
-            tier = self.selection[0].tier
-        else:
-            tier = min(e.tier for e in ents)
+        lp = self.localplayer
+        myents = [e for e in ents if e.ownedby(lp)]
 
-        self.selection = [e for e in ents if e.tier == tier]
+        if not myents:
+            # select highest ranked enemy ent
+            rank = min(e.rank for e in ents)
+            selection = [e for e in ents if e.rank == rank][0:]
+        else:
+            # select only my ents
+            if add:
+                # adding to the selection, use the tier of already selected ents
+                myents = myents | set(self.selection)
+                tier = self.selection[0].tier
+            else:
+                # new selection, use the highest tier
+                tier = min(e.tier for e in myents)
+
+            selection = [e for e in myents if e.tier == tier]
+
+        
+        assert selection, 'no entities were selected'
+        self.selection = selection
 
         self.onselectionchange.emit()
 
     def autocommand(self, target, add):
         ''' Give an autocommand on target to the selected entities '''
         if self.selection:
+            if not self.selection[0].ownedby(self.localplayer):
+                return
             eids = [e.eid for e in self.selection]
             self.order(AutoCommandOrder(eids, target, add))
 
@@ -171,6 +189,10 @@ class Game(object):
         ent = self.selection[0]
         if not ent.has('abilities'):
             # no abilities
+            return
+
+        if not ent.ownedby(self.localplayer):
+            # should never happen, player doesn't own the entity
             return
 
         try:
