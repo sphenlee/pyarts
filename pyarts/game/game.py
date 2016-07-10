@@ -128,21 +128,18 @@ class Game(object):
     def render(self):
         self.engine.render() # FIXME - engine should not have any graphics in it
 
-        for ent in self.selection:
-            self.render_selection(ent)
+    # def render_selection(self, ent):
+    #     loc = ent.locator
 
-    def render_selection(self, ent):
-        loc = ent.locator
-
-        gl.glDisable(gl.GL_TEXTURE_2D)        
-        gl.glColor4f(0, 1, 0, 1)
-        gl.glBegin(gl.GL_LINE_STRIP)
-        gl.glVertex2f(loc.x - loc.r, loc.y - loc.r)
-        gl.glVertex2f(loc.x + loc.r, loc.y - loc.r)
-        gl.glVertex2f(loc.x + loc.r, loc.y + loc.r)
-        gl.glVertex2f(loc.x - loc.r, loc.y + loc.r)
-        gl.glVertex2f(loc.x - loc.r, loc.y - loc.r)
-        gl.glEnd()
+    #     gl.glDisable(gl.GL_TEXTURE_2D)        
+    #     gl.glColor4f(0, 1, 0, 1)
+    #     gl.glBegin(gl.GL_LINE_STRIP)
+    #     gl.glVertex2f(loc.x - loc.r, loc.y - loc.r)
+    #     gl.glVertex2f(loc.x + loc.r, loc.y - loc.r)
+    #     gl.glVertex2f(loc.x + loc.r, loc.y + loc.r)
+    #     gl.glVertex2f(loc.x - loc.r, loc.y + loc.r)
+    #     gl.glVertex2f(loc.x - loc.r, loc.y - loc.r)
+    #     gl.glEnd()
 
     def select(self, ents, add):
         ''' Select ents or add ents to the current selection '''
@@ -167,7 +164,16 @@ class Game(object):
 
         
         assert selection, 'no entities were selected'
+
+        for s in self.selection:
+            if s.has('appearance'):
+                s.appearance.selected(False)
+
         self.selection = selection
+
+        for s in self.selection:
+            if s.has('appearance'):
+                s.appearance.selected(True)
 
         self.onselectionchange.emit()
 

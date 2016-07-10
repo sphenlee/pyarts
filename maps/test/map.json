@@ -57,7 +57,8 @@
             "components" : ["appearance", "footprint", "resource"],
             "appearance" : {
                 "sprite" : "res/bldg-goldmine.png",
-                "portrait" : "res/bldg-goldmine.png"
+                "portrait" : "res/bldg-goldmine.png",
+                "visibility" : "visited"
             },
             "locator" : { "r" : 128 },
             "resource" : { "kind": "resource" }

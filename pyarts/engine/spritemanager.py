@@ -10,17 +10,22 @@ from .sector import SECTOR_SZ
 from pyarts.container import component
 
 class Sprite(object):
-    def __init__(self, sm, sprite):
+    def __init__(self, sm, sprite, ring):
         self.sm = sm
         self.sprite = sprite
+        self.ring = ring
 
     def setpos(self, x, y):
         self.sprite.x = x - self.sm.offx
         self.sprite.y = y - self.sm.offy
+        self.ring.x = x - self.sm.offx
+        self.ring.y = y - self.sm.offy
 
     def offset(self, dx, dy):
         self.sprite.x += dx
         self.sprite.y += dy
+        self.ring.x += dx
+        self.ring.y += dy
 
 SPRITE_SIZE = 128
 
@@ -36,6 +41,9 @@ class SpriteManager(object):
 
     def inject(self, datasrc):
         self.datasrc = datasrc
+
+        res = self.datasrc.getresource('res/selected-ring.png')
+        self.ringimg = pyglet.image.load(res)
         
     def lookat(self, sec):
         self.setoffset(sec.sx * SECTOR_SZ, sec.sy * SECTOR_SZ)
@@ -55,7 +63,12 @@ class SpriteManager(object):
         img = pyglet.image.load(res)
         pygs = pyglet.sprite.Sprite(img, batch=self.batch)
         pygs.scale = float(r) / SPRITE_SIZE
-        s = Sprite(self, pygs)
+
+        ring = pyglet.sprite.Sprite(self.ringimg, batch=self.batch)
+        ring.scale = float(r) / SPRITE_SIZE
+        ring.visible = False
+
+        s = Sprite(self, pygs, ring)
         self.sprites.add(s)
         return s
 
