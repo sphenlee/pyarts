@@ -42,12 +42,18 @@ class SingleEntityPanel(object):
                 self.hp = sg.Text('').paint(*HP_RAMP[-1])
                 g3.append(self.hp)
             if 'mana' in vars:
-                self.mana = sg.Text('').paint(0, 0, 1)
+                self.mana = sg.Text('').paint(0.25, 0.5, 1)
                 g3.append(self.mana)
 
             g2.append(g3)
 
         g.append(g2)
+
+
+        self.showqueue = (self.ent.ownedby(game.localplayer) and self.ent.has('queue'))
+
+        #if self.showqueue:
+        #    self.
 
         self.sg.append(g)
 

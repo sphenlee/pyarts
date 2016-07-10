@@ -14,6 +14,8 @@ lut = {
     'gggw' : 8, 'ggwg' : 9, 'wggg' : 10, 'gwww' : 11, 'wgww' : 12, 'wwwg' : 13, 'wwgw' : 14, 
     'wsws' : 19, 'wwss' : 20, 'swsw' : 21, 'ssww' : 22, 'swss' : 23, 'sssw' : 24, 'ssws' : 25, 
     'wsss' : 26, 'swww' : 27, 'wsww' : 28, 'wwws' : 29, 'wwsw' : 30,
+    'gsgs' : 35, 'ggss' : 36, 'sgsg' : 37, 'ssgg' : 38, 'sgss' : 39, 'sssg' : 40, 'ssgs' : 41, 
+    'gsss' : 42, 'sggg' : 43, 'gsgg' : 44, 'gggs' : 45, 'ggsg' : 46,
 }
 
 fname = sys.argv[1]

@@ -162,4 +162,4 @@ class EntityManager(object):
             for eid in order.ents:
                 ent = self.get(eid)
                 if ent.has('abilities'):
-                    ent.abilities.activate(order.idx, order.target)
+                    ent.abilities.activate(order.idx, order.target, order.add)

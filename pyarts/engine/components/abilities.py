@@ -52,24 +52,30 @@ class Abilities(Component):
             ainst.step()
 
 
-    def activate(self, idx, target):
-        if self[idx].cooldown > 0:
+    def activate(self, idx, target, add):
+        ainst = self[idx]
+
+        if ainst.cooldown > 0:
             print 'not ready - ability activate checked it'
             return False # not ready
-
-        ainst = self[idx]
 
         if ainst.ability.queue:
             assert self.ent.has('queue'), 'entity needs a queue for this ability'
             return self.ent.queue.add(ainst, target)
         else:
+            if ainst.wait > 0:
+                print 'already doing this - ability activate checked it'
+                return False # not ready
 
             def onstart():
                 ''' TODO - there might be a nicer way to do this '''
                 ainst.ability.deduct_cost(self.ent)
 
             action = AbilityAction(ainst, target, onstart)
-            self.actions.now(action)
+            if add:
+                self.actions.now(action)
+            else:
+                self.actions.give(action)
             return True
 
     def __len__(self):

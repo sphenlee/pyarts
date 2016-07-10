@@ -127,7 +127,8 @@ class GameScreen(Screen):
             return True
         elif symbol in self.numbers:
             num = self.numbers.index(symbol)
-            self.game.mode.ability(num)
+            add = bool(mod & key.MOD_SHIFT)
+            self.game.mode.ability(num, add)
             return True
 
     def on_draw(self):

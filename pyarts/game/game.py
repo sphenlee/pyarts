@@ -179,7 +179,7 @@ class Game(object):
             eids = [e.eid for e in self.selection]
             self.order(AutoCommandOrder(eids, target, add))
 
-    def ability(self, idx):
+    def ability(self, idx, add):
         ''' Do the ability at idx for the currently selected entities '''
         if not self.selection:
             # nothing selected
@@ -215,13 +215,18 @@ class Game(object):
         # NOTE this is a Game check, the Engine will check again when activating
         def check_ability(eid):
             e = self.engine.entities.get(eid)
+            ainst = e.abilities[idx]
 
             if e.proto.epid != ent.proto.epid:
                 print 'entity does not have ability %s' % ability.name
                 return False
 
-            if e.abilities[idx].cooldown > 0:
+            if ainst.cooldown > 0:
                 print 'not ready - game checked it'
+                return False
+
+            if not ability.queue and ainst.wait > 0:
+                print 'already doing this - game checked it'
                 return False
 
             if not ability.check_cost(e):
@@ -233,11 +238,14 @@ class Game(object):
         entids = [eid for eid in entids if check_ability(eid)]
         
         # create the order
-        order = AbilityOrder(entids, idx)
+        order = AbilityOrder(entids, idx, add)
 
         # based on ability type we either issue an order
         # or enter a new mode
-        if ability.type in (ability.INSTANT, ability.ACTIVITY):
+        if ability.type == ability.INSTANT:
+            order.add = True # instants never interrupt the current action
+            self.order(order)
+        elif ability.type == ability.ACTIVITY:
             self.order(order)
         elif ability.type == ability.TARGETED:
             self.push_mode(TargetingMode(self, order, allowpos=False))

@@ -143,6 +143,7 @@
                 "type" : "activity",
                 "name" : "Train Archer",
                 "description" : "Trains an Archer",
+                "onstart" : "function(me) print('starting train archer') end",
                 "effect" : [
                     "function(me)",
                     "    print('Inside train archer')",

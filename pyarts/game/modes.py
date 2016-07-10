@@ -34,8 +34,8 @@ class NormalMode(object):
 
         self.game.autocommand(target, add)
 
-    def ability(self, idx):
-        self.game.ability(idx)
+    def ability(self, idx, add):
+        self.game.ability(idx, add)
 
     def draw(self):
         ''' Nothing special to draw '''
@@ -73,7 +73,7 @@ class TargetingMode(object):
         ''' RIght click cancels the targeting '''
         self.game.pop_mode()
 
-    def ability(self, idx):
+    def ability(self, idx, add):
         ''' Ability button also cancels targeting '''
         self.game.pop_mode()
 

@@ -9,19 +9,21 @@ from .ability import AbilityAction
 
 class QueueAction(Action):
     def __init__(self):
-        pass
+        self.now = None
 
     def start(self):
         print 'starting queue drain', self.ent.queue.queue
         queue = self.ent.queue
 
         if not queue.queue:
+            self.now = None
             self.done()
             return
 
-        ability, target = queue.queue.pop(0)
-        print 'starting', ability, target
-        self.ent.actions.now(AbilityAction(ability, target))
+        ainst, target = queue.queue.pop(0)
+        self.now = ainst
+        print 'starting', ainst, target
+        self.ent.actions.now(AbilityAction(ainst, target))
 
     def step(self):
         pass

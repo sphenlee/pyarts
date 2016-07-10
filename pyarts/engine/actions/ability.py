@@ -29,7 +29,6 @@ class AbilityAction(Action):
         if self.ainst.wait == 0:
             self.doability()
         else:
-            print 'ability waiting', self.ainst.wait
             self.ainst.wait -= 1
 
     def doability(self):

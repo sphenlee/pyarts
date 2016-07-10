@@ -38,11 +38,10 @@ class NanomsgNetwork(object):
             'type': order.type,
             'ents': order.ents,
             'cycle': order.cycle,
+            'add': order.add,
             'pid': self.game.localpid # we only serialise orders from the local player
         }
-        if order.type == Order.AUTOCOMMAND:
-            obj['add'] = order.add
-        elif order.type == Order.ABILITY:
+        if order.type == Order.ABILITY:
             obj['idx'] = order.idx
 
         if order.target:
@@ -55,7 +54,7 @@ class NanomsgNetwork(object):
 
     def deserialise(self, obj):
         if obj['type'] == Order.ABILITY:
-            order = AbilityOrder(obj['ents'], obj['idx'])
+            order = AbilityOrder(obj['ents'], obj['idx'], obj['add'])
         elif obj['type'] == Order.AUTOCOMMAND:
             order = AutoCommandOrder(obj['ents'], obj['target'], obj['add'])
         elif obj['type'] == Order.NONE:
