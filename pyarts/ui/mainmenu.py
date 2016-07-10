@@ -40,7 +40,8 @@ class MainMenu(Screen):
                     'save': mapfile
                 }
             })
-            self.root.gamescreen.activate(parent=self)
+            self.root.run(self)
+            
 
         elif symbol == key.F5:
             print '*********** saving game'

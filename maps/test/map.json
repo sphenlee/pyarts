@@ -37,7 +37,8 @@
         "townhall" : {
             "name" : "Town Hall",
             "rank" : 100,
-            "components" : ["town", "appearance", "behaviour", "maprevealer", "footprint", "abilities", "harveststore"],
+            "components" : ["town", "appearance", "behaviour", "maprevealer",
+                "footprint", "abilities", "harveststore", "queue"],
             "appearance" : {
                 "sprite" : "res/bldg-townhall.png",
                 "portrait" : "res/bldg-townhall.png"
@@ -139,7 +140,7 @@
                 "image" : "res/unit-pesant.png"
             },
             "train_archer" : {
-                "type" : "instant",
+                "type" : "activity",
                 "name" : "Train Archer",
                 "description" : "Trains an Archer",
                 "effect" : [
@@ -150,6 +151,8 @@
                     "end"
                 ],
                 "cooldown" : 60,
+                "wait": 120,
+                "queue" : true,
                 "cost" : { "energy" : 100, "resource" : 100 },
                 "image" : "res/unit-pesant.png"
             },

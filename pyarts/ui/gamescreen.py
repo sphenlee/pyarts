@@ -35,15 +35,12 @@ class GameScreen(Screen):
         self.dx = 0
         self.dy = 0
 
-        pyglet.clock.schedule(self.update, 0.5)
-
     def save(self, datasink):
         self.camera.save(datasink)
 
-    def update(self, dt, *args):
+    def update(self, dt):
         if self.dx or self.dy:
             self.camera.move(self.dx * 100 * dt, self.dy * 100 *dt)
-        self.game.step()
 
         self.infopanel.step()
 

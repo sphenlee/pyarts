@@ -9,6 +9,7 @@ import threading
 
 from pyarts.container import component
 from pyarts.engine.target import Target
+from pyarts.engine.event import Event
 
 from .order import Order, AbilityOrder, AutoCommandOrder, NoOrder
 
@@ -17,8 +18,8 @@ class NullNetwork(object):
     '''
     Implementation used for single player, no network needed
     '''
-    def __init__(self):
-        pass
+    def __init__(self, net):
+        net.ongamestart.emit()
 
     def sendorder(self, order):
         pass
@@ -33,6 +34,7 @@ class NanomsgNetwork(object):
     '''
     def serialise(self, order):
         obj = {
+            'tag': 'order',
             'type': order.type,
             'ents': order.ents,
             'cycle': order.cycle,
@@ -71,52 +73,94 @@ class NanomsgNetwork(object):
 
         return order
                 
-
     def check_messages(self):
-        orders = []
+        msgs = []
         while 1:
             try:
-                msg = self.soc.recv(flags=nm.DONTWAIT)
+                payload = self.soc.recv(flags=nm.DONTWAIT)
             except nm.NanoMsgAPIError as e:
                 if e.errno == nm.EAGAIN:
-                    return orders
+                    return msgs
                 else:
                     raise
             else:
-                obj = msgpack.unpackb(msg)
-                pid = obj['pid']
-                order = self.deserialise(obj)
-                orders.append((order, pid))
+                msg = msgpack.unpackb(payload)
+                msgs.append(msg)
 
     def sendorder(self, order):
         msg = self.serialise(order)
         self.soc.send(msg)
 
+    def send(self, msg):
+        self.soc.send(msgpack.packb(msg))
+
     def step(self):
-        for order, pid in self.check_messages():
-            self.game.orderfor(order, pid)
+        for msg in self.check_messages():
+            print 'network got', msg
+            tag = msg['tag']
+            if tag == 'order':
+                pid = msg['pid']
+                order = self.deserialise(msg)
+                self.handle_order(pid, order)
+            elif tag == 'ready':
+                self.handle_ready(msg)
+            elif tag == 'startgame':
+                self.handle_startgame()
+
 
 class MasterNetwork(NanomsgNetwork):
     '''
     Implementation used for actual multi player master
     '''
     def __init__(self, net):
+        self.net = net
         self.game = net.game
         self.entitymanager = net.entitymanager
         
-        self.soc = nm.Socket(nm.BUS)
+        self.soc = nm.Socket(nm.PAIR)
         self.soc.bind('tcp://*:6666')
+
+        self.waiting = len(self.game.players) - 1 # assume we're ready
+
+    def handle_order(self, pid, order):
+        self.game.orderfor(order, pid)
+
+    def handle_ready(self, msg):
+        print 'master got ready message', self.waiting
+        self.waiting -= 1
+        if self.waiting == 0:
+            self.send_startgame()
+            self.net.ongamestart.emit()
+
+    def handle_startgame(self):
+        pass
+
+    def send_startgame(self):
+        self.send({'tag': 'startgame'})
+
 
 class SlaveNetwork(NanomsgNetwork):
     '''
     Implementation used for actual multi player slave
     '''
     def __init__(self, net, join):
+        self.net = net
         self.game = net.game
         self.entitymanager = net.entitymanager
         
-        self.soc = nm.Socket(nm.BUS)
+        self.soc = nm.Socket(nm.PAIR)
         self.soc.connect('tcp://localhost:6666')
+
+        self.send({'tag' : 'ready'})
+
+    def handle_order(self, pid, order):
+        self.game.orderfor(order, pid)
+
+    def handle_ready(self, msg):
+        pass
+
+    def handle_startgame(self):
+        self.net.ongamestart.emit()
 
 
 @component
@@ -124,7 +168,7 @@ class Network(object):
     depends = ['game', 'settings', 'entitymanager']
 
     def __init__(self):
-        pass
+        self.ongamestart = Event()
 
     def inject(self, game, settings, entitymanager):
         self.game = game
@@ -137,7 +181,7 @@ class Network(object):
         elif settings.join:
             self.impl = SlaveNetwork(self, settings.join)
         else:
-            self.impl = NullNetwork()
+            self.impl = NullNetwork(self)
 
     def sendorder(self, order):
         self.impl.sendorder(order)

@@ -38,17 +38,17 @@ class AbilityPanel(object):
 
         if ent.has('abilities') and ent.ownedby(self.game.localplayer):
             ab = ent.abilities
-            n = len(ent.abilities.abilities)
+            n = len(ab)
 
             for i in xrange(6):
                 if i >= n:
                     self.grid.children[i] = sg.Rect().paint(EMPTY_PAINT)
                 else:
-                    img = self.imagecache.getimage(ab.abilities[i].image)
+                    img = self.imagecache.getimage(ab[i].ability.image)
                     c = sg.Canvas()
                     c.append(sg.Rect().paint(img))
-                    if ab.cooldowns[i] > 0:
-                        percent = float(ab.cooldowns[i]) / ab.abilities[i].cooldown
+                    if ab[i].cooldown > 0:
+                        percent = float(ab[i].cooldown) / ab[i].ability.cooldown
                         c.append(sg.Rect().paint(1, 0, 0, percent))
                     self.grid.children[i] = c
                     

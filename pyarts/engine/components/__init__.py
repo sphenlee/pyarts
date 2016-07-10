@@ -17,3 +17,4 @@ from .town import *
 from .resource import *
 from .harvester import *
 from .harveststore import *
+from .queue import *

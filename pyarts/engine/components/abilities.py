@@ -7,6 +7,24 @@ A component for entities that can use abilities
 from .component import Component, register
 from ..actions import AbilityAction
 
+class AbilityInstance(object):
+    '''
+    An ability with the per ent cooldown timer,
+    and wait time for activities
+    '''
+    def __init__(self, ability):
+        self.ability = ability
+        self.cooldown = 0
+        self.wait = 0
+
+    def step(self):
+        if self.cooldown > 0:
+            self.cooldown -= 1
+
+    def startcooldown(self):
+        self.cooldown = self.ability.cooldown
+
+
 @register
 class Abilities(Component):
     depends = [ '@content', 'actions' ]
@@ -17,12 +35,11 @@ class Abilities(Component):
 
     def configure(self, data):
         self.abilities = []
-        self.cooldowns = []
 
         for name in data:
             ability = self.content.getability(name)
-            self.abilities.append(ability)
-            self.cooldowns.append(0)
+            ainst = AbilityInstance(ability)
+            self.abilities.append(ainst)
         
     def save(self):
         pass
@@ -31,24 +48,32 @@ class Abilities(Component):
         pass
 
     def step(self):
-        for i in range(len(self.cooldowns)):
-            if self.cooldowns[i] > 0:
-                self.cooldowns[i] -= 1
+        for ainst in self.abilities:
+            ainst.step()
 
 
     def activate(self, idx, target):
-        if self.cooldowns[idx] > 0:
+        if self[idx].cooldown > 0:
             print 'not ready - ability activate checked it'
             return False # not ready
 
-        ability = self[idx]
-        def start():
-            ''' TODO - there might be a nicer way to do this '''
-            self.cooldowns[idx] = ability.cooldown
+        ainst = self[idx]
 
-        action = AbilityAction(ability, target, start)
-        self.actions.now(action)
-        return True
+        if ainst.ability.queue:
+            assert self.ent.has('queue'), 'entity needs a queue for this ability'
+            return self.ent.queue.add(ainst, target)
+        else:
+
+            def onstart():
+                ''' TODO - there might be a nicer way to do this '''
+                ainst.ability.deduct_cost(self.ent)
+
+            action = AbilityAction(ainst, target, onstart)
+            self.actions.now(action)
+            return True
+
+    def __len__(self):
+        return len(self.abilities)
 
     def __getitem__(self, idx):
         return self.abilities[idx]

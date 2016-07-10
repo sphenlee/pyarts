@@ -196,7 +196,7 @@ class Game(object):
             return
 
         try:
-            ability = ent.abilities[idx]
+            ability = ent.abilities[idx].ability
         except IndexError:
             return
 
@@ -220,7 +220,7 @@ class Game(object):
                 print 'entity does not have ability %s' % ability.name
                 return False
 
-            if e.abilities.cooldowns[idx] > 0:
+            if e.abilities[idx].cooldown > 0:
                 print 'not ready - game checked it'
                 return False
 
@@ -237,7 +237,7 @@ class Game(object):
 
         # based on ability type we either issue an order
         # or enter a new mode
-        if ability.type == ability.INSTANT:
+        if ability.type in (ability.INSTANT, ability.ACTIVITY):
             self.order(order)
         elif ability.type == ability.TARGETED:
             self.push_mode(TargetingMode(self, order, allowpos=False))
@@ -247,3 +247,5 @@ class Game(object):
             self.push_mode(TargetingMode(self, order))
         elif ability.type == ability.STATIC:
             pass # do nothing
+        else:
+            raise RuntimeError('unknown ability type!')

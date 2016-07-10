@@ -13,17 +13,23 @@ class Ability(object):
     TARGETED = 'targeted'
     BUILD = 'build'
     AREA_OF_EFFECT = 'area_of_effect'
+    ACTIVITY = 'activity'
 
     def __init__(self, data, scripting):
         self.name = data['name']
         self.description = data['description']
 
-        self.effect = scripting.code(data['effect'])
-
         self.type = data['type']
 
+        self.effect = scripting.code(data['effect'])
+
+        self.onstart = scripting.code(data['onstart']) if 'onstart' in data else None
+        self.onstop = scripting.code(data['onstop']) if 'onstop' in data else None
+        
         self.range = data.get('range', 0)
         self.group = data.get('group', False)
+        self.queue = data.get('queue', False)
+        self.wait = data.get('wait', 0)
         self.cooldown = data.get('cooldown', 0)
         self.cost = Cost.from_data(data['cost'])
 
@@ -58,9 +64,7 @@ class Ability(object):
             ent.variables['mana'] -= self.cost.mana
 
     def activate(self, me, target):
-        self.deduct_cost(me)
-
-        if self.type in (Ability.STATIC, Ability.INSTANT):
+        if self.type in (Ability.STATIC, Ability.INSTANT, Ability.ACTIVITY):
             self.effect(me.eid)
         elif self.type in (Ability.TARGETED,):
             if target.isent():
