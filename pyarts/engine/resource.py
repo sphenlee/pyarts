@@ -34,7 +34,7 @@ class ResourcePool(object):
         self.onchange = Event()
 
     def sufficient(self, cost):
-        return self.resource > cost.resource and self.energy > cost.energy
+        return self.resource >= cost.resource and self.energy >= cost.energy
 
     def deduct(self, cost):
         self.resource -= cost.resource

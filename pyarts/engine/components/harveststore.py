@@ -26,5 +26,6 @@ class HarvestStore(Component):
         pass
 
     
-    def dropoff(self, resources):
-        pass
+    def dropoff(self, resources, amt):
+        self.town.town.resources.add(resources.kind, amt)
+    

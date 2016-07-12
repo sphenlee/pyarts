@@ -25,7 +25,7 @@ class SingleEntityPanel(object):
         # portrait and HP display
         g2 = sg.Grid(2, 1)
 
-        r = sg.Rect(10, 10, 128, 128)
+        r = sg.Rect()
         g2.append(r)
 
         if self.ent.has('appearance'):

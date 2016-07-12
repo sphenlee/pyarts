@@ -62,14 +62,15 @@ class Harvester(Component):
     def gotopickup(self, seed):
         pickup = self.findlike(seed)
         if pickup:
-            print pickup.locator.r
-            self.moving.moveto(Target(pickup))
+            self.target = Target(pickup)
+            self.moving.moveto(self.target)
             return True
 
     def gotodropoff(self):
         e = self.finddropoff(self.locator.pos())
         if e is not None:
-            self.moving.moveto(Target(e))
+            self.target = Target(e)
+            self.moving.moveto(self.target)
             return True
 
     @property
@@ -100,5 +101,6 @@ class Harvester(Component):
 
     def dropoff(self, res):
         print 'droped off %r resources' % self.variables['carrying']
-        #self.team.resources
+        self.target.ent.harveststore.dropoff(res, self.variables['carrying'])
         self.variables['carrying'] = 0
+

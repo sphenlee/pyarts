@@ -156,8 +156,9 @@ class Map(object):
             y1, y2 = y2, y1
 
         for loc in self.locators:
-            if x1 - loc.r <= loc.x <= x2 + loc.r:
-                if y1 - loc.r <= loc.y <= y2 + loc.r:
-                    result.add(loc.ent)
+            if loc.placed:
+                if x1 - loc.r <= loc.x <= x2 + loc.r:
+                    if y1 - loc.r <= loc.y <= y2 + loc.r:
+                        result.add(loc.ent)
 
         return result

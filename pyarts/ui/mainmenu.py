@@ -52,8 +52,15 @@ class MainMenu(Screen):
 
             print '************* loading new game'
             self.root = construct('root')
-            self.root.load(savefile, mapfile)
-            self.root.gamescreen.activate(parent=self)
+            self.root.load({
+                'localpid': Settings.localpid,
+                'data': {
+                    'core': mapfile,
+                    'map': mapfile,
+                    'save': savefile
+                }
+            })
+            self.root.run(self)
 
         elif symbol == key.Q:
             pyglet.app.exit()

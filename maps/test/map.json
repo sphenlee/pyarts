@@ -61,7 +61,14 @@
                 "visibility" : "visited"
             },
             "locator" : { "r" : 128 },
-            "resource" : { "kind": "resource" }
+            "resource" : {
+                "kind": "resource",
+                "deplete" : [
+                    "function(me)",
+                    "    print('gold mine depleted')",
+                    "end"
+                ]
+            }
         }
     },
 
@@ -144,7 +151,6 @@
                 "type" : "activity",
                 "name" : "Train Archer",
                 "description" : "Trains an Archer",
-                "onstart" : "function(me) print('starting train archer') end",
                 "effect" : [
                     "function(me)",
                     "    print('Inside train archer')",
@@ -152,7 +158,6 @@
                     "    place_entity_near(ent, me)",
                     "end"
                 ],
-                "cooldown" : 60,
                 "wait": 120,
                 "queue" : true,
                 "cost" : { "energy" : 100, "resource" : 100 },
@@ -187,7 +192,7 @@
                     "locator" : { "r" : 32 },
                     "stats" : {
                         "sight" : 256,
-                        "speed" : 16
+                        "speed" : 32
                     },
                     "harvester" : { "rate": 100, "capacity": 10 }
                 }

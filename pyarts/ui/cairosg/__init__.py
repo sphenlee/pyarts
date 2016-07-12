@@ -131,7 +131,8 @@ class Rect(Paintable):
 
         with ctx:
             ctx.translate(self.x, self.y)
-            ctx.scale(ew, eh)
+            s = min(ew, eh)
+            ctx.scale(s, s)
             self.apply_paint(ctx)
             ctx.rectangle(0, 0, 1, 1)
             ctx.fill()

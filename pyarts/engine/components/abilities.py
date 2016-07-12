@@ -59,9 +59,15 @@ class Abilities(Component):
             print 'not ready - ability activate checked it'
             return False # not ready
 
+        if not ainst.ability.check_cost(self.ent):
+            print 'cannot pay cost - ability activate checked it'
+            return False
+
         if ainst.ability.queue:
             assert self.ent.has('queue'), 'entity needs a queue for this ability'
-            return self.ent.queue.add(ainst, target)
+            self.ent.queue.add(ainst, target)
+            ainst.ability.deduct_cost(self.ent)
+            return True
         else:
             if ainst.wait > 0:
                 print 'already doing this - ability activate checked it'

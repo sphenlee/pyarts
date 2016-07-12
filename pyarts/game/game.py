@@ -236,7 +236,7 @@ class Game(object):
                 return False
 
             if not ability.check_cost(e):
-                print 'cannot pay cost'
+                print 'cannot pay cost - game checked it'
                 return False
 
             return True

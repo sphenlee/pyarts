@@ -33,7 +33,9 @@ class Appearance(Component):
 
     def step(self):
         visible = False
-        if self.visibility == self.VISIBLE_ALWAYS:
+        if not self.locator.placed:
+            visible = False
+        elif self.visibility == self.VISIBLE_ALWAYS:
             visible = True
         else:
             pt = self.locator.x, self.locator.y
