@@ -47,7 +47,7 @@ class AbilityPanel(object):
                     img = self.imagecache.getimage(ab[i].ability.image)
                     c = sg.Canvas()
                     c.append(sg.Rect().paint(img))
-                    if ab[i].cooldown > 0:
+                    if ab[i].ability.cooldown > 0:
                         percent = float(ab[i].cooldown) / ab[i].ability.cooldown
                         c.append(sg.Rect().paint(1, 0, 0, percent))
                     self.grid.children[i] = c
@@ -58,4 +58,14 @@ class AbilityPanel(object):
                 self.grid.children[i] = sg.Rect().paint(EMPTY_PAINT)
 
     def draw(self):
+        if self.game.selection:
+            ent = self.game.selection[0]
+            if ent.has('abilities') and ent.ownedby(self.game.localplayer):
+                ab = ent.abilities
+                
+                for i in xrange(len(ab)):
+                    if ab[i].ability.cooldown > 0:
+                        percent = float(ab[i].cooldown) / ab[i].ability.cooldown
+                        self.grid.children[i].children[1].paint(1, 0, 0, percent)
+
         self.sg.drawat(x=Screen.WIDTH - self.WIDTH, y=0)

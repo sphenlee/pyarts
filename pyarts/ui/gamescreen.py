@@ -29,11 +29,19 @@ class GameScreen(Screen):
 
         self.maprenderer.lookat(sec)
 
+        img = pyglet.image.load('maps/test/res/normal_cursor.png')
+        self.mouse_normal = pyglet.window.ImageMouseCursor(img, 0, 32)
+
+        img = pyglet.image.load('maps/test/res/target_cursor.png')
+        self.mouse_target = pyglet.window.ImageMouseCursor(img, 16, 16)
+
     def pre_activate(self):
         self.click = None
         self.dragbox = None
         self.dx = 0
         self.dy = 0
+
+        self.game.onmodechange.add(self.updatemouse)
 
     def save(self, datasink):
         self.camera.save(datasink)
@@ -43,6 +51,12 @@ class GameScreen(Screen):
             self.camera.move(self.dx * 100 * dt, self.dy * 100 *dt)
 
         self.infopanel.step()
+
+    def updatemouse(self, mode):
+        if mode == 'normal':
+            self.window.set_mouse_cursor(self.mouse_normal)
+        elif mode == 'targeting':
+            self.window.set_mouse_cursor(self.mouse_target)
 
     def entities_at_point(self, x, y):
         ''' Ask the map for entities within 16 pixels of (x, y) '''

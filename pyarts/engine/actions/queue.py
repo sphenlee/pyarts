@@ -12,7 +12,7 @@ class QueueAction(Action):
         self.now = None
 
     def start(self):
-        print 'starting queue drain', self.ent.queue.queue
+        #print 'starting queue drain', self.ent.queue.queue
         queue = self.ent.queue
 
         if not queue.queue:
@@ -22,7 +22,7 @@ class QueueAction(Action):
 
         ainst, target = queue.queue.pop(0)
         self.now = ainst
-        print 'starting', ainst, target
+        #print 'starting', ainst, target
         self.ent.actions.now(AbilityAction(ainst, target))
 
     def step(self):

@@ -14,7 +14,10 @@ class NormalMode(object):
     def __init__(self, game):
         self.game = game
 
-    def leave(self):
+    def enter(self):
+        self.game.onmodechange.emit('normal')
+
+    def exit(self):
         pass
 
     def left_click_pos(self, x, y, add):
@@ -52,7 +55,10 @@ class TargetingMode(object):
         self.allowent = allowent
         self.allowpos = allowpos
 
-    def leave(self):
+    def enter(self):
+        self.game.onmodechange.emit('targeting')
+
+    def exit(self):
         pass
 
     def left_click_pos(self, x, y, add):
@@ -92,9 +98,6 @@ class BuildMode(TargetingMode):
         res = game.datasrc.getresource(ghost)
         img = pyglet.image.load(res)
         self.sprite = pyglet.sprite.Sprite(img)
-
-    def leave(self):
-        pass
 
     def draw(self):
         self.sprite.draw()

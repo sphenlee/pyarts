@@ -29,9 +29,9 @@ class Game(object):
         self.localpid = None
 
         self.modes = []
-        self.push_mode(NormalMode(self))
-
+        
         self.onselectionchange = Event()
+        self.onmodechange = Event()
 
     def inject(self, engine, datasrc, network, settings):
         self.engine = engine
@@ -41,6 +41,8 @@ class Game(object):
 
         
     def load(self, settings):
+        self.push_mode(NormalMode(self))
+
         self.localpid = settings.localpid
         
         data = self.datasrc.getplayers()
@@ -70,11 +72,16 @@ class Game(object):
 
     def push_mode(self, mode):
         ''' Enter a new mode '''
+        if self.modes:
+            self.mode.exit()
         self.modes.append(mode)
+        mode.enter()
 
     def pop_mode(self):
         ''' Return to the previous mode '''
+        self.mode.exit()
         self.modes.pop()
+        self.mode.enter()
 
     def startturn(self):
         ''' Called when we are ready for the next turn '''
