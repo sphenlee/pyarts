@@ -31,7 +31,7 @@ class Locator(Component):
         if data:
             self.x = data.get('x', 0)
             self.y = data.get('y', 0)
-            self.placed = data.get('placed', False)
+            self.placed = data.get('placed', True)
             if self.placed:
                 self.map.place(self)
 

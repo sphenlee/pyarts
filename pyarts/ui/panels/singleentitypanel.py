@@ -13,23 +13,43 @@ HP_RAMP = [
     (0.0, 1.0, 0.0),
 ]
 
+def get_layout(w, h):
+    return {
+        'w': w, 'h': h,
+        'paint': '#000000CF',
+        'children' : [{
+            'type': 'hbox',
+            'flex': [1, 1, 1],
+            'children': [{
+                'type': 'vbox',
+                'flex': [4, 1, 1],
+                'children': [{
+                    'type': 'rect',
+                    'id': 'portrait'
+                }, {
+                    'type': 'text',
+                    'id': 'hp',
+                    'text': ''
+                }, {
+                    'type': 'text',
+                    'id': 'mana',
+                    'paint': '#3F7FFFFF', # light blue
+                    'text': ''
+                }]
+            }]
+        }]
+    }
+
 class SingleEntityPanel(object):
     def __init__(self, infopanel):
         game = infopanel.game
         self.ent = game.selection[0]
 
-        self.sg = sg.SceneGraph(infopanel.WIDTH, infopanel.HEIGHT).paint(0, 0, 0, 0.8)
-
-        g = sg.Grid(1, 3)
-
-        # portrait and HP display
-        g2 = sg.Grid(2, 1)
-
-        r = sg.Rect()
-        g2.append(r)
+        self.sg = sg.json_load(get_layout(infopanel.WIDTH, infopanel.HEIGHT))
 
         if self.ent.has('appearance'):
             img = infopanel.imagecache.getimage(self.ent.appearance.portrait)
+            r = self.sg['portrait']
             r.paint(img)
 
         self.showvars = (self.ent.ownedby(game.localplayer) and self.ent.has('variables'))
@@ -37,25 +57,10 @@ class SingleEntityPanel(object):
         if self.showvars:
             vars = self.ent.variables
 
-            g3 = sg.Grid(2, 1)
             if 'hp' in vars:
-                self.hp = sg.Text('').paint(*HP_RAMP[-1])
-                g3.append(self.hp)
+                self.hp = self.sg['hp']
             if 'mana' in vars:
-                self.mana = sg.Text('').paint(0.25, 0.5, 1)
-                g3.append(self.mana)
-
-            g2.append(g3)
-
-        g.append(g2)
-
-
-        self.showqueue = (self.ent.ownedby(game.localplayer) and self.ent.has('queue'))
-
-        #if self.showqueue:
-        #    self.
-
-        self.sg.append(g)
+                self.mana = self.sg['mana']
 
 
     def step(self):

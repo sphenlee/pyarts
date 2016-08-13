@@ -23,6 +23,7 @@ class Resource(Component):
             data = {} # hack...
 
         self.kind = data.get('kind', 'resource')
+        self.quantity = data.get('quantity', 0)
 
         if 'deplete' in data:
             self.deplete = self.scripting.code(data['deplete'])
@@ -30,7 +31,8 @@ class Resource(Component):
             self.deplete = None
 
     def load(self, data):
-        self.quantity = data['quantity']
+        if data:
+            self.quantity = data.get('quantity', self.quantity)
     
     def save(self):
         return { 

@@ -58,7 +58,7 @@ class Moving(Component):
 
         path = self.pathfinder.findpath(start, goal, self.walk, range)
         if path is not None:
-            self.waypoints[:] = path
+            self.waypoints[:] = list(path)[:-1]
             if range is None:
                 self.waypoints[0] = goal
         else:

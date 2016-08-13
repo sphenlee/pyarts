@@ -22,10 +22,12 @@ class Pathfinder(object):
         self.map = map
 
     def findpath(self, start, goal, walk, range=None):
+        print 'path', start, goal, walk
+
         start = self.map.pos_to_cell(*start)
         goal = self.map.pos_to_cell(*goal)
         if range is None:
-            range = VERTEX_SZ ** 2
+            range = 1#VERTEX_SZ ** 2
         else:
             range = (range/VERTEX_SZ) ** 2
 

@@ -28,7 +28,7 @@ class Queue(Component):
         pass
 
     def add(self, ability, target):
-        print 'queueing', ability, target
+        #print 'queueing', ability, target
         startqueue = len(self.queue) == 0
         
         self.queue.append((ability, target))

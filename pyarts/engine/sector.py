@@ -70,7 +70,7 @@ class Sector(object):
             self.walkmap = array.array('B')
             self.walkmap.fromstring(bindata)
         else:
-            self.walkmap = array.array('B', init)            
+            self.walkmap = array.array('B', '\x00' * NUM_VERTS * NUM_VERTS)            
 
         self.visible = array.array('B', init)
         self.onfogupdated = Event()
