@@ -78,7 +78,8 @@ class Harvester(Component):
         return self.moving.intransit
 
     def startharvest(self, res):
-        self.locator.unplace()
+        if res.unplace_harvester:
+            self.locator.unplace()
         self.effect = self.stats.apply(StatusEffect('carrying_regen', add=self.rate))
 
     @property

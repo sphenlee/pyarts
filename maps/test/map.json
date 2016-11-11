@@ -63,6 +63,8 @@
             "locator" : { "r" : 128 },
             "resource" : {
                 "kind": "resource",
+                "quantity": 2000,
+                "unplace_harvester" : true,
                 "deplete" : [
                     "function(me)",
                     "    print('gold mine depleted')",

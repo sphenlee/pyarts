@@ -24,6 +24,7 @@ class Resource(Component):
 
         self.kind = data.get('kind', 'resource')
         self.quantity = data.get('quantity', 0)
+        self.unplace_harvester = data.get('unplace_harvester', False)
 
         if 'deplete' in data:
             self.deplete = self.scripting.code(data['deplete'])
