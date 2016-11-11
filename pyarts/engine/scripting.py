@@ -83,6 +83,10 @@ class Scripting(object):
             elif op == 'add':
                 ent.variables[var] += int(val)
 
+    def destroy(self, eid):
+        print 'destroying ', eid
+        self.entities.destroy(eid)
+
     # _____________________________________________________________
 
     def setup(self):
@@ -91,6 +95,7 @@ class Scripting(object):
         self.lua.setglobal('place_entity', self.place_entity)
         self.lua.setglobal('place_entity_near', self.place_entity_near)
         self.lua.setglobal('write_variable', self.write_variable)
+        self.lua.setglobal('destroy', self.destroy)
 
     def runmain(self):
         main = self.datasrc.getresource('main.lua')

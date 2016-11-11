@@ -32,6 +32,9 @@ class Appearance(Component):
         pass
 
     def step(self):
+        if self.sprite is None:
+            return
+
         visible = False
         if not self.locator.placed:
             visible = False
@@ -55,3 +58,7 @@ class Appearance(Component):
 
     def selected(self, yes):
         self.sprite.ring.visible = yes
+
+    def destroy(self):
+        self.sprites.remove(self.sprite)
+        self.sprite = None

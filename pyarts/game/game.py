@@ -18,7 +18,7 @@ from pyarts.container import component
 
 @component
 class Game(object):
-    depends = ['engine', 'datasrc', 'network', 'settings']
+    depends = ['engine', 'datasrc', 'network', 'settings', 'entitymanager']
 
     def __init__(self):
         self.selection = []
@@ -33,10 +33,11 @@ class Game(object):
         self.onselectionchange = Event()
         self.onmodechange = Event()
 
-    def inject(self, engine, datasrc, network, settings):
+    def inject(self, engine, datasrc, network, settings, entitymanager):
         self.engine = engine
         self.datasrc = datasrc
         self.network = network
+        self.entities = entitymanager
         settings.onload.add(self.load)
 
         
@@ -131,6 +132,7 @@ class Game(object):
                     self.engine.entities.doorder(order)
 
             self.startturn()
+            self.validate_selection()
 
     def render(self):
         self.engine.render() # FIXME - engine should not have any graphics in it
@@ -183,6 +185,12 @@ class Game(object):
                 s.appearance.selected(True)
 
         self.onselectionchange.emit()
+
+    def validate_selection(self):
+        valid = [s for s in self.selection if self.entities.exists(s.eid)]
+        if self.selection != valid:
+            self.selection = valid
+            self.onselectionchange.emit()        
 
     def autocommand(self, target, add):
         ''' Give an autocommand on target to the selected entities '''

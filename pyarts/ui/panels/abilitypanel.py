@@ -17,12 +17,12 @@ EMPTY_PAINT = sg.ColourPaint(0, 0, 0, 0.8)
 class AbilityPanel(object):
     depends = ['imagecache', 'game']
 
-    WIDTH = 128*2
-    HEIGHT = 128*3
+    WIDTH = 96*3
+    HEIGHT = 96*2
 
     def __init__(self):
         self.sg = sg.SceneGraph(self.WIDTH, self.HEIGHT).paint(0, 0, 0, 0.8)        
-        self.grid = sg.Grid(3, 2)
+        self.grid = sg.Grid(2, 3)
         for i in xrange(MAX_ABILITIES):
             self.grid.append(sg.Rect().paint(EMPTY_PAINT))
         self.sg.append(self.grid)
@@ -34,9 +34,12 @@ class AbilityPanel(object):
         self.game.onselectionchange.add(self.update)
 
     def update(self):
-        ent = self.game.selection[0]
+        try:
+            ent = self.game.selection[0]
+        except IndexError:
+            ent = None
 
-        if ent.has('abilities') and ent.ownedby(self.game.localplayer):
+        if ent and ent.has('abilities') and ent.ownedby(self.game.localplayer):
             ab = ent.abilities
             n = len(ab)
 
@@ -56,6 +59,8 @@ class AbilityPanel(object):
         else:
             for i in xrange(6):
                 self.grid.children[i] = sg.Rect().paint(EMPTY_PAINT)
+
+        self.sg.mark_dirty()
 
     def draw(self):
         if self.game.selection:

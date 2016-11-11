@@ -56,6 +56,10 @@ class Component(object):
         '''
         raise NotImplementedError
 
+    def destroy(self):
+        '''Destroy this component - called when the entity is being destroyed'''
+        pass
+
 
 _all_components = { }
 

@@ -72,5 +72,10 @@ class SpriteManager(object):
         self.sprites.add(s)
         return s
 
+    def remove(self, sprite):
+        sprite.sprite.delete()
+        sprite.ring.delete()
+        self.sprites.remove(sprite)
+
     def draw(self):
         self.batch.draw()

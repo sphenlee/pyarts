@@ -75,6 +75,8 @@ class SingleEntityPanel(object):
             if 'mana' in vars:
                 self.mana.text = '%d/%d' % (vars.get('mana').val, vars.get('mana').max)
 
+            self.sg.mark_dirty()
+
         
     def draw(self):
         self.sg.drawat(0, 0)

@@ -29,3 +29,6 @@ class Footprint(Component):
     
     def save(self):
         return { }
+
+    def destroy(self):
+        print 'TODO - unfootprint'

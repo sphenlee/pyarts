@@ -16,6 +16,9 @@ class Entity(object):
         self.proto = proto
         self.components = { }
 
+    def __del__(self):
+        print 'entity %r is being deleted' % self
+
     def __repr__(self):
         return '<Entity %d proto %s owned by %r>' % (self.eid, self.proto.name, self.team)
 
@@ -59,6 +62,11 @@ class Entity(object):
         ''' Step each component '''
         for comp in self.components.itervalues():
             comp.step()
+
+    def destroy(self):
+        '''Destroy each component'''
+        for comp in self.components.itervalues():
+            comp.destroy()
 
     def has(self, comp):
         ''' Check if this entity has a certain component '''

@@ -35,3 +35,6 @@ class Town(Component):
 
     def contains(self, pt):
         return distance(pt, self.locator.pos()) < self.r2
+
+    def destroy(self):
+        print 'TODO - remove from town'

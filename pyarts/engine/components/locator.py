@@ -60,3 +60,6 @@ class Locator(Component):
     def pos(self):
         ''' Get the entity position as a tuple '''
         return self.x, self.y
+
+    def destroy(self):
+        self.unplace()

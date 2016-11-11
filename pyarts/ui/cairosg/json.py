@@ -23,6 +23,8 @@ def json_load(obj):
     _read_paint(obj, sg)
     _read_canvas(sg, obj, sg)
 
+    sg.layout()
+
     return sg
 
 def _read_node(sg, obj):
@@ -43,6 +45,7 @@ def _read_node(sg, obj):
 
     if 'id' in obj:
         sg.idmap[obj['id']] = node
+        sg.nodemap[node] = obj['id']
 
     return node
 

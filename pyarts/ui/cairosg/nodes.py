@@ -12,6 +12,13 @@ class Node(object):
     def __init__(self):
         pass
 
+    def layout(self, w, h):
+        self.w = w
+        self.h = h
+
+    def hittest(self, x, y):
+        return self
+
     def render(self, ctx, w, h):
         pass
 
@@ -24,14 +31,23 @@ class Canvas(Node):
     def append(self, node):
         self.children.append(node)
         node.parent = self
+
+    def layout(self, w, h):
+        super(Canvas, self).layout(w, h)
+        for c in self.children:
+            c.layout(w, h)
+
+    def hittest(self, x, y):
+        if self.children:
+            return self.children[-1].hittest(x, y)
         
-    def render(self, ctx, w, h):
+    def render(self, ctx):
         with ctx:
-            ctx.rectangle(0, 0, w, h)
+            ctx.rectangle(0, 0, self.w, self.h)
             ctx.clip()
 
             for c in self.children:
-                c.render(ctx, w, h)
+                c.render(ctx)
 
 class Grid(Canvas):
     def __init__(self, rows, cols):
@@ -39,18 +55,29 @@ class Grid(Canvas):
         self.rows = rows
         self.cols = cols
 
-    def render(self, ctx, w, h):
-        ew = w / self.cols
-        eh = h / self.rows
+    def layout(self, w, h):
+        self.ew = w / self.cols
+        self.eh = h / self.rows
+        for c in self.children:
+            c.layout(self.ew, self.eh)
 
+    def hittest(self, x, y):
+        r = int(x / self.ew)
+        c = int(x / self.eh)
+        try:
+            return self.children[r * self.cols + c]
+        except IndexError:
+            return self
+
+    def render(self, ctx):
         for idx, child in enumerate(self.children):
             y, x = divmod(idx, self.cols)
 
             with ctx:
-                ctx.translate(x * ew, y * eh)
-                ctx.rectangle(0, 0, ew, eh)
+                ctx.translate(x * self.ew, y * self.eh)
+                ctx.rectangle(0, 0, self.ew, self.eh)
                 ctx.clip()
-                child.render(ctx, ew, eh)
+                child.render(ctx)
 
 
 class FlexBox(Canvas):
@@ -59,34 +86,44 @@ class FlexBox(Canvas):
         total = sum(flex)
         self.flex = [float(f) / total for f in flex]
 
-
     def distribute(self, d):
         return [d * f for f in self.flex]
 
-class HBox(FlexBox):
-    def render(self, ctx, w, h):
-        widths = self.distribute(w)
+    def hittest(self, x, y):
+        j, i = self.major_minor(x, y)
+        for offs, child in zip(self.mj, self.children):
+            j -= offs
+            if j <= 0:
+                return child
+        else:
+            return self
 
+    def layout(self, w, h):
+        j, i = self.major_minor(w, h)
+        self.mi = i
+        self.mj = self.distribute(j)
+
+        for offs, child in zip(self.mj, self.children):
+            child.layout(*self.major_minor(offs, self.mi))
+
+    def render(self, ctx):
         with ctx:
-            for x, child in zip(widths, self.children):
+            for offs, child in zip(self.mj, self.children):
                 with ctx:
-                    ctx.rectangle(0, 0, x, h)
+                    x, y = self.major_minor(offs, self.mi)
+                    ctx.rectangle(0, 0, x, y)
                     ctx.clip()
-                    child.render(ctx, x, h)
-                ctx.translate(x, 0)
+                    child.render(ctx)
+                ctx.translate(*self.major_minor(offs, 0))
+
+class HBox(FlexBox):
+    def major_minor(self, w, h):
+        return w, h
 
 
 class VBox(FlexBox):
-    def render(self, ctx, w, h):
-        heights = self.distribute(h)
-
-        with ctx:
-            for y, child in zip(heights, self.children):
-                with ctx:
-                    ctx.rectangle(0, 0, w, y)
-                    ctx.clip()
-                    child.render(ctx, w, y)
-                ctx.translate(0, y)
+    def major_minor(self, w, h):
+        return h, w
 
 
 class Paintable(Node):
@@ -113,10 +150,10 @@ class Text(Paintable):
         self.origin = origin if origin else (0, 0)
         self.size = size if size else 16
 
-    def render(self, ctx, w, h):
+    def render(self, ctx):
         self.apply_paint(ctx)
         ctx.new_path()
-        ctx.move_to(self.origin[0], h - self.origin[1])
+        ctx.move_to(self.origin[0], self.h - self.origin[1])
         ctx.set_font_size(self.size)
         ctx.set_antialias(cairo.ANTIALIAS_DEFAULT)
         ctx.show_text(self.text)
@@ -127,12 +164,12 @@ class Rect(Paintable):
         super(Rect, self).__init__()
         self.x = x if x is not None else 0
         self.y = y if y is not None else 0
-        self.w = w if w is not None else 0
-        self.h = h if h is not None else 0
+        self.myw = w if w is not None else 0
+        self.myh = h if h is not None else 0
 
-    def render(self, ctx, w, h):
-        ew = self.w if self.w > 0 else self.w + w - self.x
-        eh = self.h if self.h > 0 else self.h + h - self.y
+    def render(self, ctx):
+        ew = self.myw if self.myw > 0 else self.myw + self.w - self.x
+        eh = self.myh if self.myh > 0 else self.myh + self.h - self.y
 
         with ctx:
             ctx.translate(self.x, self.y)

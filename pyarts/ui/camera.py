@@ -28,10 +28,10 @@ class Camera(object):
         self.mapren = maprenderer
         self.map = map
         self.sprites = spritemanager
-        settings.onload.add(self.load)
+        self.settings = settings
         
-    def load(self, settings):
-        self.localpid = settings.localpid
+    #def load(self, settings):
+    #    self.localpid = settings.localpid
 
     def load_data(self):
         # connect camera to map renderer
@@ -39,7 +39,7 @@ class Camera(object):
         self.onlookpointchanged.add(self.sprites.lookat)
 
         data = self.datasrc.getmisc('camera.initial.position')
-        look = data[str(self.localpid)]
+        look = data[str(self.settings.localpid)]
         self.lookx = int(look['x'])
         self.looky = int(look['y'])
 

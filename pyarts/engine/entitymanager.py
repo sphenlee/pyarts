@@ -20,6 +20,7 @@ class EntityManager(object):
         self.nextentid = 0
         self.entities = {} # entid -> entitiy
         self.newentities = {} # entities created during this step
+        self.pendingdestroy = set() # eids destroyed this step
 
         self.onentitycreated = Event()
 
@@ -37,6 +38,9 @@ class EntityManager(object):
             return self.entities[eid]
         except KeyError:
             return self.newentities[eid]
+
+    def exists(self, eid):
+        return eid in self.entities or eid in self.newentities
 
     def load(self):
         ''' Individual entities are loaded as the map loads sectors, juts grab misc data here '''
@@ -147,6 +151,15 @@ class EntityManager(object):
         for ent in self.entities.itervalues():
             ent.step()
 
+        for eid in self.pendingdestroy:
+            try:
+                del self.entities[eid]
+            except KeyError:
+                # not sure if this would ever happen...
+                del self.newentities[eid]
+
+        self.pendingdestroy.clear()
+
     def doorder(self, order):
         ''' Give an order to the relevant entities '''
         if order.type == Order.NONE:
@@ -163,3 +176,9 @@ class EntityManager(object):
                 ent = self.get(eid)
                 if ent.has('abilities'):
                     ent.abilities.activate(order.idx, order.target, order.add)
+
+    def destroy(self, eid):
+        ent = self.get(eid)
+        ent.destroy()
+        self.pendingdestroy.add(eid)
+
