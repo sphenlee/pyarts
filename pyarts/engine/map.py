@@ -50,7 +50,7 @@ class Map(object):
         return (x >> 5), (y >> 5)
 
     def cell_to_offset(self, x, y):
-        return (x & 0x1f), (y &0x1f)
+        return (x & 0x1f), (y & 0x1f)
 
     def pos_to_offset(self, x, y):
         return (x & 0x7ff), (y & 0x7ff)

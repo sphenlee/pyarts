@@ -56,7 +56,7 @@ class Sector(object):
 
         # fog info
 
-        init = '\0' * 8 * NUM_VERTS * NUM_VERTS
+        init = '\0' * NUM_VERTS * NUM_VERTS
 
         if 'visited' in data:
             bindata = get_hex_resource(map.datasrc, data['visited'])
@@ -138,7 +138,7 @@ class Sector(object):
 
     def cellwalkable(self, walk, pt):
         x, y = pt
-        return (self.walkmap[x + y*NUM_VERTS] & walk) == 0
+        return (self.walkmap[x + y*NUM_TILES] & walk) == 0
 
     def updatefog(self):
         #start = time.time()

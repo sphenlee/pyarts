@@ -24,6 +24,7 @@ class Appearance(Component):
         self.sprite = self.sprites.new_sprite(data['sprite'], self.locator.r * 2)
         self.portrait = data['portrait']
         self.visibility = data.get('visibility', self.VISIBLE_VIEWING)
+        self.is_selected = False
 
     def save(self):
         return {}
@@ -52,12 +53,13 @@ class Appearance(Component):
                     visible = sec.cellvisible(0, off)
         
         self.sprite.sprite.visible = visible
-
+        self.sprite.ring.visible = visible if self.is_selected else False
+        
         self.sprite.setpos(self.locator.x - self.locator.r,
                            self.locator.y - self.locator.r)
 
     def selected(self, yes):
-        self.sprite.ring.visible = yes
+        self.is_selected = yes
 
     def destroy(self):
         self.sprites.remove(self.sprite)
