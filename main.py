@@ -2,20 +2,10 @@ import pyglet
 
 from pyarts.ui.screen import Screen
 from pyarts.ui.mainmenu import MainMenu
-from pyarts.game.settings import Settings
+
+from pyarts.container import construct
 
 import argparse
-
-def main():
-    #window = pyglet.window.Window(MainMenu.WIDTH, MainMenu.HEIGHT)
-    window = pyglet.window.Window(fullscreen=True)
-    
-    Screen.WIDTH = window.width
-    Screen.HEIGHT = window.height
-
-    menu = MainMenu()
-    menu.activate(window=window)
-    pyglet.app.run()
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
@@ -26,9 +16,42 @@ if __name__ == '__main__':
 
     opts = p.parse_args()
 
-    if opts.join:
-        Settings.localpid = 1
-    Settings.join = opts.join
-    Settings.server = opts.server
+    window = pyglet.window.Window(MainMenu.WIDTH, MainMenu.HEIGHT)
+    #window = pyglet.window.Window(fullscreen=True)
+    
+    Screen.WIDTH = window.width
+    Screen.HEIGHT = window.height
 
-    main()
+    if opts.join:
+        mapfile = 'maps/test/map.json'
+        root = construct('root')
+        root.load({
+            'localpid': 1,
+            'join': True,
+            'data': {
+                'core': mapfile,
+                'map': mapfile,
+                'save': mapfile
+            }
+        })
+        root.run(window)
+
+    elif opts.server:
+        mapfile = 'maps/test/map.json'
+        root = construct('root')
+        root.load({
+            'localpid': 0,
+            'server': True,
+            'data': {
+                'core': mapfile,
+                'map': mapfile,
+                'save': mapfile
+            }
+        })
+        root.run(window)
+
+    else:
+        menu = MainMenu()
+        menu.activate(window=window)
+
+    pyglet.app.run()

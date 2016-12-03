@@ -61,6 +61,9 @@ class Game(object):
 
     @property
     def localplayer(self):
+        '''
+        Get the local player - can't call this before game is loaded!
+        '''
         return self.players[self.localpid]
 
     @property

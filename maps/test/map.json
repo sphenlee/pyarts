@@ -126,8 +126,16 @@
             },
             "town" : 0
         },
-        "5" : {
+        "10" : {
             "team" : 1,
+            "proto" : "townhall",
+            "locator" : {
+                "x" : 1800, "y" : 600, "placed" : true
+            },
+            "town" : 0
+        },
+        "5" : {
+            "team" : 2,
             "proto" : "goldmine",
             "locator" : {
                 "x" : 2000, "y" : 500, "placed" : true
@@ -136,10 +144,10 @@
                 "quantity" : 100
             }
         },
-        "6": { "team": 1, "proto": "tree", "locator": {"x": 100, "y": 200}},
-        "7": { "team": 1, "proto": "tree", "locator": {"x": 164, "y": 200}},
-        "8": { "team": 1, "proto": "tree", "locator": {"x": 228, "y": 200}},
-        "9": { "team": 1, "proto": "tree", "locator": {"x": 292, "y": 200}}
+        "6": { "team": 2, "proto": "tree", "locator": {"x": 100, "y": 200}},
+        "7": { "team": 2, "proto": "tree", "locator": {"x": 164, "y": 200}},
+        "8": { "team": 2, "proto": "tree", "locator": {"x": 228, "y": 200}},
+        "9": { "team": 2, "proto": "tree", "locator": {"x": 292, "y": 200}}
     },
 
     "content" : {
@@ -242,6 +250,15 @@
             }
         },
         "1" : {
+            "towns" : {
+                "0" : {
+                    "race" : "human",
+                    "resources" : { "resource" : 1000, "energy" : 1000 }
+                }
+            },
+            "entityprotos" : {}
+        },
+        "2" : {
             "entityprotos" : {}
         }
     },
@@ -292,7 +309,7 @@
             "0/0" : {
                 "tiles" : "tiles.hex",
                 "walkmap" : "walk.hex",
-                "entities" : [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                "entities" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
             },
             "0/1" : {
                 "tiles" : "tiles.hex"

@@ -11,8 +11,6 @@ from pyarts.container import component
 class Settings(object):
     depends = []
 
-    localpid = 0
-
     def __init__(self):
         self.onload = Event()
 
@@ -21,6 +19,8 @@ class Settings(object):
 
     def load(self, settings):
         self.localpid = settings['localpid']
+        self.server = settings.get('server', False)
+        self.join = settings.get('join', None)
         self.data_core = settings['data']['core']
         self.data_map = settings['data']['map']
         self.data_save = settings['data']['save']

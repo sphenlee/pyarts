@@ -36,11 +36,11 @@ class Appearance(Component):
         if self.sprite is None:
             return
 
-        visible = False
+        visible = 0
         if not self.locator.placed:
-            visible = False
+            visible = 0
         elif self.visibility == self.VISIBLE_ALWAYS:
-            visible = True
+            visible = ~0
         else:
             pt = self.locator.x, self.locator.y
             cell = self.map.pos_to_cell(*pt)
@@ -48,13 +48,12 @@ class Appearance(Component):
             off = self.map.cell_to_offset(*cell)
             if sec:
                 if self.visibility == self.VISIBLE_VISITED:
-                    visible = sec.cellvisited(0, off)
+                    visible = sec.cellvisited_mask(off)
                 else:
-                    visible = sec.cellvisible(0, off)
+                    visible = sec.cellvisible_mask(off)
         
-        self.sprite.sprite.visible = visible
-        self.sprite.ring.visible = visible if self.is_selected else False
-        
+        self.sprite.setvisible(visible, self.is_selected)
+
         self.sprite.setpos(self.locator.x - self.locator.r,
                            self.locator.y - self.locator.r)
 

@@ -25,8 +25,8 @@ class Root(object):
         self.game.save(datasink)
         self.gamescreen.save(datasink)
         
-    def run(self, parent_screen):
-        self.gamescreen.activate(parent=parent_screen)
+    def run(self, window):
+        self.gamescreen.activate(window=window)
 
         pyglet.clock.schedule(self.update, 0.5)
         

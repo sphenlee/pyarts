@@ -33,14 +33,14 @@ class MainMenu(Screen):
         if symbol == key.S:
             self.root = construct('root')
             self.root.load({
-                'localpid': Settings.localpid,
+                'localpid': 0,
                 'data': {
                     'core': mapfile,
                     'map': mapfile,
                     'save': mapfile
                 }
             })
-            self.root.run(self)
+            self.root.run(self.window)
             
 
         elif symbol == key.F5:
@@ -53,14 +53,14 @@ class MainMenu(Screen):
             print '************* loading new game'
             self.root = construct('root')
             self.root.load({
-                'localpid': Settings.localpid,
+                'localpid': 0,
                 'data': {
                     'core': mapfile,
                     'map': mapfile,
                     'save': savefile
                 }
             })
-            self.root.run(self)
+            self.root.run(self.window)
 
         elif symbol == key.Q:
             pyglet.app.exit()

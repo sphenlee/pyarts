@@ -136,6 +136,15 @@ class Sector(object):
         x, y = pt
         return self.visible[x + y*NUM_VERTS] & (1 << tid)
 
+    def cellvisited_mask(self, pt):
+        x, y = pt
+        return self.visited[x + y*NUM_VERTS]
+
+    def cellvisible_mask(self, pt):
+        x, y = pt
+        return self.visible[x + y*NUM_VERTS]
+
+
     def cellwalkable(self, walk, pt):
         x, y = pt
         return (self.walkmap[x + y*NUM_TILES] & walk) == 0

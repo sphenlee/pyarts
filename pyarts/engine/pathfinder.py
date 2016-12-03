@@ -9,6 +9,10 @@ import math
 
 from .sector import VERTEX_SZ, NEIGHBOURS
 
+COSTS = [3, 2, 3,
+         2,    2,
+         3, 2, 3]
+
 from pyarts.container import component
 
 def distance(p1, p2):
@@ -56,7 +60,7 @@ class Pathfinder(object):
             if distance(pt, goal) <= range:
                 return reconstruct_path(pt)
 
-            for (dx, dy) in NEIGHBOURS:
+            for (dx, dy), cost in zip(NEIGHBOURS, COSTS):
                 n = (pt[0] + dx, pt[1] + dy)
 
                 if n in closed:
@@ -70,7 +74,7 @@ class Pathfinder(object):
                 if not sec.cellwalkable(walk, offs):
                     continue
 
-                g = gscore[pt] + distance(n, pt)
+                g = gscore[pt] + cost#distance(n, pt)
 
                 if n not in openset or g < gscore[n]:
                     camefrom[n] = pt

@@ -27,11 +27,15 @@ class Sprite(object):
         self.ring.x += dx
         self.ring.y += dy
 
+    def setvisible(self, mask, selected):
+        self.sprite.visible = (mask & self.sm.tidmask)
+        self.ring.visible = selected and (mask & self.sm.tidmask)
+
 SPRITE_SIZE = 128
 
 @component
 class SpriteManager(object):
-    depends = ['datasrc']
+    depends = ['datasrc', 'game']
 
     def __init__(self):
         self.batch = pyglet.graphics.Batch()
@@ -39,12 +43,13 @@ class SpriteManager(object):
         self.offx = 0
         self.offy = 0
 
-    def inject(self, datasrc):
+    def inject(self, datasrc, game):
         self.datasrc = datasrc
+        self.game = game
 
         res = self.datasrc.getresource('res/selected-ring.png')
         self.ringimg = pyglet.image.load(res)
-        
+
     def lookat(self, sec):
         self.setoffset(sec.sx * SECTOR_SZ, sec.sy * SECTOR_SZ)
 
@@ -57,6 +62,10 @@ class SpriteManager(object):
 
         self.offx = x
         self.offy = y
+
+    @property
+    def tidmask(self):
+        return self.game.localplayer.tidmask
 
     def new_sprite(self, imgfile, r):
         res = self.datasrc.getresource(imgfile)
