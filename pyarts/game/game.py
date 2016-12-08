@@ -161,7 +161,7 @@ class Game(object):
         if not myents:
             # select highest ranked enemy ent
             rank = min(e.rank for e in ents)
-            selection = [e for e in ents if e.rank == rank][0:]
+            selection = [e for e in ents if e.rank == rank][:0]
         else:
             # select only my ents
             if add:

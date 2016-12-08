@@ -56,7 +56,7 @@ class Harvester(Component):
         x, y = pos
         R = 1024 * 128
         for e in self.map.entities_in_rect(x-R, y-R, x+R, y+R):
-            if e.has('harveststore'):
+            if e.team == self.ent.team and e.has('harveststore'):
                 return e
 
     def gotopickup(self, seed):

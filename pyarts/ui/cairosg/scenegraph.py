@@ -30,6 +30,8 @@ class SceneGraph(Canvas, Paintable):
     def mark_dirty(self):
         self.dirty = True
 
+    repaint = mark_dirty # better name
+
     def layout(self):
         super(SceneGraph, self).layout(self.w, self.h)    
 

@@ -16,8 +16,8 @@ if __name__ == '__main__':
 
     opts = p.parse_args()
 
-    window = pyglet.window.Window(MainMenu.WIDTH, MainMenu.HEIGHT)
-    #window = pyglet.window.Window(fullscreen=True)
+    #window = pyglet.window.Window(MainMenu.WIDTH, MainMenu.HEIGHT)
+    window = pyglet.window.Window(fullscreen=True)
     
     Screen.WIDTH = window.width
     Screen.HEIGHT = window.height

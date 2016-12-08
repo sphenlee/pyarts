@@ -28,6 +28,7 @@ class Cost(object):
 class ResourcePool(object):
     def __init__(self, town):
         # might not need this? self.town = town
+        self.rpid = town.twid, town.team.tid
         self.resource = 0
         self.energy = 0
 

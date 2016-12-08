@@ -25,6 +25,10 @@ class Team(object):
     def __repr__(self):
         return '<Team %d>' % self.tid
 
+    def __eq__(self, other):
+        assert isinstance(other, Team)
+        return self.tid == other.tid
+
     def load(self, data):
         epdatas = self.eng.datasrc.getentityprotos(self.tid)
 

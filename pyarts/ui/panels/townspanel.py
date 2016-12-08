@@ -18,7 +18,7 @@ class TownsPanel(object):
         self.WIDTH = Screen.WIDTH // 4
         self.HEIGHT = 36
 
-        self.towns = []
+        self.resources = {}
 
         self.sg = sg.SceneGraph(self.WIDTH, self.HEIGHT).paint(0, 0, 0, 0.8)
         self.grid = sg.Grid(0, 4)
@@ -49,15 +49,18 @@ class TownsPanel(object):
         g.append(icon2)
         g.append(text2)
 
-        self.towns.append((text1, text2, icon1, icon2))
+        self.resources[town.resources.rpid] = (text1, text2)
+        print town, town.resources.rpid
 
         town.resources.onchange.add(self.update_resources)
         # refresh the number right now
         self.update_resources(town.resources)
 
     def update_resources(self, resources):
-        self.towns[0][0].text = str(resources.resource)
-        self.towns[0][1].text = str(resources.energy)
+        print 'update', resources
+        self.resources[resources.rpid][0].text = str(resources.resource)
+        self.resources[resources.rpid][1].text = str(resources.energy)
+        self.sg.repaint()
 
     def draw(self):
         self.sg.drawat(x=Screen.WIDTH - self.WIDTH, y=Screen.HEIGHT - self.HEIGHT)

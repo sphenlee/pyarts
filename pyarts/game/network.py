@@ -95,7 +95,7 @@ class NanomsgNetwork(object):
 
     def step(self):
         for msg in self.check_messages():
-            print 'network got', msg
+            #print 'network got', msg
             tag = msg['tag']
             if tag == 'order':
                 pid = msg['pid']
@@ -119,7 +119,7 @@ class MasterNetwork(NanomsgNetwork):
         self.soc = nm.Socket(nm.PAIR)
         self.soc.bind('tcp://*:6666')
 
-        self.waiting = len(self.game.players) - 1 # assume we're ready
+        self.waiting = sum(1 for p in self.game.players if p.type == p.HUMAN) - 1 # assume we're ready
 
     def handle_order(self, pid, order):
         self.game.orderfor(order, pid)
