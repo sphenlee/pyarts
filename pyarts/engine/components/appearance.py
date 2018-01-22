@@ -25,6 +25,7 @@ class Appearance(Component):
         self.portrait = data['portrait']
         self.visibility = data.get('visibility', self.VISIBLE_VIEWING)
         self.is_selected = False
+        self.visible = 0
 
     def save(self):
         return {}
@@ -36,11 +37,10 @@ class Appearance(Component):
         if self.sprite is None:
             return
 
-        visible = 0
         if not self.locator.placed:
-            visible = 0
+            self.visible = 0
         elif self.visibility == self.VISIBLE_ALWAYS:
-            visible = ~0
+            self.visible = ~0
         else:
             pt = self.locator.x, self.locator.y
             cell = self.map.pos_to_cell(*pt)
@@ -48,17 +48,20 @@ class Appearance(Component):
             off = self.map.cell_to_offset(*cell)
             if sec:
                 if self.visibility == self.VISIBLE_VISITED:
-                    visible = sec.cellvisited_mask(off)
+                    self.visible = sec.cellvisited_mask(off)
                 else:
-                    visible = sec.cellvisible_mask(off)
+                    self.visible = sec.cellvisible_mask(off)
         
-        self.sprite.setvisible(visible, self.is_selected)
+        self.sprite.setvisible(self.visible, self.is_selected)
 
         self.sprite.setpos(self.locator.x - self.locator.r,
                            self.locator.y - self.locator.r)
 
     def selected(self, yes):
         self.is_selected = yes
+
+    def visible_to(self, tidmask):
+        return (self.visible & tidmask) != 0
 
     def destroy(self):
         self.sprites.remove(self.sprite)

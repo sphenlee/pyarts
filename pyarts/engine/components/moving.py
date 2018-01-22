@@ -58,8 +58,15 @@ class Moving(Component):
 
         path = self.pathfinder.findpath(start, goal, self.walk, range)
         if path is not None:
-            self.waypoints[:] = list(path)[:-1]
+            self.waypoints[:] = list(path)
+            if len(self.waypoints) > 1:
+                # the first point is just the centre of the current cell,
+                # so if we have more than one point we skip this
+                self.waypoints.pop()
+
             if range is None:
+                # for an exact target we don't want the centre of the destination
+                # cell, so replace it with the actual goal
                 self.waypoints[0] = goal
         else:
             print 'no path to', target

@@ -39,7 +39,7 @@ class Collisions(object):
                 if d < r2:
                     #print 'entity %d has hard-collided with %d' % (a.eid, b.eid)
                     coll.append((True, b.ent))
-                elif d < r2 * 5:
+                elif d < r2 * 2:
                     #print 'entity %d has soft-collided with %d' % (a.eid, b.eid)
                     coll.append((False, b.ent))
 

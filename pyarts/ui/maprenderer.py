@@ -128,10 +128,9 @@ class SectorRenderer(object):
                 d = visible[(x + 1) + (y + 1)*NUM_VERTS] & tidmask != 0
 
                 # useful debug - renders the walkmap as the fog of war
-                #a = sec.walkmap[ x      +  y     *NUM_VERTS] & 0x1 != 0
-                #b = sec.walkmap[(x + 1) +  y     *NUM_VERTS] & 0x1 != 0
-                #c = sec.walkmap[ x      + (y + 1)*NUM_VERTS] & 0x1 != 0
-                #d = sec.walkmap[(x + 1) + (y + 1)*NUM_VERTS] & 0x1 != 0
+                # (walkmap is tiles based, not vertex based)
+                #a = sec.walkmap[ x      +  y     *NUM_TILES] & (sec.WALK_GROUND | sec.WALK_FOOT) == 0
+                #b = c = d = a
 
                 e = visited[ x      +  y     *NUM_VERTS] & tidmask != 0
                 f = visited[(x + 1) +  y     *NUM_VERTS] & tidmask != 0

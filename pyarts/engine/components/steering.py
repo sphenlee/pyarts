@@ -6,8 +6,29 @@ Component to move an entity using a velocity
 
 from __future__ import division
 
-from math import sqrt, exp
+from math import sqrt, copysign
 from .component import Component, register
+
+def fromto(a, b):
+    ''' vector from a to b '''
+    return b[0] - a[0], b[1] - a[1]
+
+def mag(a):
+    ''' magnitude of a '''
+    return sqrt(a[0]*a[0] + a[1]*a[1])
+
+def normed(a, b):
+    ''' normed vector from a to b '''
+    d = fromto(a, b)
+    m = mag(d)
+    if m:
+        return d[0]/m, d[1]/m
+    else:
+        return 0, 0
+
+def dot(a, b):
+    ''' dot product of a and b '''
+    return a[0]*b[0] + a[1]*b[1]
 
 @register
 class Steering(Component):
@@ -20,8 +41,6 @@ class Steering(Component):
         self.collisions = collisions
 
     def configure(self, data):
-        self.dx = 0
-        self.dy = 0
         self.dest = None
 
     def save(self):
@@ -31,69 +50,72 @@ class Steering(Component):
         pass
 
     def stop(self):
-        self.dx = 0
-        self.dy = 0
         self.dest = None
 
     def towards(self, pos):
         self.dest = pos
 
     def step(self):
-        fx, fy = 0.0, 0.0
-        #gx, gy = 0.0, 0.0
+        if not self.dest:
+            return
 
         cur = self.locator.pos()
         r = self.locator.r
         speed = self.stats.get('speed', 4)
+        factor = 1
 
-        # for hard, ent in self.collisions.getcollisions(self.eid):
-        #     other = ent.locator.pos()
-        #     dx, dy = other[0] - cur[0], other[1] - cur[1]
-        #     d = sqrt(dx*dx + dy*dy)
+        # get normed vector of our direction
+        d = normed(cur, self.dest)
+        if d == (0, 0):
+            return
 
-        #     #if hard:
-        #     #s = -r * exp(-d/r)# * 8
-        #     #print self.eid, 'rds', r, d, s
-        #     #print self.eid, 'dxdy', dx, dy
-        #     #    #/ d #-min(d, self.stats.get('speed', 4)) / d
-        #     #else:
-        #     #    s = -4.0 / d
+        for hard, ent in self.collisions.getcollisions(self.eid):
+            # get normed vector from us to them
+            other = ent.locator.pos()
+            e = normed(cur, other)
+            if e == (0, 0):
+                # we're at the same point, this breaks the formula below
+                # and we want to allow these ents to move away from each other
+                f = 1
+            else:
+                # get the slowdown factor
+                f = max(min(1 - dot(d, e), 1), 0)
 
-        #     #if dx == 0 and dy == 0:
-        #     #    dx += 0.1 * (1 if self.eid % 2 else -1)
-        #     if d != 0:
-        #         fx += dx / (d*d)
-        #         fy += dy / (d*d)
+                if hard:
+                    f = f * f
 
-        #     print self.eid, 'col', ent.eid, fx, fy, d
+            # print '---collide ---'
+            # print 'eid:', self.eid, 'to: ', ent.eid
+            # print 'hard:', hard, 'f:', f
+            # print '---'
 
-        if self.dest:
-            dx, dy = self.dest[0] - cur[0], self.dest[1] - cur[1]
-            d = sqrt(dx*dx + dy*dy)
-
-            if d:
-                s = min(d, speed) / d
-            
-                fx = dx * s
-                fy = dy * s
-
-                #print self.eid, 'dest', gx, gy
-
-        # fx = 0.5 * (fx + gx)
-        # fy = 0.5 * (fy + gy)
-
-        d = sqrt(fx*fx + fy*fy)
-        if d != 0:
-            s = min(d, speed) / d
-
-            self.dx = int(fx * s)
-            self.dy = int(fy * s)
-        else:
-            self.dx = 0
-            self.dy = 0
+            factor *= f
 
 
-        if self.dx or self.dy:
+
+        # vector to target
+        t = fromto(cur, self.dest)
+        # range to target
+        r = mag(t)
+        if r == 0:
+            return
+
+        # desired speed
+        s = min(r, speed) / r * factor
+
+        # update final speeds
+        dx = int(t[0] * s)
+        dy = int(t[1] * s)
+
+        # print '--- steering ---'
+        # print 'eid:', self.eid
+        # print 'cur:', cur, 'dest:', self.dest
+        # print 'd:', d, 'target:', t, 'range:', r
+        # print 'speed:', s, 'factor:', factor
+        # print 'final:', (dx, dy)
+        # print '---'
+
+        if dx or dy:
             self.locator.move(
-                self.locator.x + self.dx,
-                self.locator.y + self.dy)
+                self.locator.x + dx,
+                self.locator.y + dy)

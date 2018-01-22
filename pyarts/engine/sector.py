@@ -121,9 +121,9 @@ class Sector(object):
         r = int(loc.r/VERTEX_SZ + 0.5)
         for i in xrange(x-r, x+r):
             for j in xrange(y-r, y+r):
-                if 0 <= i < NUM_VERTS and 0 <= j < NUM_VERTS:
+                if 0 <= i < NUM_TILES and 0 <= j < NUM_TILES:
                     #if distance2(i, j, x, y) <= r*r:
-                    self.walkmap[i + j*NUM_VERTS] |= Sector.WALK_FOOT
+                    self.walkmap[i + j*NUM_TILES] |= Sector.WALK_FOOT
 
     def occupied(self):
         return len(self.locators) > 0

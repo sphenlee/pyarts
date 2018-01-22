@@ -156,12 +156,14 @@ class Game(object):
     def select(self, ents, add):
         ''' Select ents or add ents to the current selection '''
         lp = self.localplayer
-        myents = [e for e in ents if e.ownedby(lp)]
+        myents = set(e for e in ents if e.ownedby(lp))
 
         if not myents:
             # select highest ranked enemy ent
             rank = min(e.rank for e in ents)
-            selection = [e for e in ents if e.rank == rank][:0]
+            selection = [e for e in ents
+                if e.rank == rank
+                and e.appearance.visible_to(lp.tidmask)][:0]
         else:
             # select only my ents
             if add:
@@ -175,7 +177,10 @@ class Game(object):
             selection = [e for e in myents if e.tier == tier]
 
         
-        assert selection, 'no entities were selected'
+        if not selection:
+            # no valid entities selected, so don't change selection
+            print 'no entities were selected'
+            return
 
         for s in self.selection:
             if s.has('appearance'):
