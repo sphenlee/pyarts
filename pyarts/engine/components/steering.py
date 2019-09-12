@@ -101,7 +101,7 @@ class Steering(Component):
             return
 
         # desired speed
-        s = min(r, speed) / r * factor
+        s = min(r, speed) * factor / r
 
         # update final speeds
         dx = int(t[0] * s)
