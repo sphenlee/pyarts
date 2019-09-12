@@ -41,8 +41,8 @@ class ResourcePool(object):
         self.resource -= cost.resource
         self.energy -= cost.energy
 
-        print 'paid %d, %d, resources now %d, %d' % (cost.resource, cost.energy,
-            self.resource, self.energy)
+        print('paid %d, %d, resources now %d, %d' % (cost.resource, cost.energy,
+            self.resource, self.energy))
 
         self.onchange.emit(self)
 

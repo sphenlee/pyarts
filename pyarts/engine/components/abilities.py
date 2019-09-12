@@ -56,11 +56,11 @@ class Abilities(Component):
         ainst = self[idx]
 
         if ainst.cooldown > 0:
-            print 'not ready - ability activate checked it'
+            print('not ready - ability activate checked it')
             return False # not ready
 
         if not ainst.ability.check_cost(self.ent):
-            print 'cannot pay cost - ability activate checked it'
+            print('cannot pay cost - ability activate checked it')
             return False
 
         if ainst.ability.queue:
@@ -70,7 +70,7 @@ class Abilities(Component):
             return True
         else:
             if ainst.wait > 0:
-                print 'already doing this - ability activate checked it'
+                print('already doing this - ability activate checked it')
                 return False # not ready
 
             def onstart():

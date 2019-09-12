@@ -32,23 +32,23 @@ class AbilityAction(Action):
             self.ainst.wait -= 1
 
     def doability(self):
-        print 'entity %d doing action %s at %s' % (
+        print('entity %d doing action %s at %s' % (
             self.ent.eid,
             self.ability.name,
-            self.target)
+            self.target))
 
         if self.target:
             pos = self.target.getpos()
             me = self.ent.locator.pos()
 
-            print 'ability', pos, me, distance(me, pos)
+            print('ability', pos, me, distance(me, pos))
 
             if distance(me, pos) > self.ability.range:
                 mv = MoveAction(self.target, range=self.ability.range, follow=False)
                 self.ent.actions.now(mv)
                 return
 
-        print 'done ability'
+        print('done ability')
         if self.onstart:
             self.onstart()
 

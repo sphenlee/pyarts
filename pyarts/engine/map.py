@@ -32,10 +32,10 @@ class Map(object):
             self.loadsector(sx, sy)
 
     def save(self, datasink):
-        for sec in self.sectors.itervalues():
+        for sec in self.sectors.values():
             sec.save(datasink)
 
-        datasink.setloadedsectors(self.sectors.iterkeys())
+        datasink.setloadedsectors(iter(self.sectors.keys()))
 
     def pos_to_cell(self, x, y):
         return (x/VERTEX_SZ, y/VERTEX_SZ)

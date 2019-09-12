@@ -37,4 +37,4 @@ class Town(Component):
         return distance(pt, self.locator.pos()) < self.r2
 
     def destroy(self):
-        print 'TODO - remove from town'
+        print('TODO - remove from town')

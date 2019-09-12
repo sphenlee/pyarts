@@ -31,7 +31,7 @@ class Town(object):
         }
 
     def addentity(self, ent):
-        print 'adding entity %d to town %r' % (ent.eid, self)
+        print('adding entity %d to town %r' % (ent.eid, self))
         self.eids.add(ent.eid)
         self.towncomponents.add(ent.town)
 

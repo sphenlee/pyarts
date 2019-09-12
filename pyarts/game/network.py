@@ -125,7 +125,7 @@ class MasterNetwork(NanomsgNetwork):
         self.game.orderfor(order, pid)
 
     def handle_ready(self, msg):
-        print 'master got ready message', self.waiting
+        print('master got ready message', self.waiting)
         self.waiting -= 1
         if self.waiting == 0:
             self.send_startgame()

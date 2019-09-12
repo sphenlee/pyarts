@@ -57,19 +57,19 @@ class Variables(Component):
 
     def configure(self, data):
         if data:
-            for name, descr in data.iteritems():
+            for name, descr in data.items():
                 self.vars[name] = Variable(name, descr, self.stats)
 
     def save(self):
-        return dict((k, v.val) for k, v in self.vars.iteritems())
+        return dict((k, v.val) for k, v in self.vars.items())
 
     def load(self, data):
         if data is not None:
-            for name, value in data.iteritems():
+            for name, value in data.items():
                 self.vars[name].val = value
 
     def step(self):
-        for var in self.vars.itervalues():
+        for var in self.vars.values():
             var.step()
 
     def get(self, key):

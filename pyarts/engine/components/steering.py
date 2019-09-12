@@ -4,7 +4,7 @@ Steering
 Component to move an entity using a velocity
 '''
 
-from __future__ import division
+
 
 from math import sqrt, copysign
 from .component import Component, register

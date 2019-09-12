@@ -4,7 +4,7 @@ Cairo Scene Graph
 Module for building a SceneGraph from a JSON definition
 '''
 
-import json
+from . import json
 from .scenegraph import *
 from .paint import ColourPaint
 from .nodes import *
@@ -95,7 +95,7 @@ def hex_to_float(h):
 def _read_paint(obj, paintable):
     if 'paint' in obj:
         paint = obj['paint']
-        if isinstance(paint, basestring):
+        if isinstance(paint, str):
             if paint[0] == '#':
                 r = hex_to_float(paint[1:3])
                 g = hex_to_float(paint[3:5])

@@ -17,7 +17,7 @@ class Entity(object):
         self.components = { }
 
     def __del__(self):
-        print 'entity %r is being deleted' % self
+        print('entity %r is being deleted' % self)
 
     def __repr__(self):
         return '<Entity %d proto %s owned by %r>' % (self.eid, self.proto.name, self.team)
@@ -36,7 +36,7 @@ class Entity(object):
             tmp = self.proto.data.get(name)
             comp.configure(tmp)
 
-        for name in self.components.iterkeys():
+        for name in self.components.keys():
             #print 'configure ', name
             configureone(name)
 
@@ -46,7 +46,7 @@ class Entity(object):
             'team' : self.team.tid,
             'proto' : self.proto.epid
         }
-        for name, comp in self.components.iteritems():
+        for name, comp in self.components.items():
             tmp = comp.save()
             if tmp is not None:
                 data[name] = tmp
@@ -54,18 +54,18 @@ class Entity(object):
 
     def load(self, data):
         ''' Loads entity specific data into each component '''
-        for name, comp in self.components.iteritems():
+        for name, comp in self.components.items():
             tmp = data.get(name)
             comp.load(tmp)
 
     def step(self):
         ''' Step each component '''
-        for comp in self.components.itervalues():
+        for comp in self.components.values():
             comp.step()
 
     def destroy(self):
         '''Destroy each component'''
-        for comp in self.components.itervalues():
+        for comp in self.components.values():
             comp.destroy()
 
     def has(self, comp):

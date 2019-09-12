@@ -38,7 +38,7 @@ class Stats(Component):
     def configure(self, data):
         ''' Load the base stats from the proto and copy it for the initial stats '''
         if data:
-            for name, val in data.iteritems():
+            for name, val in data.items():
                 self.basestats[name] = int(val)
 
         self.stats = self.basestats.copy()

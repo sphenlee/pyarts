@@ -41,8 +41,8 @@ class SectorRenderer(object):
         vdata = array.array('f') # vertex data
         tdata = array.array('f') # terrain data
 
-        for y in xrange(NUM_TILES):
-            for x in xrange(NUM_TILES):
+        for y in range(NUM_TILES):
+            for x in range(NUM_TILES):
                 # vertex
                 vx = x * VERTEX_SZ
                 vy = y * VERTEX_SZ
@@ -120,8 +120,8 @@ class SectorRenderer(object):
 
         # loop over the map and assign texture coords to create the
         # fog texture
-        for y in xrange(NUM_TILES):
-            for x in xrange(NUM_TILES):
+        for y in range(NUM_TILES):
+            for x in range(NUM_TILES):
                 a = visible[ x      +  y     *NUM_VERTS] & tidmask != 0
                 b = visible[(x + 1) +  y     *NUM_VERTS] & tidmask != 0
                 c = visible[ x      + (y + 1)*NUM_VERTS] & tidmask != 0
@@ -210,15 +210,15 @@ class MapRenderer(object):
         self.activerenderers.append(sr)
             
     def lookat(self, sector):
-        print 'lookat ', sector.sx, sector.sy
+        print('lookat ', sector.sx, sector.sy)
 
         del self.activerenderers[:]
         
         self.looksector = sector
 
-        print sector.neighbour
+        print(sector.neighbour)
         self.setupsector(sector, 0, 0)
-        for (dx, dy), sec in sector.neighbour.items():
+        for (dx, dy), sec in list(sector.neighbour.items()):
             if sec:
                 self.setupsector(sec, dx, dy)
 

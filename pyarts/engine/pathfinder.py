@@ -26,7 +26,7 @@ class Pathfinder(object):
         self.map = map
 
     def findpath(self, start, goal, walk, range=None):
-        print 'path', start, goal, walk
+        print('path', start, goal, walk)
 
         start = self.map.pos_to_cell(*start)
         goal = self.map.pos_to_cell(*goal)

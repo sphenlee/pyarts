@@ -29,7 +29,7 @@ class Scripting(object):
         if isinstance(code, list):
             code = 'return ' + '\n'.join(code)
             return self.lua.dostring(code)
-        elif isinstance(code, basestring):
+        elif isinstance(code, str):
             code = 'return ' + code
             return self.lua.dostring(code)
         elif isinstance(code, dict):
@@ -51,7 +51,7 @@ class Scripting(object):
 
     def print_(self, *args):
         ''' Simulate Lua's print which tab separates args '''
-        print '\t'.join(str(a) for a in args)
+        print('\t'.join(str(a) for a in args))
         
     def create_entity(self, tid, protoname):
         team = self.eng.getteam(tid)
@@ -61,12 +61,12 @@ class Scripting(object):
         return ent.eid
 
     def place_entity(self, eid, x, y):
-        print 'placing %d at (%d, %d)' % (eid, x, y)
+        print('placing %d at (%d, %d)' % (eid, x, y))
         ent = self.entities.get(eid)
         ent.locator.place(x, y)
 
     def place_entity_near(self, eid, me):
-        print 'placing %d near %d' % (eid, me)
+        print('placing %d near %d' % (eid, me))
         ent = self.entities.get(eid)
         meent = self.entities.get(me)
 
@@ -75,7 +75,7 @@ class Scripting(object):
         ent.locator.place(x + meent.locator.r, y)
 
     def write_variable(self, eid, var, op, val):
-        print 'write variable', eid, op, val
+        print('write variable', eid, op, val)
         ent = self.entities.get(eid)
         if ent.has('variables'):
             if op == 'set':
@@ -84,7 +84,7 @@ class Scripting(object):
                 ent.variables[var] += int(val)
 
     def destroy(self, eid):
-        print 'destroying ', eid
+        print('destroying ', eid)
         self.entities.destroy(eid)
 
     # _____________________________________________________________

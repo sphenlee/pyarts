@@ -122,7 +122,7 @@ class Game(object):
 
         orders = [p.getorder(self.cycle) for p in self.players if p.type == Player.HUMAN]
         if not all(orders):
-            print 'No Order for player in cycle %d' % self.cycle 
+            print('No Order for player in cycle %d' % self.cycle) 
         else:
             self.endturn()
             
@@ -179,7 +179,7 @@ class Game(object):
         
         if not selection:
             # no valid entities selected, so don't change selection
-            print 'no entities were selected'
+            print('no entities were selected')
             return
 
         for s in self.selection:
@@ -247,19 +247,19 @@ class Game(object):
             ainst = e.abilities[idx]
 
             if e.proto.epid != ent.proto.epid:
-                print 'entity does not have ability %s' % ability.name
+                print('entity does not have ability %s' % ability.name)
                 return False
 
             if ainst.cooldown > 0:
-                print 'not ready - game checked it'
+                print('not ready - game checked it')
                 return False
 
             if not ability.queue and ainst.wait > 0:
-                print 'already doing this - game checked it'
+                print('already doing this - game checked it')
                 return False
 
             if not ability.check_cost(e):
-                print 'cannot pay cost - game checked it'
+                print('cannot pay cost - game checked it')
                 return False
 
             return True

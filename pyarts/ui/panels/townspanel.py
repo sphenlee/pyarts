@@ -29,7 +29,7 @@ class TownsPanel(object):
         engine.ontowncreated.add(self.townadded)
 
     def townadded(self, team, town):
-        print 'added town', team, town
+        print('added town', team, town)
 
         resource = self.imagecache.getimage(town.race['resource_icon'])
         icon1 = sg.Rect().paint(resource)
@@ -50,14 +50,14 @@ class TownsPanel(object):
         g.append(text2)
 
         self.resources[town.resources.rpid] = (text1, text2)
-        print town, town.resources.rpid
+        print(town, town.resources.rpid)
 
         town.resources.onchange.add(self.update_resources)
         # refresh the number right now
         self.update_resources(town.resources)
 
     def update_resources(self, resources):
-        print 'update', resources
+        print('update', resources)
         self.resources[resources.rpid][0].text = str(resources.resource)
         self.resources[resources.rpid][1].text = str(resources.energy)
         self.sg.repaint()

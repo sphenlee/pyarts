@@ -25,7 +25,7 @@ class ContentManager(object):
         self.scripting = scripting
 
     def load(self):
-        for name, data in self.datasrc.getcontent('abilities').iteritems():
+        for name, data in self.datasrc.getcontent('abilities').items():
             self.abilities[name] = Ability(data, self.scripting)
 
         

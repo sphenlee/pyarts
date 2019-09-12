@@ -44,13 +44,13 @@ class MainMenu(Screen):
             
 
         elif symbol == key.F5:
-            print '*********** saving game'
+            print('*********** saving game')
             sink = DataSink(savefile)
             self.root.save(sink)
             sink.commit()
             self.root.gamescreen.pause()
 
-            print '************* loading new game'
+            print('************* loading new game')
             self.root = construct('root')
             self.root.load({
                 'localpid': 0,

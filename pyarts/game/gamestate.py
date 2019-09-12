@@ -26,7 +26,7 @@ class GameState(object):
         self.game = game
 
     def start(self):
-        print 'gamestate starting!'
+        print('gamestate starting!')
         self.state = GameState.RUNNING
 
     def step(self):

@@ -4,7 +4,7 @@ Sector
 A piece of the map
 '''
 
-from __future__ import division
+
 
 import array
 import binascii
@@ -119,8 +119,8 @@ class Sector(object):
         x = int(loc.x/VERTEX_SZ + 0.5) - self.sx*NUM_TILES
         y = int(loc.y/VERTEX_SZ + 0.5) - self.sy*NUM_TILES
         r = int(loc.r/VERTEX_SZ + 0.5)
-        for i in xrange(x-r, x+r):
-            for j in xrange(y-r, y+r):
+        for i in range(x-r, x+r):
+            for j in range(y-r, y+r):
                 if 0 <= i < NUM_TILES and 0 <= j < NUM_TILES:
                     #if distance2(i, j, x, y) <= r*r:
                     self.walkmap[i + j*NUM_TILES] |= Sector.WALK_FOOT
@@ -152,7 +152,7 @@ class Sector(object):
     def updatefog(self):
         #start = time.time()
         # clear visible data, needs to be recalculated from scratch
-        for i in xrange(len(self.visible)):
+        for i in range(len(self.visible)):
             self.visible[i] = 0
 
         # loop over locators and update visible and visited state
@@ -161,8 +161,8 @@ class Sector(object):
             x = int(loc.x/VERTEX_SZ + 0.5) - self.sx*NUM_TILES
             y = int(loc.y/VERTEX_SZ + 0.5) - self.sy*NUM_TILES
             r = int(loc.sight/VERTEX_SZ + 0.5)
-            for i in xrange(x-r, x+r):
-                for j in xrange(y-r, y+r):
+            for i in range(x-r, x+r):
+                for j in range(y-r, y+r):
                     if 0 <= i < NUM_VERTS and 0 <= j < NUM_VERTS:
                         if distance2(i, j, x, y) < r*r:
                             tid = loc.ent.team.tid

@@ -37,6 +37,6 @@ class Player(object):
 
     def addorder(self, order):
         if order.cycle in self.orders:
-            print 'WARNING multiple orders for a single player'
+            print('WARNING multiple orders for a single player')
         
         self.orders[order.cycle] = order

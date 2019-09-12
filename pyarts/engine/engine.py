@@ -31,10 +31,10 @@ class Engine(object):
 
     def load(self):
         self.races = self.datasrc.getraces()
-        for name, race in self.races.items():
+        for name, race in list(self.races.items()):
             race['name'] = name
 
-        for tid, t in self.datasrc.getteams().iteritems():
+        for tid, t in self.datasrc.getteams().items():
             tid = int(tid)
             team = Team(self, tid)
             team.load(t)
@@ -44,7 +44,7 @@ class Engine(object):
 
 
     def save(self, sink):
-        for tid, t in self.teams.iteritems():
+        for tid, t in self.teams.items():
             data = t.save()
             sink.addteam(tid, data)
 
@@ -62,7 +62,7 @@ class Engine(object):
         return self.teams[tid]
 
     def getteams(self, tidmask):
-        return [t for i, t in self.teams.iteritems() if (i & tidmask)]
+        return [t for i, t in self.teams.items() if (i & tidmask)]
 
     def getrace(self, name):
         return self.races[name]

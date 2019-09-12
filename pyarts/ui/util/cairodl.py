@@ -7,7 +7,7 @@ and based somewhat on PostScript
 
 import cairo
 
-class CairoDLError(StandardError):
+class CairoDLError(Exception):
     pass
 
 class CairoDL(object):
@@ -49,11 +49,11 @@ class CairoDL(object):
 
     def do_c(self, *args):
         assert len(args) == 6
-        self.ctx.rel_curve_to(*map(float, args))
+        self.ctx.rel_curve_to(*list(map(float, args)))
 
     def do_C(self, *args):
         assert len(args) == 6
-        self.ctx.curve_to(*map(float, args))
+        self.ctx.curve_to(*list(map(float, args)))
 
     def do_z(self):
         self.ctx.close_path()

@@ -16,10 +16,10 @@ class Event(object):
             del self.listeners[idx]
         except ValueError:
             # methods may not compare equal even though they are the same...
-            print 'remove failed...'
+            print('remove failed...')
 
     def emit(self, *args, **kwargs):
         for func in self.listeners:
             if self.debug:
-                print 'emitting %s to %s(*%r, **%r)' % (self.debug, func, args, kwargs)
+                print('emitting %s to %s(*%r, **%r)' % (self.debug, func, args, kwargs))
             func(*args, **kwargs)

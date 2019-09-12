@@ -69,7 +69,7 @@ class Moving(Component):
                 # cell, so replace it with the actual goal
                 self.waypoints[0] = goal
         else:
-            print 'no path to', target
+            print('no path to', target)
             self.stop()
 
 

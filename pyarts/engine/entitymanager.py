@@ -62,7 +62,7 @@ class EntityManager(object):
 
     def save(self, sink):
         ''' Save all the entities '''
-        for eid, ent in self.entities.iteritems():
+        for eid, ent in self.entities.items():
             data = ent.save()
             sink.addentity(eid, data)
 
@@ -70,7 +70,7 @@ class EntityManager(object):
 
     def _docreate(self, proto, eid=None):
         '''Create an entity from a proto - implementation method'''
-        print 'creating ', proto.name
+        print('creating ', proto.name)
 
         if eid is None:
             eid = self.nextentid
@@ -148,7 +148,7 @@ class EntityManager(object):
         self.entities.update(self.newentities)
         self.newentities.clear()
 
-        for ent in self.entities.itervalues():
+        for ent in self.entities.values():
             ent.step()
 
         for eid in self.pendingdestroy:

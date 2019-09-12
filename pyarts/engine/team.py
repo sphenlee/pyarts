@@ -32,12 +32,12 @@ class Team(object):
     def load(self, data):
         epdatas = self.eng.datasrc.getentityprotos(self.tid)
 
-        for epid, epdata in epdatas.iteritems():
+        for epid, epdata in epdatas.items():
             ep = EntityProto(epid, self)
             ep.load(epdata)
             self.entityprotos[epid] = ep
 
-        for twid, twdata in data.get('towns', {}).iteritems():
+        for twid, twdata in data.get('towns', {}).items():
             twid = int(twid)
             town = Town(twid, self)
             town.load(twdata)
@@ -45,15 +45,15 @@ class Team(object):
 
             self.eng.ontowncreated.emit(self, town)
 
-        print self.towns
+        print(self.towns)
 
     def save(self):
         protos = {}
-        for id_, ep in self.entityprotos.iteritems():
+        for id_, ep in self.entityprotos.items():
             protos[id_] = ep.save()
 
         towns = {}
-        for twid, tw in self.towns.iteritems():
+        for twid, tw in self.towns.items():
             towns[twid] = tw.save()
 
         return {
@@ -65,11 +65,11 @@ class Team(object):
         return self.entityprotos[name]
 
     def gettown(self, twid):
-        print self, repr(self.towns)
+        print(self, repr(self.towns))
         return self.towns[twid]
 
     def gettownat(self, pos):
-        for town in self.towns.itervalues():
+        for town in self.towns.values():
             if town.contains(pos):
                 return town
 

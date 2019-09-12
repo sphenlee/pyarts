@@ -23,7 +23,7 @@ class AbilityPanel(object):
     def __init__(self):
         self.sg = sg.SceneGraph(self.WIDTH, self.HEIGHT).paint(0, 0, 0, 0.8)        
         self.grid = sg.Grid(2, 3)
-        for i in xrange(MAX_ABILITIES):
+        for i in range(MAX_ABILITIES):
             self.grid.append(sg.Rect().paint(EMPTY_PAINT))
         self.sg.append(self.grid)
 
@@ -43,7 +43,7 @@ class AbilityPanel(object):
             ab = ent.abilities
             n = len(ab)
 
-            for i in xrange(6):
+            for i in range(6):
                 if i >= n:
                     self.grid.children[i] = sg.Rect().paint(EMPTY_PAINT)
                 else:
@@ -57,7 +57,7 @@ class AbilityPanel(object):
                     
 
         else:
-            for i in xrange(6):
+            for i in range(6):
                 self.grid.children[i] = sg.Rect().paint(EMPTY_PAINT)
 
         self.sg.mark_dirty()
@@ -68,7 +68,7 @@ class AbilityPanel(object):
             if ent.has('abilities') and ent.ownedby(self.game.localplayer):
                 ab = ent.abilities
                 
-                for i in xrange(len(ab)):
+                for i in range(len(ab)):
                     if ab[i].ability.cooldown > 0:
                         percent = float(ab[i].cooldown) / ab[i].ability.cooldown
                         self.grid.children[i].children[1].paint(1, 0, 0, percent)

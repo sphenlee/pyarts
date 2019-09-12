@@ -102,7 +102,7 @@ def luapush(L, val):
         lua.lua_pushnil(L)
     elif ty == str:
         lua.lua_pushstring(L, val)
-    elif ty == unicode:
+    elif ty == str:
         lua.lua_pushstring(L, val.encode('utf-8'))
     elif ty == int:
         lua.lua_pushinteger(L, val)
@@ -281,7 +281,7 @@ class TableIter(object):
     def __repr__(self):
         return '<lua.TableIter ref %d>' % self.ref.ref
 
-    def next(self):
+    def __next__(self):
         err = lua.lua_next(self.L, -2)
         if err == 0:
             lua.lua_settop(self.L, -2) # pop the table
@@ -311,7 +311,7 @@ class function(object):
                 ret = luaget(self.L, -1)
             else:
                 ret = [ ]
-                for i in xrange(1, m - n + 1):
+                for i in range(1, m - n + 1):
                     ret.append(luaget(self.L, n + i))
                 ret = tuple(ret)
             if ok == 0:
@@ -339,7 +339,7 @@ def func(func, ismeth=False):
                     self = ctypes.cast(ptr, ctypes.py_object).value
                     args.append(self)
             
-            for i in xrange(1, nargs + 1):
+            for i in range(1, nargs + 1):
                 args.append(luaget(L, i))
             ret = func(*args)
             if isinstance(ret, tuple):

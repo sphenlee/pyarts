@@ -45,11 +45,11 @@ class Harvester(Component):
     def findlike(self, seed):
         proto = seed.proto
         x, y = seed.locator.pos()
-        print 'looking for ', seed, proto, x, y
+        print('looking for ', seed, proto, x, y)
         R = 20
         for e in self.map.entities_in_rect(x-R, y-R, x+R, y+R):
             if e.proto.name == proto.name:
-                print 'found', e, e.proto
+                print('found', e, e.proto)
                 return e
 
     def finddropoff(self, pos):
@@ -101,7 +101,7 @@ class Harvester(Component):
             self.effect = None
 
     def dropoff(self, res):
-        print 'droped off %r resources' % self.variables['carrying']
+        print('droped off %r resources' % self.variables['carrying'])
         self.target.ent.harveststore.dropoff(res, self.variables['carrying'])
         self.variables['carrying'] = 0
 
