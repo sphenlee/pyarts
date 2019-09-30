@@ -26,6 +26,7 @@ lua.lua_topointer.restype = ctypes.c_void_p
 
 lua.lua_pushnumber.argtypes = [ ctypes.c_void_p, ctypes.c_double ]
 lua.lua_pushinteger.argtypes = [ ctypes.c_void_p, ctypes.c_long ]
+lua.lua_pushstring.argtypes = [ ctypes.c_void_p, ctypes.c_char_p ]
 
 lua.luaL_ref.argtypes = [ ctypes.c_void_p, ctypes.c_int ]
 lua.luaL_ref.restype = ctypes.c_int
@@ -36,9 +37,14 @@ lua.luaL_unref.restype = None
 lua.lua_rawgeti.argtypes = [ ctypes.c_void_p, ctypes.c_int, ctypes.c_int ]
 lua.lua_rawgeti.restype = None
 
+lua.lua_getfield.argtypes = [ ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p ]
+lua.lua_setfield.argtypes = [ ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p ]
+
 lua.lua_pcallk.argtypes = [ ctypes.c_void_p, ctypes.c_int, ctypes.c_int,
     ctypes.c_int, ctypes.c_int, ctypes.c_void_p]
 lua.lua_pcallk.restype  = ctypes.c_int
+
+lua.luaL_loadstring.argtypes = [ ctypes.c_void_p, ctypes.c_char_p ]
 
 # declare constants
 LUA_MULTIRET = -1
@@ -66,29 +72,31 @@ class popper(object):
 
     def __enter__(self):
         self.top = lua.lua_gettop(self.L)
+        #print('top is', self.top)
 
     def __exit__(self, *args):
         lua.lua_settop(self.L, self.top)
+        #print('restored top to', self.top)
 
 class LuaRef(object):
     def __init__(self, L, idx):
         self.L = L
         with popper(L):
             lua.lua_pushvalue(self.L, idx)
-            lua.lua_getfield(self.L, LUA_REGISTRYINDEX, ".pyrefs")
+            lua.lua_getfield(self.L, LUA_REGISTRYINDEX, b'.pyrefs')
             lua.lua_pushvalue(self.L, -2)
             self.ref = lua.luaL_ref(self.L, -2)
-            #print '<ref %d>' % self.ref
+            #print('<ref %d>' % self.ref)
             
     def __del__(self):
         with popper(self.L):
-            #print '<unref %d>' % self.ref
-            lua.lua_getfield(self.L, LUA_REGISTRYINDEX, ".pyrefs")
+            #print('<unref %d>' % self.ref)
+            lua.lua_getfield(self.L, LUA_REGISTRYINDEX, b'.pyrefs')
             lua.luaL_unref(self.L, -1, self.ref)
 
     def push(self):
-        #print 'push <ref %d>' % self.ref
-        lua.lua_getfield(self.L, LUA_REGISTRYINDEX, ".pyrefs")
+        #print('push <ref %d>' % self.ref)
+        lua.lua_getfield(self.L, LUA_REGISTRYINDEX, b'.pyrefs')
         lua.lua_rawgeti(self.L, -1, self.ref)
         lua.lua_remove(self.L, -2)
 
@@ -100,7 +108,7 @@ def luapush(L, val):
     ty = type(val)
     if val is None:
         lua.lua_pushnil(L)
-    elif ty == str:
+    elif ty == bytes:
         lua.lua_pushstring(L, val)
     elif ty == str:
         lua.lua_pushstring(L, val.encode('utf-8'))
@@ -136,7 +144,9 @@ def push_method(L, val):
 
 # utility to get a python value off the stack
 def luaget(L, idx):
+    #print('luaget', idx)
     ty = lua.lua_type(L, idx)
+    #print('type', ty)
     if ty == LUA_TNIL:
         #print 'nil'
         return None
@@ -154,14 +164,14 @@ def luaget(L, idx):
     elif ty == LUA_TSTRING:
         #print 'str'
         s = lua.lua_tolstring(L, idx, None)
-        return s
+        return s.decode('utf-8')
     elif ty == LUA_TTABLE:
         #print 'tab'
         ref = LuaRef(L, idx)
         t = Table(L, ref)
         return t
     elif ty == LUA_TFUNCTION:
-        #print 'fun'
+        #print('fun')
         ref = LuaRef(L, idx)
         f = function(L, ref)
         return f
@@ -177,7 +187,7 @@ class State(object):
         #lua.luaL_openlibs(self.L)
 
         lua.lua_createtable(self.L, 0, 0)
-        lua.lua_setfield(self.L, LUA_REGISTRYINDEX, ".pyrefs")
+        lua.lua_setfield(self.L, LUA_REGISTRYINDEX, b'.pyrefs')
 
     def __del__(self):
         self.close()
@@ -217,7 +227,7 @@ class State(object):
         with popper(self.L):
             lua.lua_rawgeti(self.L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS)
             luapush(self.L, val)
-            lua.lua_setfield(self.L, -2, name)
+            lua.lua_setfield(self.L, -2, name.encode('ascii'))
         
     def getglobal(self, name):
         with popper(self.L):

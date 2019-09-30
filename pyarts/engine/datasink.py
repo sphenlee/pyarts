@@ -41,7 +41,7 @@ class DataSink(object):
             if ose.errno != 17: # file exists
                 raise
 
-        with open(p.join(self.dirname, fname), 'w') as fp:
+        with open(p.join(self.dirname, fname), 'wb') as fp:
             fp.write(data)
 
     def commit(self):

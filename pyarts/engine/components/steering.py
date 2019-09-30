@@ -81,8 +81,8 @@ class Steering(Component):
                 # get the slowdown factor
                 f = max(min(1 - dot(d, e), 1), 0)
 
-                if hard:
-                    f = f * f
+                #if hard:
+                #    f = f * f
 
             # print '---collide ---'
             # print 'eid:', self.eid, 'to: ', ent.eid

@@ -44,16 +44,16 @@ class Map(object):
         return (x*VERTEX_SZ, y*VERTEX_SZ)
 
     def pos_to_sector(self, x, y):
-        return (x >> 11), (y >> 11)
+        return (int(x) >> 11), (int(y) >> 11)
 
     def cell_to_sector(self, x, y):
-        return (x >> 5), (y >> 5)
+        return (int(x) >> 5), (int(y) >> 5)
 
     def cell_to_offset(self, x, y):
-        return (x & 0x1f), (y & 0x1f)
+        return (int(x) & 0x1f), (int(y) & 0x1f)
 
     def pos_to_offset(self, x, y):
-        return (x & 0x7ff), (y & 0x7ff)
+        return (int(x) & 0x7ff), (int(y) & 0x7ff)
 
     def loadsector(self, sx, sy):
         try:

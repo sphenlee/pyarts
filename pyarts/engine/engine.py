@@ -40,7 +40,7 @@ class Engine(object):
             team.load(t)
             self.teams[tid] = team
 
-        self.scripting.runmain() # where should this go?
+        #self.scripting.runmain() # where should this go?
 
 
     def save(self, sink):

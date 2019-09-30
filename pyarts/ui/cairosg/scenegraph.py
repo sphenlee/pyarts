@@ -15,9 +15,9 @@ class SceneGraph(Canvas, Paintable):
         super(SceneGraph, self).__init__()
         self.idmap = {}
         self.nodemap = {}
-        self.w = w
-        self.h = h
-        self.surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+        self.w = int(w)
+        self.h = int(h)
+        self.surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.w, self.h)
         self.ctx = cairo.Context(self.surf)
         self.ctx.scale(1, -1)
         self.ctx.translate(0, -h)
@@ -54,7 +54,7 @@ class SceneGraph(Canvas, Paintable):
             self.render(self.ctx)
 
         data = self.surf.get_data()
-        self.img = pyglet.image.ImageData(self.w, self.h, 'BGRA', str(data))
+        self.img = pyglet.image.ImageData(self.w, self.h, 'BGRA', bytes(data))
         self.dirty = False
         return self.img
 

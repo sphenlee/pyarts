@@ -33,21 +33,21 @@ class Game(object):
         self.onselectionchange = Event()
         self.onmodechange = Event()
 
+        self.push_mode(NormalMode(self))
+
     def inject(self, engine, datasrc, network, settings, entitymanager):
         self.engine = engine
         self.datasrc = datasrc
         self.network = network
         self.entities = entitymanager
-        settings.onload.add(self.load)
+        settings.onload.add(self.init_localpid)
+        datasrc.onload.add(self.init_players)
 
-        
-    def load(self, settings):
-        self.push_mode(NormalMode(self))
-
+    def init_localpid(self, settings):
         self.localpid = settings.localpid
         
-        data = self.datasrc.getplayers()
-        for pdata in data:
+    def init_players(self):
+        for pdata in self.datasrc.getplayers():
             player = Player()
             player.load(pdata)
             self.players.append(player)

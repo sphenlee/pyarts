@@ -4,8 +4,7 @@ Manages loading all resources and data
 '''
 
 import json
-import os
-p = os.path
+import os.path as p
 
 from .event import Event
 from pyarts.container import component
@@ -27,6 +26,7 @@ class DataSource(object):
         self.map = json.load(open(settings.data_map))
         self.core = json.load(open(settings.data_core))
 
+        print('about to emit onload', self.save)
         self.onload.emit()
         self.onready.emit()
 

@@ -28,8 +28,8 @@ def distance2(x1, y1, x2, y2):
 def get_hex_resource(datasrc, name):
     '''Helper to get a hex encoded resource'''
     res = datasrc.getresource(name)
-    with open(res) as fp:
-        return binascii.unhexlify(fp.read().replace('\n', ''))
+    with open(res, 'rb') as fp:
+        return binascii.unhexlify(fp.read().replace(b'\n', b''))
 
 
 class Sector(object):
@@ -56,21 +56,22 @@ class Sector(object):
 
         # fog info
 
-        init = '\0' * NUM_VERTS * NUM_VERTS
+        init = b'\x00' * NUM_VERTS * NUM_VERTS
+        print('init is', type(init))
 
         if 'visited' in data:
             bindata = get_hex_resource(map.datasrc, data['visited'])
             self.visited = array.array('B')
-            self.visited.fromstring(bindata)
+            self.visited.frombytes(bindata)
         else:
             self.visited = array.array('B', init)
 
         if 'walkmap' in data:
             bindata = get_hex_resource(map.datasrc, data['walkmap'])
             self.walkmap = array.array('B')
-            self.walkmap.fromstring(bindata)
+            self.walkmap.frombytes(bindata)
         else:
-            self.walkmap = array.array('B', '\x00' * NUM_VERTS * NUM_VERTS)            
+            self.walkmap = array.array('B', b'\x00' * NUM_VERTS * NUM_VERTS)            
 
         self.visible = array.array('B', init)
         self.onfogupdated = Event()
