@@ -1,0 +1,16 @@
+[package]
+name = "yarts"
+version = "0.1.0"
+authors = ["Stephen Lee <sphen.lee@gmail.com>"]
+edition = "2018"
+
+[lib]
+name = "yarts"
+crate-type = ["cdylib"]
+
+[dependencies]
+ggez = "0.5"
+
+[dependencies.pyo3]
+version = "0.8"
+features = ["extension-module"]

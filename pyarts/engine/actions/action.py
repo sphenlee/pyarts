@@ -8,7 +8,8 @@ class Action(object):
     ent = None
 
     def done(self):
-        self.ent.actions.done()
+        self.stop()
+        self.ent.actions.done(self)
 
     def start(self):
         pass

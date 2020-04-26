@@ -8,7 +8,24 @@ Component required for an entity to use the MoveAction.
 
 from .component import Component, register
 
-from ..pathfinder import distance
+from ..sector import Sector
+
+def parse_walk(value):
+    parts = value.toupper().split('|')
+    walk = 0
+    for part in parts:
+        walk |= getattr(Sector, 'WALK_' + part)
+
+    return walk
+
+def raw_distance(p1, p2):
+    return (p1[0] - p2[0])**2 + (p1[1] - p2[1])**2
+
+def distance(ent, pt):
+    ept = ent.locator.pos()
+    print(f'distance ept={ept}')
+    return raw_distance(ent.locator.pos(), pt) - ent.locator.r**2
+    
 
 @register
 class Moving(Component):
@@ -20,7 +37,11 @@ class Moving(Component):
         self.steering = steering
 
     def configure(self, data):
-        self.walk = 0x01 | 0x08 #data.get('walk', 1) # TODO
+        if data and 'walk' in data:
+            self.walk = parse_walk(data['walk'])
+        else:
+            self.walk = Sector.WALK_GROUND | Sector.WALK_FOOT
+
         self.waypoints = []
         self.intransit = False
     
@@ -39,8 +60,9 @@ class Moving(Component):
 
         self.steering.towards(pt)
 
-        d = distance(pt, self.locator.pos())
-        if d < 2:
+        d = distance(self.ent, pt)
+        print(f'moving d={d}')
+        if d <= 0:
             self.waypoints.pop()
 
     def save(self):
@@ -53,9 +75,7 @@ class Moving(Component):
 
         start = self.locator.pos()
         goal = target.getpos()
-        if target.isent():
-            range = target.ent.locator.r
-
+        
         path = self.pathfinder.findpath(start, goal, self.walk, range)
         if path is not None:
             self.waypoints[:] = list(path)

@@ -12,7 +12,8 @@ class Settings(object):
     depends = []
 
     def __init__(self):
-        self.onload = Event()
+        self.onload = Event(debug='settings.onload')
+        self.onready = Event(debug='settings.onready')
 
     def inject(self):
         pass
@@ -26,3 +27,4 @@ class Settings(object):
         self.data_save = settings['data']['save']
 
         self.onload.emit(self)
+        self.onready.emit(self)

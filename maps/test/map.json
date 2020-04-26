@@ -160,7 +160,6 @@
                     "function(me, target)",
                     "    print('Inside Lua boost' .. me)",
                     "    print(target)",
-                    "    place_entity(me, 600, 600)",
                     "end"
                 ],
                 "group" : true,
@@ -188,6 +187,7 @@
                     "    write_variable(target, 'hp', 'add', -100)",
                     "end"
                 ],
+                "range": 16,
                 "cooldown" : 60,
                 "cost" : { "mana" : 100 },
                 "image" : "res/unit-pesant.png"
@@ -213,6 +213,7 @@
                 "name" : "Build Townhall",
                 "description" : "Builds a Townhall",
                 "effect" : { "file": "abilities.lua", "function": "build_townhall" },
+                "onstart" : { "file": "abilities.lua", "function": "start_building" },
                 "cooldown" : 60,
                 "cost" : { },
                 "image" : "res/bldg-townhall.png",

@@ -25,16 +25,19 @@ class Camera(object):
     def inject(self, datasrc, maprenderer, map, spritemanager, settings):
         self.datasrc = datasrc
         self.datasrc.onload.add(self.load_data)
+        
         self.mapren = maprenderer
         self.map = map
         self.sprites = spritemanager
-        self.settings = settings
+        
         settings.onload.add(self.load_settings)
         
     def load_settings(self, settings):
+        print('camera load settings')
         self.localpid = settings.localpid
 
     def load_data(self):
+        print('camera load data')
         # connect camera to map renderer
         # TODO connect these the other way around
         self.onlookpointchanged.add(self.sprites.lookat)

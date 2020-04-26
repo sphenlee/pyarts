@@ -58,9 +58,13 @@ class Actions(Component):
         
         self.queue.insert(0, action)
 
-    def done(self):
-        ''' Current action is finished, remove it '''
-        self.queue[-1].stop()
-        self.queue.pop()
-        if self.queue:
-            self.queue[-1].start()
+    def done(self, action):
+        ''' Action is finished, remove it '''
+        if self.queue[-1] == action:
+            # action is currently executing - start the next action
+            self.queue.pop()
+            if self.queue:
+                self.queue[-1].start()
+        else:
+            # else just remove from queue
+            self.queue.remove(action)

@@ -1,3 +1,7 @@
+function start_building(me)
+    print('started building something')
+end
+
 function build_townhall(me, x, y)
     print('building townhall')
     ent = create_entity(0, 'townhall')

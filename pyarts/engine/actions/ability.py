@@ -6,17 +6,38 @@ High level action for getting an entity to do an action
 
 from .action import Action
 from .move import MoveAction
-from ..pathfinder import distance
+from ..components.moving import distance
+
+def distance_to_target(ent, target):
+    '''
+    Distance from an entity to a target taking into account the radii of each
+    '''
+    d = distance(ent, target.getpos())
+    if target.isent():
+        d -= target.ent.locator.r**2
+        print(f'adjusted2 d {d}')
+
+    return d
+
 
 class AbilityAction(Action):
-    def __init__(self, ainst, target=None, onstart=None):
+    def __init__(self, ainst, target=None):
         self.ainst = ainst
         self.ability = ainst.ability
         self.target = target
-        self.onstart = onstart
 
     def start(self):
-        self.ainst.wait = self.ability.wait
+        if self.target:
+            dist = distance_to_target(self.ent, self.target)
+
+            print(f'moving into position: ent={self.ent!r} target={self.target!r} dist={dist!r} range={self.ability.range!r}')
+
+            if self.ability.range is None or dist > self.ability.range:
+                mv = MoveAction(self.target, range=self.ability.range, follow=False)
+                self.ent.actions.now(mv)
+                return
+
+        self.ainst.startwait()
 
         if self.ability.onstart:
             self.ability.onstart(self.ent.eid)
@@ -37,20 +58,7 @@ class AbilityAction(Action):
             self.ability.name,
             self.target))
 
-        if self.target:
-            pos = self.target.getpos()
-            me = self.ent.locator.pos()
-
-            print('ability', pos, me, distance(me, pos))
-
-            if distance(me, pos) > self.ability.range:
-                mv = MoveAction(self.target, range=self.ability.range, follow=False)
-                self.ent.actions.now(mv)
-                return
-
-        print('done ability')
-        if self.onstart:
-            self.onstart()
+        self.ability.deduct_cost(self.ent)
 
         self.ainst.startcooldown()
 

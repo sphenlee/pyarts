@@ -12,8 +12,9 @@ class AbilityInstance(object):
     An ability with the per ent cooldown timer,
     and wait time for activities
     '''
-    def __init__(self, ability):
+    def __init__(self, ability, ent):
         self.ability = ability
+        self.ent = ent
         self.cooldown = 0
         self.wait = 0
 
@@ -23,6 +24,9 @@ class AbilityInstance(object):
 
     def startcooldown(self):
         self.cooldown = self.ability.cooldown
+
+    def startwait(self):
+        self.wait = self.ability.wait
 
 
 @register
@@ -38,7 +42,7 @@ class Abilities(Component):
 
         for name in data:
             ability = self.content.getability(name)
-            ainst = AbilityInstance(ability)
+            ainst = AbilityInstance(ability, self.ent)
             self.abilities.append(ainst)
         
     def save(self):
@@ -71,13 +75,9 @@ class Abilities(Component):
         else:
             if ainst.wait > 0:
                 print('already doing this - ability activate checked it')
-                return False # not ready
+                return False # not ready    
 
-            def onstart():
-                ''' TODO - there might be a nicer way to do this '''
-                ainst.ability.deduct_cost(self.ent)
-
-            action = AbilityAction(ainst, target, onstart)
+            action = AbilityAction(ainst, target)
             if add:
                 self.actions.now(action)
             else:

@@ -3,3 +3,5 @@ syntax: glob
 oldstuff/
 venv/
 venv3/
+rust/target/
+rust/.idea/

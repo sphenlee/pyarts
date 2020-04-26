@@ -26,7 +26,7 @@ class Ability(object):
         self.onstart = scripting.code(data['onstart']) if 'onstart' in data else None
         self.onstop = scripting.code(data['onstop']) if 'onstop' in data else None
         
-        self.range = data.get('range', 0)
+        self.range = data.get('range', None)
         self.group = data.get('group', False)
         self.queue = data.get('queue', False)
         self.wait = data.get('wait', 0)

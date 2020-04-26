@@ -19,14 +19,14 @@ class DataSource(object):
         self.onready = Event(debug='datasrc.onready')
 
     def inject(self, settings):
-        settings.onload.add(self.load)
+        settings.onready.add(self.load)
 
     def load(self, settings):
         self.save = json.load(open(settings.data_save))
         self.map = json.load(open(settings.data_map))
         self.core = json.load(open(settings.data_core))
 
-        print('about to emit onload', self.save)
+        print('about to emit onload')
         self.onload.emit()
         self.onready.emit()
 

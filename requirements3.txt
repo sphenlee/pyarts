@@ -1,0 +1,5 @@
+pyglet
+cairocffi
+nanomsg
+msgpack-python
+freetype-py
