@@ -7,8 +7,6 @@ does not need to be communicated over the network to other players)
 It also holds the Engine which has all the shared stuff.
 '''
 
-from pyglet import gl
-
 from .player import Player
 from .order import *
 from .modes import *
@@ -139,19 +137,6 @@ class Game(object):
 
     def render(self):
         self.engine.render() # FIXME - engine should not have any graphics in it
-
-    # def render_selection(self, ent):
-    #     loc = ent.locator
-
-    #     gl.glDisable(gl.GL_TEXTURE_2D)        
-    #     gl.glColor4f(0, 1, 0, 1)
-    #     gl.glBegin(gl.GL_LINE_STRIP)
-    #     gl.glVertex2f(loc.x - loc.r, loc.y - loc.r)
-    #     gl.glVertex2f(loc.x + loc.r, loc.y - loc.r)
-    #     gl.glVertex2f(loc.x + loc.r, loc.y + loc.r)
-    #     gl.glVertex2f(loc.x - loc.r, loc.y + loc.r)
-    #     gl.glVertex2f(loc.x - loc.r, loc.y - loc.r)
-    #     gl.glEnd()
 
     def select(self, ents, add):
         ''' Select ents or add ents to the current selection '''

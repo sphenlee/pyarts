@@ -3,9 +3,9 @@ Manages sending orders over the network to
 other players
 '''
 
-import nanomsg as nm
-import msgpack
-import threading
+#import nanomsg as nm
+#import msgpack
+#import threading
 
 from pyarts.container import component
 from pyarts.engine.target import Target

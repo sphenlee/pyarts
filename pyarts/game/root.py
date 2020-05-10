@@ -7,9 +7,12 @@ import pyglet
 
 from pyarts.container import component
 
+# TODO
+mapfile = 'maps/test/map.json'
+
 @component
 class Root(object):
-    depends = ['settings', 'gamescreen', 'datasrc', 'game', 'gamestate']
+    depends = ['settings', 'datasrc', 'game', 'gamestate']
 
     def __init__(self):
         pass
@@ -17,19 +20,20 @@ class Root(object):
     def inject(self, **kwargs):
         self.__dict__.update(kwargs)
 
-    def load(self, settings):
+    def load(self, settings=None):
+        if settings is None:
+            settings = {
+                'localpid': 0,
+                'data': {
+                    'core': mapfile,
+                    'map': mapfile,
+                    'save': mapfile
+                }
+            }
         self.settings.load(settings)
-        self.gamescreen.load()
         
     def save(self, datasink):
         self.game.save(datasink)
-        self.gamescreen.save(datasink)
         
-    def run(self, window):
-        self.gamescreen.activate(window=window)
-
-        pyglet.clock.schedule(self.update, 0.5)
-        
-    def update(self, dt, *args):
-        self.gamescreen.update(dt)
+    def update(self):
         self.gamestate.step()

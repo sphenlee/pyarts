@@ -2,27 +2,26 @@ use ggez::{graphics, Context, ContextBuilder, GameResult};
 use ggez::event::{self, EventHandler};
 use pyo3::prelude::*;
 
+pub mod camera;
 pub mod mainmenu;
 pub mod gamescreen;
 
-enum Transition {
+pub enum Transition {
     None,
     Next(Box<dyn Screen>),
     Prev,
 }
 
-pub trait Screen {
-    fn update(&mut self, py: Python<'_>) -> GameResult<Transition>;
+pub enum Event {
+    KeyUp(event::KeyCode, event::KeyMods),
+}
 
-    fn key_up_event(&mut self,
-                    py: Python<'_>,
-                    keycode: event::KeyCode,
-                    keymods: event::KeyMods
-    ) -> GameResult<Transition> {
-        Ok(Transition::None)
-    }
+pub trait Screen<'p> {
+    fn update(&mut self, py: Python<'p>, ctx: &mut Context);
 
-    fn draw(&mut self, ctx: &mut Context) -> GameResult<()>;
+    fn event(&mut self, py: Python<'p>, ctx: &mut Context, event: Event) -> Transition;
+
+    fn draw(&mut self, py: Python<'p>, ctx: &mut Context) -> GameResult<()>;
 }
 
 pub fn launch(py: Python<'_>) -> PyResult<()> {
@@ -69,13 +68,21 @@ impl<'p> ScreenStack<'p> {
 }
 
 impl EventHandler for ScreenStack<'_> {
-    fn update(&mut self, _ctx: &mut Context) -> GameResult<()> {
+    fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         let screen = self.screens.last_mut().expect("popped last screen?");
 
-        let transition = screen.update(self.py)?;
-        self.transition(transition);
+        screen.update(self.py, ctx);
 
         Ok(())
+    }
+
+    fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
+        graphics::clear(ctx, graphics::BLACK);
+
+        let screen = self.screens.last_mut().expect("popped last screen?");
+        screen.draw(self.py, ctx)?;
+
+        graphics::present(ctx)
     }
 
     fn key_up_event(&mut self, ctx: &mut Context, keycode: event::KeyCode, keymods: event::KeyMods) {
@@ -84,16 +91,7 @@ impl EventHandler for ScreenStack<'_> {
         }
 
         let screen = self.screens.last_mut().expect("popped last screen?");
-        let transition = screen.key_up_event(self.py, keycode, keymods).expect("error in key_up_event");
+        let transition = screen.event(self.py, Event::KeyUp(keycode, keymods));
         self.transition(transition);
-    }
-
-    fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-        graphics::clear(ctx, graphics::BLACK);
-
-        let screen = self.screens.last_mut().expect("popped last screen?");
-        screen.draw(ctx)?;
-
-        graphics::present(ctx)
     }
 }
