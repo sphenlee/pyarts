@@ -7,6 +7,9 @@ from pyarts.engine.event import Event
 
 from pyarts.container import component
 
+# TODO
+mapfile = 'maps/test/map.json'
+
 @component
 class Settings(object):
     depends = []
@@ -18,7 +21,18 @@ class Settings(object):
     def inject(self):
         pass
 
-    def load(self, settings):
+    def load(self, settings=None):
+        # TODO
+        if settings is None:
+            settings = {
+                'localpid': 0,
+                'data': {
+                    'core': mapfile,
+                    'map': mapfile,
+                    'save': mapfile
+                }
+            }
+
         self.localpid = settings['localpid']
         self.server = settings.get('server', False)
         self.join = settings.get('join', None)

@@ -10,8 +10,9 @@ crate-type = ["cdylib"]
 
 [dependencies]
 ggez = "0.5"
-ggez_goodies = "0.5"
+tiled = "0.9"
+num-integer = "0.1"
 
 [dependencies.pyo3]
-version = "0.8"
+version = "0.10"
 features = ["extension-module"]

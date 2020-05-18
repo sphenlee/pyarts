@@ -1,8 +1,9 @@
 use crate::ui::{Screen, Transition, Event};
-use ggez::{graphics, Context, GameResult, event};
+use ggez::{graphics, Context, event};
 use ggez::graphics::DrawParam;
-use pyo3::Python;
+use pyo3::prelude::*;
 use crate::ui::gamescreen::GameScreen;
+use crate::util::PyGgezError;
 
 pub struct MainMenu {
     text: graphics::Text,
@@ -18,20 +19,21 @@ impl MainMenu {
 
 
 impl Screen for MainMenu {
-    fn update(&mut self, py: Python<'_>, _ctx: &mut Context) {
+    fn update(&mut self, _py: Python<'_>, _ctx: &mut Context) -> PyResult<()> {
+        Ok(())
     }
 
-    fn event(&mut self, py: Python<'_>, ctx: &mut Context, event: Event) -> Transition {
-        if keycode == event::KeyCode::S {
-            let game_ui = GameScreen::new(py);
-            Transition::Next(game_ui)
+    fn event(&mut self, py: Python<'_>, _ctx: &mut Context, event: Event) -> PyResult<Transition> {
+        if let Event::KeyUp(event::KeyCode::S, _) = event {
+            let game_ui = GameScreen::new(py)?;
+            Ok(Transition::Next(game_ui))
         } else {
-            Transition::None
+            Ok(Transition::None)
         }
     }
 
-    fn draw(&mut self, py: Python<'_>, ctx: &mut Context) -> GameResult<()> {
-        graphics::draw(ctx, &self.text, DrawParam::new().dest([100.0, 100.0]))?;
+    fn draw(&mut self, _py: Python<'_>, ctx: &mut Context) -> PyResult<()> {
+        graphics::draw(ctx, &self.text, DrawParam::new().dest([100.0, 100.0])).map_err(PyGgezError::from)?;
         Ok(())
     }
 }

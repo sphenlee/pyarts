@@ -86,11 +86,11 @@ class LuaRef(object):
             lua.lua_getfield(self.L, LUA_REGISTRYINDEX, b'.pyrefs')
             lua.lua_pushvalue(self.L, -2)
             self.ref = lua.luaL_ref(self.L, -2)
-            #print('<ref %d>' % self.ref)
+            print('<ref %d>' % self.ref)
             
     def __del__(self):
         with popper(self.L):
-            #print('<unref %d>' % self.ref)
+            print('<unref %d>' % self.ref)
             lua.lua_getfield(self.L, LUA_REGISTRYINDEX, b'.pyrefs')
             lua.luaL_unref(self.L, -1, self.ref)
 
@@ -190,9 +190,12 @@ class State(object):
         lua.lua_setfield(self.L, LUA_REGISTRYINDEX, b'.pyrefs')
 
     def __del__(self):
-        self.close()
+        pass
+        # TODO - we need to explictly close Lua
+        #self.close()
 
     def close(self):
+        print('closubg Lua interp')
         self.lua.lua_close(self.L)
 
     def loadstring(self, code):

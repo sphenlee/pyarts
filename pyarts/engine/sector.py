@@ -12,6 +12,8 @@ import time
 
 from .event import Event
 
+from yarts import Sector as RsSector
+
 NUM_TILES = 32 # the number of tiles in a sector
 NUM_VERTS = NUM_TILES + 1 # the number of vertices in a sector
 VERTEX_SZ = 64 # the number of pixels per tile
@@ -51,29 +53,15 @@ class Sector(object):
         
         data = map.datasrc.getmapsector(sx, sy)
 
-        self.tiles = data['tiles']
+        #self.tiles = data['tiles']
         self.entities = data.get('entities', ()) # this is bad - the value is eids and is not kept updated
 
-        # fog info
-
-        init = b'\x00' * NUM_VERTS * NUM_VERTS
-        print('init is', type(init))
-
-        if 'visited' in data:
-            bindata = get_hex_resource(map.datasrc, data['visited'])
-            self.visited = array.array('B')
-            self.visited.frombytes(bindata)
-        else:
-            self.visited = array.array('B', init)
-
-        if 'walkmap' in data:
-            bindata = get_hex_resource(map.datasrc, data['walkmap'])
-            self.walkmap = array.array('B')
-            self.walkmap.frombytes(bindata)
-        else:
-            self.walkmap = array.array('B', b'\x00' * NUM_VERTS * NUM_VERTS)            
-
-        self.visible = array.array('B', init)
+        tiles = get_hex_resource(map.datasrc, data['tiles'])
+        visited = get_hex_resource(map.datasrc, data['visited']) if 'visited' in data else None
+        walkmap = get_hex_resource(map.datasrc, data['walkmap']) if 'walkmap' in data else None
+        
+        self.peer = RsSector(sx, sy, tiles, visited, walkmap)
+      
         self.onfogupdated = Event()
 
         # locators near this sector
@@ -88,13 +76,13 @@ class Sector(object):
                 s.neighbour[-dx, -dy] = self
 
     def save(self, datasink):
-        data = binascii.hexlify(self.visited.tostring())
-        fname = 'visited/%d_%d.hex' % (self.sx, self.sy)
-        datasink.addresource(fname, data)
+        #data = binascii.hexlify(self.visited.tostring())
+        #fname = 'visited/%d_%d.hex' % (self.sx, self.sy)
+        #datasink.addresource(fname, data)
 
         datasink.addmapsector(self.sx, self.sy, {
                 'visited' : fname,
-                'tiles' : self.tiles,
+                #'tiles' : self.tiles,
                 'entities' : [loc.eid for loc in self.locators]
             })
 
@@ -117,58 +105,56 @@ class Sector(object):
         #    print 'sector is empty?'
 
     def footprint(self, loc):
-        x = int(loc.x/VERTEX_SZ + 0.5) - self.sx*NUM_TILES
-        y = int(loc.y/VERTEX_SZ + 0.5) - self.sy*NUM_TILES
-        r = int(loc.r/VERTEX_SZ + 0.5)
-        for i in range(x-r, x+r):
-            for j in range(y-r, y+r):
-                if 0 <= i < NUM_TILES and 0 <= j < NUM_TILES:
-                    #if distance2(i, j, x, y) <= r*r:
-                    self.walkmap[i + j*NUM_TILES] |= Sector.WALK_FOOT
+        self.peer.footprint(loc.x, loc.y, loc.r)
+
+        #x = int(loc.x/VERTEX_SZ + 0.5) - self.sx*NUM_TILES
+        #y = int(loc.y/VERTEX_SZ + 0.5) - self.sy*NUM_TILES
+        #r = int(loc.r/VERTEX_SZ + 0.5)
+        #for i in range(x-r, x+r):
+        #    for j in range(y-r, y+r):
+        #        if 0 <= i < NUM_TILES and 0 <= j < NUM_TILES:
+        #            #if distance2(i, j, x, y) <= r*r:
+        #            self.walkmap[i + j*NUM_TILES] |= Sector.WALK_FOOT
 
     def occupied(self):
         return len(self.locators) > 0
 
     def cellvisited(self, tid, pt):
-        x, y = pt
-        return self.visited[x + y*NUM_VERTS] & (1 << tid)
+        return self.peer.visited(pt) & (1 << tid)
 
     def cellvisible(self, tid, pt):
-        x, y = pt
-        return self.visible[x + y*NUM_VERTS] & (1 << tid)
+        return self.peer.visible(pt) & (1 << tid)
 
     def cellvisited_mask(self, pt):
-        x, y = pt
-        return self.visited[x + y*NUM_VERTS]
+        return self.peer.visited(pt)
 
     def cellvisible_mask(self, pt):
-        x, y = pt
-        return self.visible[x + y*NUM_VERTS]
-
+        return self.peer.visible(pt)
 
     def cellwalkable(self, walk, pt):
-        x, y = pt
-        return (self.walkmap[x + y*NUM_TILES] & walk) == 0
+        return (self.peer.walkmap(pt) & walk) == 0
 
     def updatefog(self):
-        #start = time.time()
-        # clear visible data, needs to be recalculated from scratch
-        for i in range(len(self.visible)):
-            self.visible[i] = 0
-
-        # loop over locators and update visible and visited state
         for loc in self.locators:
-            #print loc.ent, loc.x, loc.y, loc.sight
-            x = int(loc.x/VERTEX_SZ + 0.5) - self.sx*NUM_TILES
-            y = int(loc.y/VERTEX_SZ + 0.5) - self.sy*NUM_TILES
-            r = int(loc.sight/VERTEX_SZ + 0.5)
-            for i in range(x-r, x+r):
-                for j in range(y-r, y+r):
-                    if 0 <= i < NUM_VERTS and 0 <= j < NUM_VERTS:
-                        if distance2(i, j, x, y) < r*r:
-                            tid = loc.ent.team.tid
-                            self.visible[i + j*NUM_VERTS] |= (1 << tid)
-                            self.visited[i + j*NUM_VERTS] |= (1 << tid)
-        #print 'updated fog (%d,%d) took %fs' % (self.sx, self.sy, time.time() - start)
+            self.peer.update_fog(loc.x, loc.y, loc.sight, loc.ent.team.tid)
+        # #start = time.time()
+        # # clear visible data, needs to be recalculated from scratch
+        # for i in range(len(self.visible)):
+        #     self.visible[i] = 0
+
+        # # loop over locators and update visible and visited state
+        # for loc in self.locators:
+        #     #print loc.ent, loc.x, loc.y, loc.sight
+        #     x = int(loc.x/VERTEX_SZ + 0.5) - self.sx*NUM_TILES
+        #     y = int(loc.y/VERTEX_SZ + 0.5) - self.sy*NUM_TILES
+        #     r = int(loc.sight/VERTEX_SZ + 0.5)
+        #     for i in range(x-r, x+r):
+        #         for j in range(y-r, y+r):
+        #             if 0 <= i < NUM_VERTS and 0 <= j < NUM_VERTS:
+        #                 if distance2(i, j, x, y) < r*r:
+        #                     tid = loc.ent.team.tid
+        #                     self.visible[i + j*NUM_VERTS] |= (1 << tid)
+        #                     self.visited[i + j*NUM_VERTS] |= (1 << tid)
+        # #print 'updated fog (%d,%d) took %fs' % (self.sx, self.sy, time.time() - start)
 
         self.onfogupdated.emit()

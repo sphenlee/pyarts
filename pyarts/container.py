@@ -6,6 +6,14 @@ Right now there are going to be two different DI systems - this global one
 and the entity specific one. Perhaps merged the implementations later?
 '''
 
+def get_deps(cls):
+    deps = cls.depends
+    if isinstance(deps, list):
+        return deps
+    else:
+        return deps()
+
+
 def construct(name):
     print('constructing ', name)
     # find all the dependencies - transitive
@@ -14,7 +22,7 @@ def construct(name):
         newdeps = set(deps)
         for c in deps:
             cls = getcomponentclass(c)
-            for d in cls.depends:
+            for d in get_deps(cls):
                 newdeps.add(d)
 
         if newdeps == deps:
@@ -32,7 +40,7 @@ def construct(name):
     # perform the injection
     for comp in list(components.values()):
         args = {}
-        for cname in type(comp).depends:
+        for cname in get_deps(type(comp)):
             args[cname] = components[cname]
         print('injecting ', comp.__class__.__name__)
         comp.inject(**args)
@@ -44,9 +52,12 @@ def construct(name):
 _all_components = { }
 
 def component(cls):
-    if not hasattr(cls, 'name'):
-        cls.name = cls.__name__.lower()
-    _all_components[cls.name] = cls
+    if hasattr(cls, 'name'):
+        name = cls.name
+    else:
+        name = cls.__name__.lower()
+        
+    _all_components[name] = cls
     return cls
 
 def getcomponentclass(name):

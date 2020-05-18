@@ -4,13 +4,14 @@ Camera
 How the user looks at the game world
 '''
 
-from pyglet import gl
-
-from .screen import Screen
 from ..engine.event import Event
 from ..engine.map import SECTOR_SZ
 
 from pyarts.container import component
+
+# TODO make a component for the window details
+WIDTH = 800
+HEIGHT = 600
 
 @component
 class Camera(object):
@@ -25,12 +26,14 @@ class Camera(object):
     def inject(self, datasrc, maprenderer, map, spritemanager, settings):
         self.datasrc = datasrc
         self.datasrc.onload.add(self.load_data)
-        
+        self.datasrc.onready.add(self.setup_camera)
+
         self.mapren = maprenderer
         self.map = map
         self.sprites = spritemanager
         
         settings.onload.add(self.load_settings)
+        
         
     def load_settings(self, settings):
         print('camera load settings')
@@ -47,6 +50,14 @@ class Camera(object):
         self.lookx = int(look['x'])
         self.looky = int(look['y'])
 
+    def setup_camera(self):
+        # camera maybe should not be doing this?
+        sx, sy = self.map.pos_to_sector(self.lookx, self.looky)
+        sec = self.map.loadsector(sx, sy)
+
+        self.mapren.lookat(sec)
+
+
     def save(self, sink):
         data = {
             self.localpid : {
@@ -62,48 +73,48 @@ class Camera(object):
         return (pos[0] + self.lookx + looksector.sx * SECTOR_SZ,
                 pos[1] + self.looky + looksector.sy * SECTOR_SZ)
 
-    def setup(self):
-        gl.glMatrixMode(gl.GL_MODELVIEW)
-        gl.glLoadIdentity()
-        gl.glTranslatef(-self.lookx, -self.looky, 0)
+    def get_transform(self):
+        return (-self.lookx, -self.looky)
 
     def move(self, dx, dy):
-        self.lookx += int(dx)
-        self.looky += int(dy)
+        self.lookx += dx
+        self.looky += dy
+
+        #print('camera move', dx, dy, self.lookx, self.looky)
 
         sec = self.mapren.looksector
         
         # this bit clamps the viewport to loaded sectors
-        if self.lookx > SECTOR_SZ - Screen.WIDTH:
+        if self.lookx > SECTOR_SZ - WIDTH:
             if not sec.neighbour[1, 0]:
-                self.lookx = SECTOR_SZ - Screen.WIDTH
+                self.lookx = SECTOR_SZ - WIDTH
         if self.lookx < 0:
             if not sec.neighbour[-1, 0]:
                 self.lookx = 0
 
-        if self.looky > SECTOR_SZ - Screen.HEIGHT:
+        if self.looky > SECTOR_SZ - HEIGHT:
             if not sec.neighbour[0, 1]:
-                self.looky = SECTOR_SZ - Screen.HEIGHT
+                self.looky = SECTOR_SZ - HEIGHT
         if self.looky < 0:
             if not sec.neighbour[0, -1]:
                 self.looky = 0
 
 
         # this bit moves the look point when when crosses a sector boundary
-        if self.lookx < -Screen.WIDTH//2:
+        if self.lookx < -WIDTH//2:
             if sec.neighbour[-1, 0]:
                 self.lookx += SECTOR_SZ
                 self.onlookpointchanged.emit(sec.neighbour[-1, 0])
-        elif self.lookx > SECTOR_SZ - Screen.WIDTH//2:
+        elif self.lookx > SECTOR_SZ - WIDTH//2:
             if sec.neighbour[1, 0]:
                 self.lookx -= SECTOR_SZ
                 self.onlookpointchanged.emit(sec.neighbour[1, 0])
         
-        if self.looky < -Screen.HEIGHT//2:
+        if self.looky < -HEIGHT//2:
             if sec.neighbour[0, -1]:
                 self.looky += SECTOR_SZ
                 self.onlookpointchanged.emit(sec.neighbour[0, -1])
-        elif self.looky > SECTOR_SZ - Screen.HEIGHT//2:
+        elif self.looky > SECTOR_SZ - HEIGHT//2:
             if sec.neighbour[0, 1]:
                 self.looky -= SECTOR_SZ
                 self.onlookpointchanged.emit(sec.neighbour[0, 1])
