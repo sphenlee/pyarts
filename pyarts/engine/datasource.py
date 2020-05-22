@@ -53,8 +53,8 @@ class DataSource(object):
     def getplayers(self):
         return self.save['players']
 
-    def gettileset(self):
-        return self.map['tileset']
+    def gettileset(self, name):
+        return self.map['tileset'][name]
 
     def getloadedsectors(self):
         for xy in self.save['map']['loaded']:

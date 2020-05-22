@@ -19,6 +19,7 @@ class Map(object):
         self.placedon = { } # locator -> set(sectors)
 
         self.onsectorloaded = Event()
+        self.onfogupdated = Event()
 
         self.n = 0
 
@@ -60,7 +61,7 @@ class Map(object):
             return self.sectors[sx, sy]
         except KeyError:
             try:
-                s = Sector(self, sx, sy)
+                s = Sector.construct(self, self.datasrc, sx, sy)
             except KeyError:
                 return None
             self.sectors[sx, sy] = s
@@ -79,9 +80,15 @@ class Map(object):
     def step(self):
         self.n += 1
         if self.n % 50:
+            was_dirty = len(self.dirty) > 0
+
             while self.dirty:
                 sec = self.dirty.pop()
                 sec.updatefog()
+
+            if was_dirty:
+                self.onfogupdated.emit()
+
 
     def place(self, locator):
         self.locators.add(locator)

@@ -5,3 +5,4 @@ from .settings import *
 from .network import *
 from .gamestate import *
 from .camera import *
+from .local import *

@@ -21,7 +21,8 @@ class Appearance(Component):
         self.map = map
 
     def configure(self, data):
-        self.sprite = self.sprites.new_sprite(data['sprite'], self.locator.r * 2)
+        img = 'maps/test/' + data['sprite'] # TODO
+        self.sprite = self.sprites.new_sprite(img, self.locator.r * 2)
         self.portrait = data['portrait']
         self.visibility = data.get('visibility', self.VISIBLE_VIEWING)
         self.is_selected = False
@@ -52,9 +53,9 @@ class Appearance(Component):
                 else:
                     self.visible = sec.cellvisible_mask(off)
         
-        self.sprite.setvisible(self.visible, self.is_selected)
+        self.sprites.set_visible(self.sprite, self.visible, self.is_selected)
 
-        self.sprite.setpos(self.locator.x - self.locator.r,
+        self.sprites.set_pos(self.sprite, self.locator.x - self.locator.r,
                            self.locator.y - self.locator.r)
 
     def selected(self, yes):

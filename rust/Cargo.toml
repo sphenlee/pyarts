@@ -12,6 +12,11 @@ crate-type = ["cdylib"]
 ggez = "0.5"
 tiled = "0.9"
 num-integer = "0.1"
+tracing = { version = "0.1", features = ["log"] }
+tracing-subscriber = "0.2"
+log = "0.4.8"
+pretty_env_logger = "0.4.0"
+slab = "0.4"
 
 [dependencies.pyo3]
 version = "0.10"

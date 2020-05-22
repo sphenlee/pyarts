@@ -38,21 +38,22 @@ impl MapRenderer {
     }
 
     #[args(kwargs = "**")]
-    fn inject(slf: &PyCell<Self>, py: Python, kwargs: Option<&PyDict>) -> PyResult<()> {
+    fn inject(slf: &PyCell<Self>, kwargs: Option<&PyDict>) -> PyResult<()> {
         let deps: &PyAny = kwargs.expect("inject must be called with kwargs").as_ref();
 
-        slf.borrow_mut().map = deps.get_item("map")?.to_object(py);
+        let map = deps.get_item("map")?;
+        let update_fog = slf.getattr("update_fog")?;
+        map.getattr("onfogupdated")?.call_method1("add", (update_fog,))?;
+        slf.borrow_mut().map = map.into();
 
         let camera = deps.get_item("camera")?;
-        //let selfpy: PyObject = self.into_py(py);
-
-        let lookat = slf.getattr("lookat")?;
-        camera.getattr("onlookpointchanged")?.call_method1("add", (lookat,))?;
+        let look_at = slf.getattr("look_at")?;
+        camera.getattr("onlookpointchanged")?.call_method1("add", (look_at,))?;
 
         Ok(())
     }
 
-    fn lookat(&mut self, py: Python, sector: &PyAny) -> PyResult<()> {
+    fn look_at(&mut self, py: Python, sector: &PyAny) -> PyResult<()> {
         println!("looking at sector: {}", sector);
 
         self.looksector = sector.into();
@@ -66,6 +67,14 @@ impl MapRenderer {
             if !sec.is_none() {
                 self.setup_sector(py, sec.into(), dx, dy)?;
             }
+        }
+
+        Ok(())
+    }
+
+    fn update_fog(&mut self, py: Python) -> PyResult<()> {
+        for sr in &self.active_renderers {
+            sr.borrow_mut().update_fog(py)?;
         }
 
         Ok(())
@@ -90,9 +99,9 @@ impl MapRenderer {
         Ok(())
     }
 
-    pub fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
+    pub fn draw(&mut self, py: Python, ctx: &mut Context) -> GameResult<()> {
         for sr in &self.active_renderers {
-            sr.borrow_mut().draw(ctx)?;
+            sr.borrow_mut().draw(py, ctx)?;
         }
 
         Ok(())

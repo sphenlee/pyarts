@@ -15,7 +15,7 @@ HEIGHT = 600
 
 @component
 class Camera(object):
-    depends = ['datasrc', 'maprenderer', 'map', 'spritemanager', 'settings']
+    depends = ['datasrc', 'maprenderer', 'map', 'spritemanager', 'local']
 
     def __init__(self):
         self.lookx = 0
@@ -23,7 +23,7 @@ class Camera(object):
 
         self.onlookpointchanged = Event()
 
-    def inject(self, datasrc, maprenderer, map, spritemanager, settings):
+    def inject(self, datasrc, maprenderer, map, spritemanager, local):
         self.datasrc = datasrc
         self.datasrc.onload.add(self.load_data)
         self.datasrc.onready.add(self.setup_camera)
@@ -32,21 +32,12 @@ class Camera(object):
         self.map = map
         self.sprites = spritemanager
         
-        settings.onload.add(self.load_settings)
+        self.local = local
         
-        
-    def load_settings(self, settings):
-        print('camera load settings')
-        self.localpid = settings.localpid
-
     def load_data(self):
         print('camera load data')
-        # connect camera to map renderer
-        # TODO connect these the other way around
-        self.onlookpointchanged.add(self.sprites.lookat)
-
         data = self.datasrc.getmisc('camera.initial.position')
-        look = data[str(self.localpid)]
+        look = data[str(self.local.pid)]
         self.lookx = int(look['x'])
         self.looky = int(look['y'])
 
@@ -55,12 +46,12 @@ class Camera(object):
         sx, sy = self.map.pos_to_sector(self.lookx, self.looky)
         sec = self.map.loadsector(sx, sy)
 
-        self.mapren.lookat(sec)
+        self.mapren.look_at(sec)
 
 
     def save(self, sink):
         data = {
-            self.localpid : {
+            self.local.pid : {
                 'x' : self.lookx,
                 'y' : self.looky,
             }

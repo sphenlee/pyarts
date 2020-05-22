@@ -16,7 +16,7 @@ from pyarts.container import component
 
 @component
 class Game(object):
-    depends = ['engine', 'datasrc', 'network', 'settings', 'entitymanager']
+    depends = ['engine', 'datasrc', 'network', 'settings', 'entitymanager', 'local']
 
     def __init__(self):
         self.selection = []
@@ -24,8 +24,7 @@ class Game(object):
         self.cycle = 0
         self.latency = 16
         self.orderthisturn = None
-        self.localpid = None
-
+        
         self.modes = []
         
         self.onselectionchange = Event()
@@ -33,17 +32,15 @@ class Game(object):
 
         self.push_mode(NormalMode(self))
 
-    def inject(self, engine, datasrc, network, settings, entitymanager):
+    def inject(self, engine, datasrc, network, settings, entitymanager, local):
         self.engine = engine
         self.datasrc = datasrc
         self.network = network
         self.entities = entitymanager
-        settings.onload.add(self.init_localpid)
-        datasrc.onload.add(self.init_players)
+        self.local = local
 
-    def init_localpid(self, settings):
-        self.localpid = settings.localpid
-        
+        datasrc.onload.add(self.init_players)
+    
     def init_players(self):
         for pdata in self.datasrc.getplayers():
             player = Player()
@@ -56,13 +53,6 @@ class Game(object):
         for p in self.players:
             data = p.save()
             sink.addplayer(data)
-
-    @property
-    def localplayer(self):
-        '''
-        Get the local player - can't call this before game is loaded!
-        '''
-        return self.players[self.localpid]
 
     @property
     def mode(self):
@@ -92,7 +82,7 @@ class Game(object):
 
     def endturn(self):
         ''' Called to end the current turn '''
-        p = self.localplayer
+        p = self.local.player
         order = self.orderthisturn 
         if not order:
             order = NoOrder()
@@ -140,7 +130,7 @@ class Game(object):
 
     def select(self, ents, add):
         ''' Select ents or add ents to the current selection '''
-        lp = self.localplayer
+        lp = self.local.player
         myents = set(e for e in ents if e.ownedby(lp))
 
         if not myents:
@@ -188,7 +178,7 @@ class Game(object):
     def autocommand(self, target, add):
         ''' Give an autocommand on target to the selected entities '''
         if self.selection:
-            if not self.selection[0].ownedby(self.localplayer):
+            if not self.selection[0].ownedby(self.local.player):
                 return
             eids = [e.eid for e in self.selection]
             self.order(AutoCommandOrder(eids, target, add))
@@ -205,7 +195,7 @@ class Game(object):
             # no abilities
             return
 
-        if not ent.ownedby(self.localplayer):
+        if not ent.ownedby(self.local.player):
             # should never happen, player doesn't own the entity
             return
 

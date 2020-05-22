@@ -34,13 +34,25 @@ pub trait Screen {
 }
 
 pub fn launch(py: Python<'_>) -> PyResult<()> {
+    let cwd = std::env::current_dir().unwrap();
+
     let (mut ctx, mut event_loop) = ContextBuilder::new("yarts", "Steve Lee")
         .window_setup(ggez::conf::WindowSetup {
             title: "Pyarts".to_owned(),
             ..Default::default()
         })
+        .add_resource_path(&cwd)
+        /*.window_mode(WindowMode {
+            maximized: true,
+            resizable: true,
+            fullscreen_type: FullscreenType::Desktop,
+            ..Default::default()
+        })*/
+        .with_conf_file(true)
         .build()
         .map_err(PyGgezError::from)?;
+
+    //ggez::filesystem::mount(&mut ctx, &cwd, true);
 
     let mut screens = ScreenStack::new(py);
 

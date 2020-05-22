@@ -1,6 +1,0 @@
--e hg+https://bitbucket.org/pyglet/pyglet@pyglet-1.2.4#egg=pyglet
-
-cairocffi
-nanomsg
-msgpack-python
-freetype-py

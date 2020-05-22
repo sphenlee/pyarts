@@ -8,7 +8,8 @@ from pyarts.engine.event import Event
 from pyarts.container import component
 
 # TODO
-mapfile = 'maps/test/map.json'
+import os
+mapfile = os.path.join(os.getcwd(), 'maps/test/map.json')
 
 @component
 class Settings(object):

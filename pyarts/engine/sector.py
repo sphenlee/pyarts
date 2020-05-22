@@ -45,23 +45,33 @@ class Sector(object):
     WALK_AIR = 0x04
     WALK_FOOT = 0x08
 
-    def __init__(self, map, sx, sy):
-        # general stuff
+    @classmethod
+    def construct(cls, map, datasrc, sx, sy):
+        data = datasrc.getmapsector(sx, sy)
+        tileset = datasrc.gettileset(data['tileset']).copy()
+
+        # TODO - work out ggez's crazy path system!
+        tileset['texture'] = '/' + datasrc.getresource(tileset['texture'])
+        tileset['fogofwar'] = '/' + datasrc.getresource(tileset['fogofwar'])
+
+        tiles = get_hex_resource(datasrc, data['tiles'])
+        visited = get_hex_resource(datasrc, data['visited']) if 'visited' in data else None
+        walkmap = get_hex_resource(datasrc, data['walkmap']) if 'walkmap' in data else None
+
+        entities = data.get('entities', ()) # this is bad - the value is eids and is not kept updated
+
+        peer = RsSector(sx, sy, tiles, visited, walkmap)
+        return cls(peer, map, entities, tileset)
+
+
+    def __init__(self, peer, map, entities, tileset):
+        self.peer = peer
+        self.sx = peer.sx
+        self.sy = peer.sy
         self.map = map
-        self.sx = sx
-        self.sy = sy
-        
-        data = map.datasrc.getmapsector(sx, sy)
+        self.entities = entities
+        self.tileset = tileset
 
-        #self.tiles = data['tiles']
-        self.entities = data.get('entities', ()) # this is bad - the value is eids and is not kept updated
-
-        tiles = get_hex_resource(map.datasrc, data['tiles'])
-        visited = get_hex_resource(map.datasrc, data['visited']) if 'visited' in data else None
-        walkmap = get_hex_resource(map.datasrc, data['walkmap']) if 'walkmap' in data else None
-        
-        self.peer = RsSector(sx, sy, tiles, visited, walkmap)
-      
         self.onfogupdated = Event()
 
         # locators near this sector
@@ -135,8 +145,17 @@ class Sector(object):
         return (self.peer.walkmap(pt) & walk) == 0
 
     def updatefog(self):
+        self.peer.clear_fog()
+
         for loc in self.locators:
-            self.peer.update_fog(loc.x, loc.y, loc.sight, loc.ent.team.tid)
+            x = int(loc.x/VERTEX_SZ + 0.5) - self.sx*NUM_TILES
+            y = int(loc.y/VERTEX_SZ + 0.5) - self.sy*NUM_TILES
+            r = int(loc.sight/VERTEX_SZ + 0.5)
+        
+            print('fog update info:', x, y, r, loc.ent.team.tid)
+            self.peer.update_fog(x, y, r, loc.ent.team.tid)
+
+
         # #start = time.time()
         # # clear visible data, needs to be recalculated from scratch
         # for i in range(len(self.visible)):
@@ -157,4 +176,6 @@ class Sector(object):
         #                     self.visited[i + j*NUM_VERTS] |= (1 << tid)
         # #print 'updated fog (%d,%d) took %fs' % (self.sx, self.sy, time.time() - start)
 
-        self.onfogupdated.emit()
+        #self.onfogupdated.emit()
+
+
