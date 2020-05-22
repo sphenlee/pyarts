@@ -1,12 +1,12 @@
-use tracing::info;
-use pyo3::prelude::*;
-use ggez::graphics::{Image, Drawable, DrawParam, Color};
-use std::collections::HashMap;
-use slab::Slab;
-use pyo3::types::PyDict;
-use ggez::{Context, GameResult, graphics};
-use std::path::PathBuf;
 use crate::map::sector_renderer::SECTOR_SZ;
+use ggez::graphics::{Color, DrawParam, Drawable, Image};
+use ggez::{graphics, Context, GameResult};
+use pyo3::prelude::*;
+use pyo3::types::PyDict;
+use slab::Slab;
+use std::collections::HashMap;
+use std::path::PathBuf;
+use tracing::info;
 
 const SPRITE_SIZE: f32 = 128.0;
 
@@ -59,7 +59,9 @@ impl SpriteManager {
 
         let camera = deps.get_item("camera")?;
         let look_at = slf.getattr("look_at")?;
-        camera.getattr("onlookpointchanged")?.call_method1("add", (look_at,))?;
+        camera
+            .getattr("onlookpointchanged")?
+            .call_method1("add", (look_at,))?;
 
         slf.borrow_mut().datasrc = deps.get_item("datasrc")?.into();
 
@@ -125,9 +127,7 @@ impl SpriteManager {
         }
 
         graphics::push_transform::<ggez::nalgebra::Matrix4<f32>>(ctx, None);
-        let transform = DrawParam::new()
-            .dest([self.dx, self.dy])
-            .to_matrix();
+        let transform = DrawParam::new().dest([self.dx, self.dy]).to_matrix();
         graphics::mul_transform(ctx, transform);
         graphics::apply_transformations(ctx)?;
 
@@ -135,19 +135,23 @@ impl SpriteManager {
             if (sprite.visible & self.tidmask) > 0 {
                 if let Some(ref img) = sprite.img {
                     if sprite.selected {
-                        img.draw(ctx, DrawParam::new()
-                            .dest([sprite.dx, sprite.dy])
-                            .scale([sprite.scale, sprite.scale])
-                            .color(Color::from_rgb(0xFF, 0xFF, 0x00)))?;
+                        img.draw(
+                            ctx,
+                            DrawParam::new()
+                                .dest([sprite.dx, sprite.dy])
+                                .scale([sprite.scale, sprite.scale])
+                                .color(Color::from_rgb(0xFF, 0xFF, 0x00)),
+                        )?;
                     } else {
-                        img.draw(ctx, DrawParam::new()
-                            .dest([sprite.dx, sprite.dy])
-                            .scale([sprite.scale, sprite.scale]))?;
+                        img.draw(
+                            ctx,
+                            DrawParam::new()
+                                .dest([sprite.dx, sprite.dy])
+                                .scale([sprite.scale, sprite.scale]),
+                        )?;
                     }
                 }
             }
-
-
         }
 
         graphics::pop_transform(ctx);
@@ -156,4 +160,3 @@ impl SpriteManager {
         Ok(())
     }
 }
-

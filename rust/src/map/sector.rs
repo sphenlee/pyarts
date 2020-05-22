@@ -6,8 +6,7 @@ pub const NUM_VERTS: u16 = NUM_TILES + 1;
 
 pub const NUM_VERTS_CAPACITY: usize = (NUM_VERTS * NUM_VERTS) as usize;
 
-
-#[pyclass(module="yarts")]
+#[pyclass(module = "yarts")]
 pub struct Sector {
     #[pyo3(get)]
     sx: i32,
@@ -33,9 +32,13 @@ impl Sector {
             sx,
             sy,
             tiles: tiles.as_bytes().to_owned(),
-            visited: visited.map(|bytes| bytes.as_bytes().to_owned()).unwrap_or_else(|| vec![0u8; NUM_VERTS_CAPACITY]),
+            visited: visited
+                .map(|bytes| bytes.as_bytes().to_owned())
+                .unwrap_or_else(|| vec![0u8; NUM_VERTS_CAPACITY]),
             visible: vec![0u8; NUM_VERTS_CAPACITY],
-            walk: walk.map(|bytes| bytes.as_bytes().to_owned()).unwrap_or_else(Vec::new),
+            walk: walk
+                .map(|bytes| bytes.as_bytes().to_owned())
+                .unwrap_or_else(Vec::new),
         }
     }
 
@@ -68,10 +71,10 @@ impl Sector {
     }
 
     fn update_fog(&mut self, x: i16, y: i16, sight: i16, tid: u8) {
-        for i in (x - sight) .. (x + sight) {
-            for j in (y - sight) .. (y + sight) {
+        for i in (x - sight)..(x + sight) {
+            for j in (y - sight)..(y + sight) {
                 if i >= 0 && j >= 0 && i < NUM_VERTS as i16 && j < NUM_VERTS as i16 {
-                    if ((x-i)*(x-i)) + ((y-j)*(y-j)) < sight*sight {
+                    if ((x - i) * (x - i)) + ((y - j) * (y - j)) < sight * sight {
                         self.visible[(i + j * NUM_VERTS as i16) as usize] |= 1 << tid;
                         self.visited[(i + j * NUM_VERTS as i16) as usize] |= 1 << tid;
                     }

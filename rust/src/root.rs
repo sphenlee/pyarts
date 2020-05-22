@@ -2,11 +2,11 @@ use pyo3::prelude::*;
 use pyo3::types::PyDict;
 
 use crate::map::renderer::MapRenderer;
-use ggez::Context;
-use crate::ui::{WIDTH, HEIGHT, Event, Transition};
-use crate::util::PyGgezError;
 use crate::sprites::SpriteManager;
+use crate::ui::{Event, Transition, HEIGHT, WIDTH};
+use crate::util::PyGgezError;
 use ggez::graphics::DrawParam;
+use ggez::Context;
 
 #[pyclass]
 pub struct Root {
@@ -25,7 +25,16 @@ pub struct Root {
 impl Root {
     #[staticmethod]
     fn depends() -> Vec<&'static str> {
-        vec!["settings", "datasrc", "map", "game", "gamestate", "maprenderer", "camera", "spritemanager"]
+        vec![
+            "settings",
+            "datasrc",
+            "map",
+            "game",
+            "gamestate",
+            "maprenderer",
+            "camera",
+            "spritemanager",
+        ]
     }
 
     #[new]
@@ -58,7 +67,10 @@ impl Root {
 
 impl Root {
     pub fn load(&mut self, py: Python) -> PyResult<()> {
-        self.deps.as_ref(py).get_item("settings")?.call_method0("load")?;
+        self.deps
+            .as_ref(py)
+            .get_item("settings")?
+            .call_method0("load")?;
 
         Ok(())
     }
@@ -73,9 +85,21 @@ impl Root {
     }
 
     pub fn event(&mut self, _py: Python, _ctx: &mut Context, event: Event) -> PyResult<Transition> {
-        if let Event::MouseMotion{x, y, ..} = event {
-            self.dx = if x < 10.0 { -1 } else if x > WIDTH - 10.0 { 1 } else { 0 };
-            self.dy = if y < 10.0 { -1 } else if y > HEIGHT - 10.0 { 1 } else { 0 };
+        if let Event::MouseMotion { x, y, .. } = event {
+            self.dx = if x < 10.0 {
+                -1
+            } else if x > WIDTH - 10.0 {
+                1
+            } else {
+                0
+            };
+            self.dy = if y < 10.0 {
+                -1
+            } else if y > HEIGHT - 10.0 {
+                1
+            } else {
+                0
+            };
         }
 
         Ok(Transition::None)
@@ -84,9 +108,7 @@ impl Root {
     pub fn draw(&mut self, py: Python, ctx: &mut Context) -> PyResult<()> {
         let (x, y): (f32, f32) = self.camera.call_method0(py, "get_transform")?.extract(py)?;
 
-        let transform = DrawParam::new()
-            .dest([x, y])
-            .to_matrix();
+        let transform = DrawParam::new().dest([x, y]).to_matrix();
 
         ggez::graphics::set_transform(ctx, transform);
         ggez::graphics::apply_transformations(ctx).map_err(PyGgezError::from)?;
@@ -96,7 +118,6 @@ impl Root {
 
         let mut sprite_manager = self.sprite_manager.extract::<PyRefMut<SpriteManager>>(py)?;
         sprite_manager.draw(py, ctx).map_err(PyGgezError::from)?;
-
 
         Ok(())
     }

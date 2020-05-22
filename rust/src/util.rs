@@ -2,7 +2,7 @@ use ggez::GameError;
 use pyo3::PyErr;
 
 pub struct PyGgezError {
-    inner: GameError
+    inner: GameError,
 }
 
 impl From<GameError> for PyGgezError {

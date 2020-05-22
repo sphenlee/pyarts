@@ -1,10 +1,10 @@
+use super::sector_renderer::SectorRenderer;
+use ggez::{Context, GameResult};
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
-use ggez::{Context, GameResult};
-use std::sync::Arc;
-use std::collections::HashMap;
-use super::sector_renderer::SectorRenderer;
 use std::cell::RefCell;
+use std::collections::HashMap;
+use std::sync::Arc;
 
 #[pyclass]
 pub struct MapRenderer {
@@ -43,12 +43,15 @@ impl MapRenderer {
 
         let map = deps.get_item("map")?;
         let update_fog = slf.getattr("update_fog")?;
-        map.getattr("onfogupdated")?.call_method1("add", (update_fog,))?;
+        map.getattr("onfogupdated")?
+            .call_method1("add", (update_fog,))?;
         slf.borrow_mut().map = map.into();
 
         let camera = deps.get_item("camera")?;
         let look_at = slf.getattr("look_at")?;
-        camera.getattr("onlookpointchanged")?.call_method1("add", (look_at,))?;
+        camera
+            .getattr("onlookpointchanged")?
+            .call_method1("add", (look_at,))?;
 
         Ok(())
     }

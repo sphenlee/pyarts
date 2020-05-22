@@ -3,20 +3,19 @@
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 
-mod ui;
 mod map;
 mod root;
-mod util;
 mod sprites;
+mod ui;
+mod util;
 
 #[pyfunction]
 fn launch(py: Python) -> PyResult<()> {
     ui::launch(py)
 }
 
-#[pyclass(subclass,dict)]
-struct Rust {
-}
+#[pyclass(subclass, dict)]
+struct Rust {}
 
 #[pymethods]
 impl Rust {
@@ -25,7 +24,6 @@ impl Rust {
         Rust {}
     }
 }
-
 
 #[pymodule]
 fn yarts(_py: Python, m: &PyModule) -> PyResult<()> {

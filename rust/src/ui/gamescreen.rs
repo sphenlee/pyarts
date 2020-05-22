@@ -1,8 +1,8 @@
-use crate::ui::{Screen, Transition, Event};
+use crate::root::Root;
+use crate::ui::{Event, Screen, Transition};
 use ggez::Context;
 use pyo3::prelude::*;
-use pyo3::{Python, PyObject, PyResult};
-use crate::root::Root;
+use pyo3::{PyObject, PyResult, Python};
 
 pub struct GameScreen {
     root: PyObject,
@@ -26,12 +26,9 @@ impl GameScreen {
     pub fn new(py: Python<'_>) -> PyResult<Box<dyn Screen>> {
         let root = construct_root(py)?;
 
-        Ok(Box::new(Self {
-            root,
-        }))
+        Ok(Box::new(Self { root }))
     }
 }
-
 
 impl Screen for GameScreen {
     fn update(&mut self, py: Python<'_>, _ctx: &mut Context) -> PyResult<()> {

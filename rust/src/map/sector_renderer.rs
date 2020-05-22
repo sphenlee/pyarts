@@ -1,9 +1,9 @@
-use pyo3::prelude::*;
 use ggez::{graphics, Context, GameResult};
+use pyo3::prelude::*;
 use tracing;
 
 use super::sector::{Sector, NUM_TILES, NUM_VERTS, NUM_VERTS_CAPACITY};
-use ggez::graphics::{Drawable, DrawParam, FilterMode};
+use ggez::graphics::{DrawParam, Drawable, FilterMode};
 
 pub const VERTEX_SZ: f32 = 64.0;
 pub const TEX_SZ: f32 = 1.0 / 8.0;
@@ -34,10 +34,9 @@ fn vert(vx: f32, vy: f32, tx: f32, ty: f32, _id: u8) -> graphics::Vertex {
         pos: [vx, vy],
         uv: [tx, ty],
         color: [1.0, 1.0, 1.0, 1.0],
-
         /*[if id == 1 || id == 4{ 1.0} else {0.0},
-            if id == 2 || id == 4 {1.0} else {0.0},
-            if id == 3 {1.0} else {0.0}, 1.0],*/
+        if id == 2 || id == 4 {1.0} else {0.0},
+        if id == 3 {1.0} else {0.0}, 1.0],*/
     }
 }
 
@@ -86,7 +85,7 @@ impl SectorRenderer {
         Ok(())
     }
 
-    #[tracing::instrument(skip(self, py, ctx), level="warn")]
+    #[tracing::instrument(skip(self, py, ctx), level = "warn")]
     fn prepare_gfx(&mut self, py: Python, ctx: &mut Context) -> GameResult<GfxState> {
         let mut vdata = Vec::with_capacity(NUM_TILES_CAPACITY * 4);
         let mut index = Vec::with_capacity(NUM_TILES_CAPACITY * 6);
@@ -102,15 +101,19 @@ impl SectorRenderer {
                 let tx = f32::from(tx) * TEX_SZ;
                 let ty = f32::from(ty) * TEX_SZ;
 
-                index.extend_from_slice(&[
-                    i, i + 1, i + 2,
-                    i, i + 3, i + 1]);
+                index.extend_from_slice(&[i, i + 1, i + 2, i, i + 3, i + 1]);
                 i += 4;
 
-                vdata.push( vert(vx, vy, tx, ty, 1));
-                vdata.push( vert(vx + VERTEX_SZ, vy + VERTEX_SZ, tx + TEX_SZ, ty + TEX_SZ, 2));
-                vdata.push( vert(vx, vy + VERTEX_SZ, tx, ty + TEX_SZ, 3));
-                vdata.push( vert(vx + VERTEX_SZ, vy, tx + TEX_SZ, ty, 4));
+                vdata.push(vert(vx, vy, tx, ty, 1));
+                vdata.push(vert(
+                    vx + VERTEX_SZ,
+                    vy + VERTEX_SZ,
+                    tx + TEX_SZ,
+                    ty + TEX_SZ,
+                    2,
+                ));
+                vdata.push(vert(vx, vy + VERTEX_SZ, tx, ty + TEX_SZ, 3));
+                vdata.push(vert(vx + VERTEX_SZ, vy, tx + TEX_SZ, ty, 4));
             }
         }
 
@@ -131,14 +134,14 @@ impl SectorRenderer {
             .raw(&vdata, &index, Some(image.clone()))
             .build(ctx)?;
 
-        Ok(GfxState{
+        Ok(GfxState {
             terrain,
             fog1,
-            fog2
+            fog2,
         })
     }
 
-    #[tracing::instrument(skip(self, py, ctx), level="warn")]
+    #[tracing::instrument(skip(self, py, ctx), level = "warn")]
     fn prepare_fog(&mut self, py: Python, ctx: &mut Context) -> GameResult<()> {
         let mut fog1 = Vec::with_capacity(NUM_TILES_CAPACITY * 4);
         let mut fog2 = Vec::with_capacity(NUM_TILES_CAPACITY * 4);
@@ -152,7 +155,11 @@ impl SectorRenderer {
         }
 
         fn is_set(x: u8, tidmask: u8) -> u8 {
-            if (x & tidmask) > 0 { 1 } else { 0 }
+            if (x & tidmask) > 0 {
+                1
+            } else {
+                0
+            }
         }
 
         for y in 0..NUM_TILES {
@@ -162,34 +169,44 @@ impl SectorRenderer {
 
                 let a = is_set(self.visible[idx(x, y)], tidmask);
                 let b = is_set(self.visible[idx(x + 1, y)], tidmask);
-                let c = is_set(self.visible[idx(x,y + 1)], tidmask);
+                let c = is_set(self.visible[idx(x, y + 1)], tidmask);
                 let d = is_set(self.visible[idx(x + 1, y + 1)], tidmask);
 
-                let tx = f32::from(4*b + 2*c + d) * TEX_SZ;
+                let tx = f32::from(4 * b + 2 * c + d) * TEX_SZ;
                 let ty = f32::from(a + 2) * TEX_SZ;
 
-                index.extend_from_slice(&[
-                    i, i + 1, i + 2,
-                    i, i + 3, i + 1]);
+                index.extend_from_slice(&[i, i + 1, i + 2, i, i + 3, i + 1]);
                 i += 4;
 
-                fog1.push( vert(vx, vy, tx, ty, 1));
-                fog1.push( vert(vx + VERTEX_SZ, vy + VERTEX_SZ, tx + TEX_SZ, ty + TEX_SZ, 2));
-                fog1.push( vert(vx, vy + VERTEX_SZ, tx, ty + TEX_SZ, 3));
-                fog1.push( vert(vx + VERTEX_SZ, vy, tx + TEX_SZ, ty, 4));
+                fog1.push(vert(vx, vy, tx, ty, 1));
+                fog1.push(vert(
+                    vx + VERTEX_SZ,
+                    vy + VERTEX_SZ,
+                    tx + TEX_SZ,
+                    ty + TEX_SZ,
+                    2,
+                ));
+                fog1.push(vert(vx, vy + VERTEX_SZ, tx, ty + TEX_SZ, 3));
+                fog1.push(vert(vx + VERTEX_SZ, vy, tx + TEX_SZ, ty, 4));
 
                 let a = is_set(self.visited[idx(x, y)], tidmask);
                 let b = is_set(self.visited[idx(x + 1, y)], tidmask);
-                let c = is_set(self.visited[idx(x,y + 1)], tidmask);
+                let c = is_set(self.visited[idx(x, y + 1)], tidmask);
                 let d = is_set(self.visited[idx(x + 1, y + 1)], tidmask);
 
-                let tx = f32::from(4*b + 2*c + d) * TEX_SZ;
+                let tx = f32::from(4 * b + 2 * c + d) * TEX_SZ;
                 let ty = f32::from(a) * TEX_SZ;
 
-                fog2.push( vert(vx, vy, tx, ty, 1));
-                fog2.push( vert(vx + VERTEX_SZ, vy + VERTEX_SZ, tx + TEX_SZ, ty + TEX_SZ, 2));
-                fog2.push( vert(vx, vy + VERTEX_SZ, tx, ty + TEX_SZ, 3));
-                fog2.push( vert(vx + VERTEX_SZ, vy, tx + TEX_SZ, ty, 4));
+                fog2.push(vert(vx, vy, tx, ty, 1));
+                fog2.push(vert(
+                    vx + VERTEX_SZ,
+                    vy + VERTEX_SZ,
+                    tx + TEX_SZ,
+                    ty + TEX_SZ,
+                    2,
+                ));
+                fog2.push(vert(vx, vy + VERTEX_SZ, tx, ty + TEX_SZ, 3));
+                fog2.push(vert(vx + VERTEX_SZ, vy, tx + TEX_SZ, ty, 4));
             }
         }
 
@@ -213,10 +230,12 @@ impl SectorRenderer {
 
         let gfx = self.gfx.as_mut().unwrap();
 
-        gfx.terrain.draw(ctx, DrawParam::new().dest([self.dx, self.dy]))?;
-        gfx.fog1.draw(ctx, DrawParam::new().dest([self.dx, self.dy]))?;
-        gfx.fog2.draw(ctx, DrawParam::new().dest([self.dx, self.dy]))?;
+        gfx.terrain
+            .draw(ctx, DrawParam::new().dest([self.dx, self.dy]))?;
+        gfx.fog1
+            .draw(ctx, DrawParam::new().dest([self.dx, self.dy]))?;
+        gfx.fog2
+            .draw(ctx, DrawParam::new().dest([self.dx, self.dy]))?;
         Ok(())
     }
 }
-

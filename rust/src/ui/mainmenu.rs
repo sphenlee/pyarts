@@ -1,9 +1,9 @@
-use crate::ui::{Screen, Transition, Event};
-use ggez::{graphics, Context, event};
-use ggez::graphics::DrawParam;
-use pyo3::prelude::*;
 use crate::ui::gamescreen::GameScreen;
+use crate::ui::{Event, Screen, Transition};
 use crate::util::PyGgezError;
+use ggez::graphics::DrawParam;
+use ggez::{event, graphics, Context};
+use pyo3::prelude::*;
 
 pub struct MainMenu {
     text: graphics::Text,
@@ -16,7 +16,6 @@ impl MainMenu {
         })
     }
 }
-
 
 impl Screen for MainMenu {
     fn update(&mut self, _py: Python<'_>, _ctx: &mut Context) -> PyResult<()> {
@@ -33,7 +32,8 @@ impl Screen for MainMenu {
     }
 
     fn draw(&mut self, _py: Python<'_>, ctx: &mut Context) -> PyResult<()> {
-        graphics::draw(ctx, &self.text, DrawParam::new().dest([100.0, 100.0])).map_err(PyGgezError::from)?;
+        graphics::draw(ctx, &self.text, DrawParam::new().dest([100.0, 100.0]))
+            .map_err(PyGgezError::from)?;
         Ok(())
     }
 }

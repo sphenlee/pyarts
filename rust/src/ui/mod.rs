@@ -1,10 +1,10 @@
-use ggez::{graphics, Context, ContextBuilder, GameResult};
-use ggez::event::{self, EventHandler};
-use pyo3::prelude::*;
 use crate::util::PyGgezError;
+use ggez::event::{self, EventHandler};
+use ggez::{graphics, Context, ContextBuilder, GameResult};
+use pyo3::prelude::*;
 
-pub mod mainmenu;
 pub mod gamescreen;
+pub mod mainmenu;
 
 pub const WIDTH: f32 = 800.0;
 pub const HEIGHT: f32 = 600.0;
@@ -17,18 +17,18 @@ pub enum Transition {
 
 pub enum Event {
     KeyUp(event::KeyCode, event::KeyMods),
-    MouseMotion {
-        x: f32,
-        y: f32,
-        dx: f32,
-        dy: f32,
-    },
+    MouseMotion { x: f32, y: f32, dx: f32, dy: f32 },
 }
 
 pub trait Screen {
     fn update<'p>(&mut self, py: Python<'p>, ctx: &mut Context) -> PyResult<()>;
 
-    fn event<'p>(&mut self, py: Python<'p>, ctx: &mut Context, event: Event) -> PyResult<Transition>;
+    fn event<'p>(
+        &mut self,
+        py: Python<'p>,
+        ctx: &mut Context,
+        event: Event,
+    ) -> PyResult<Transition>;
 
     fn draw<'p>(&mut self, py: Python<'p>, ctx: &mut Context) -> PyResult<()>;
 }
@@ -60,7 +60,7 @@ pub fn launch(py: Python<'_>) -> PyResult<()> {
 
     match event::run(&mut ctx, &mut event_loop, &mut screens) {
         Ok(_) => println!("Exited cleanly."),
-        Err(e) => println!("Error occurred: {}", e)
+        Err(e) => println!("Error occurred: {}", e),
     }
 
     Ok(())
@@ -84,7 +84,7 @@ impl<'p> ScreenStack<'p> {
             Transition::None => (),
             Transition::Next(next) => {
                 self.screens.push(next);
-            },
+            }
             Transition::Prev => {
                 self.screens.pop();
             }
@@ -93,7 +93,8 @@ impl<'p> ScreenStack<'p> {
 }
 
 fn python_protect<F, R>(py: Python, ctx: &mut Context, mut f: F) -> Option<R>
-    where F: FnMut(Python, &mut Context) -> PyResult<R>
+where
+    F: FnMut(Python, &mut Context) -> PyResult<R>,
 {
     match f(py, ctx) {
         Ok(r) => Some(r),
@@ -134,13 +135,18 @@ impl EventHandler for ScreenStack<'_> {
     fn mouse_motion_event(&mut self, ctx: &mut Context, x: f32, y: f32, dx: f32, dy: f32) {
         python_protect(self.py, ctx, |py, ctx| {
             let screen = self.screens.last_mut().expect("popped last screen?");
-            let transition = screen.event(py, ctx, Event::MouseMotion{x, y, dx, dy})?;
+            let transition = screen.event(py, ctx, Event::MouseMotion { x, y, dx, dy })?;
             self.transition(transition);
             Ok(())
         });
     }
 
-    fn key_up_event(&mut self, ctx: &mut Context, keycode: event::KeyCode, keymods: event::KeyMods) {
+    fn key_up_event(
+        &mut self,
+        ctx: &mut Context,
+        keycode: event::KeyCode,
+        keymods: event::KeyMods,
+    ) {
         if keycode == event::KeyCode::Escape {
             event::quit(ctx);
         }
