@@ -32,7 +32,8 @@ class AbilityAction(Action):
 
             print(f'moving into position: ent={self.ent!r} target={self.target!r} dist={dist!r} range={self.ability.range!r}')
 
-            if self.ability.range is None or dist > self.ability.range:
+            mindist = 0 if self.ability.range is None else self.ability.range
+            if dist > mindist:
                 mv = MoveAction(self.target, range=self.ability.range, follow=False)
                 self.ent.actions.now(mv)
                 return

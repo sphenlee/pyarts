@@ -22,3 +22,10 @@ class Local(object):
         Get the local player - can't call this before game is loaded!
         '''
         return self.game.players[self.pid]
+
+
+    @property
+    def tidmask(self):
+        ''' Get the local player's tidmask '''
+        return self.player.tidmask
+

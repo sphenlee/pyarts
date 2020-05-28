@@ -115,11 +115,13 @@ class Sector(object):
         #    print 'sector is empty?'
 
     def footprint(self, loc):
-        self.peer.footprint(loc.x, loc.y, loc.r)
+        x = int(loc.x/VERTEX_SZ + 0.5) - self.sx*NUM_TILES
+        y = int(loc.y/VERTEX_SZ + 0.5) - self.sy*NUM_TILES
+        r = int(loc.r/VERTEX_SZ + 0.5)
 
-        #x = int(loc.x/VERTEX_SZ + 0.5) - self.sx*NUM_TILES
-        #y = int(loc.y/VERTEX_SZ + 0.5) - self.sy*NUM_TILES
-        #r = int(loc.r/VERTEX_SZ + 0.5)
+        self.peer.footprint(x, y, r)
+
+
         #for i in range(x-r, x+r):
         #    for j in range(y-r, y+r):
         #        if 0 <= i < NUM_TILES and 0 <= j < NUM_TILES:
@@ -142,7 +144,7 @@ class Sector(object):
         return self.peer.visible(pt)
 
     def cellwalkable(self, walk, pt):
-        return (self.peer.walkmap(pt) & walk) == 0
+        return (self.peer.walk(pt) & walk) == 0
 
     def updatefog(self):
         self.peer.clear_fog()
@@ -152,7 +154,6 @@ class Sector(object):
             y = int(loc.y/VERTEX_SZ + 0.5) - self.sy*NUM_TILES
             r = int(loc.sight/VERTEX_SZ + 0.5)
         
-            print('fog update info:', x, y, r, loc.ent.team.tid)
             self.peer.update_fog(x, y, r, loc.ent.team.tid)
 
 

@@ -75,10 +75,10 @@ impl MapRenderer {
         Ok(())
     }
 
-    fn update_fog(&mut self, py: Python) -> PyResult<()> {
-        for sr in &self.active_renderers {
-            sr.borrow_mut().update_fog(py)?;
-        }
+    fn update_fog(&mut self, _py: Python) -> PyResult<()> {
+        /*for sr in &self.active_renderers {
+            sr.borrow_mut().update_fog()?;
+        }*/
 
         Ok(())
     }

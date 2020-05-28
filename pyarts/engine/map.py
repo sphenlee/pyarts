@@ -79,11 +79,12 @@ class Map(object):
 
     def step(self):
         self.n += 1
-        if self.n % 50:
+        if self.n % 500:
             was_dirty = len(self.dirty) > 0
 
             while self.dirty:
                 sec = self.dirty.pop()
+                print(f'sector {sec} is dirty')
                 sec.updatefog()
 
             if was_dirty:

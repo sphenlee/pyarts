@@ -11,7 +11,8 @@ mod util;
 
 #[pyfunction]
 fn launch(py: Python) -> PyResult<()> {
-    ui::launch(py)
+    ui::launch(py)?;
+    Ok(())
 }
 
 #[pyclass(subclass, dict)]
@@ -27,8 +28,7 @@ impl Rust {
 
 #[pymodule]
 fn yarts(_py: Python, m: &PyModule) -> PyResult<()> {
-    //pretty_env_logger::init_timed();
-    tracing_subscriber::fmt::init();
+    pretty_env_logger::init_timed();
 
     m.add_wrapped(wrap_pyfunction!(launch))?;
     m.add_class::<root::Root>()?;

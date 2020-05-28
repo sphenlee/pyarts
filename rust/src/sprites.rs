@@ -1,12 +1,13 @@
 use crate::map::sector_renderer::SECTOR_SZ;
-use ggez::graphics::{Color, DrawParam, Drawable, Image};
-use ggez::{graphics, Context, GameResult};
+use ggez::graphics::{DrawParam, Drawable, Image};
+use ggez::{graphics, Context};
+use log::info;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use slab::Slab;
 use std::collections::HashMap;
 use std::path::PathBuf;
-use tracing::info;
+use crate::util::YartsResult;
 
 const SPRITE_SIZE: f32 = 128.0;
 
@@ -22,34 +23,36 @@ struct Sprite {
 #[pyclass]
 pub struct SpriteManager {
     images: HashMap<String, Image>,
-    //ring: Image,
+    ring: Option<Image>,
     sprites: Slab<Sprite>,
     dx: f32,
     dy: f32,
-    tidmask: u8,
+    //tidmask: u8,
 
     unresolved: Vec<(String, usize)>, // sprites that have not loaded images yet
 
     datasrc: PyObject,
+    local: PyObject,
 }
 
 #[pymethods]
 impl SpriteManager {
     #[staticmethod]
     fn depends() -> Vec<&'static str> {
-        vec!["datasrc", "camera"]
+        vec!["datasrc", "camera", "local"]
     }
 
     #[new]
     fn new(py: Python) -> Self {
         SpriteManager {
             images: HashMap::new(),
+            ring: None,
             sprites: Slab::new(),
             dx: 0.0,
             dy: 0.0,
-            tidmask: 0x01, // TODO
             unresolved: Vec::new(),
             datasrc: py.None(),
+            local: py.None(),
         }
     }
 
@@ -64,6 +67,8 @@ impl SpriteManager {
             .call_method1("add", (look_at,))?;
 
         slf.borrow_mut().datasrc = deps.get_item("datasrc")?.into();
+        slf.borrow_mut().local = deps.get_item("local")?.into();
+
 
         Ok(())
     }
@@ -102,6 +107,11 @@ impl SpriteManager {
         Ok(idx)
     }
 
+    fn remove(&mut self, idx: usize) -> PyResult<()> {
+        self.sprites.remove(idx);
+        Ok(())
+    }
+
     fn set_visible(&mut self, idx: usize, visible: u8, selected: bool) {
         let sprite = self.sprites.get_mut(idx).expect("idx missing from slab");
         sprite.visible = visible;
@@ -116,7 +126,19 @@ impl SpriteManager {
 }
 
 impl SpriteManager {
-    pub fn draw(&mut self, _py: Python, ctx: &mut Context) -> GameResult<()> {
+    fn get_tidmask(&self, py: Python) -> PyResult<u8> {
+        self.local.getattr(py, "tidmask")?.extract(py)
+    }
+
+    pub fn draw(&mut self, py: Python, ctx: &mut Context) -> YartsResult<()> {
+        if self.ring.is_none() {
+            self.ring = Some(Image::new(ctx, &"/maps/test/res/selected-ring.png")?);
+        }
+
+        let tidmask = self.get_tidmask(py)?;
+
+        let ring = self.ring.as_mut().unwrap();
+
         for (imgname, idx) in self.unresolved.drain(..) {
             let sprite = self.sprites.get_mut(idx).expect("idx missing from slab");
 
@@ -127,27 +149,26 @@ impl SpriteManager {
         }
 
         graphics::push_transform::<ggez::nalgebra::Matrix4<f32>>(ctx, None);
-        let transform = DrawParam::new().dest([self.dx, self.dy]).to_matrix();
+        let transform = DrawParam::new().dest([-self.dx, -self.dy]).to_matrix();
         graphics::mul_transform(ctx, transform);
         graphics::apply_transformations(ctx)?;
 
         for (_, sprite) in self.sprites.iter() {
-            if (sprite.visible & self.tidmask) > 0 {
+            if (sprite.visible & tidmask) > 0 {
                 if let Some(ref img) = sprite.img {
+                    img.draw(
+                        ctx,
+                        DrawParam::new()
+                            .dest([sprite.dx, sprite.dy])
+                            .scale([sprite.scale, sprite.scale]),
+                    )?;
+
                     if sprite.selected {
-                        img.draw(
+                        ring.draw(
                             ctx,
                             DrawParam::new()
                                 .dest([sprite.dx, sprite.dy])
                                 .scale([sprite.scale, sprite.scale])
-                                .color(Color::from_rgb(0xFF, 0xFF, 0x00)),
-                        )?;
-                    } else {
-                        img.draw(
-                            ctx,
-                            DrawParam::new()
-                                .dest([sprite.dx, sprite.dy])
-                                .scale([sprite.scale, sprite.scale]),
                         )?;
                     }
                 }

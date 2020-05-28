@@ -79,7 +79,7 @@ class Steering(Component):
                 f = 1
             else:
                 # get the slowdown factor
-                f = max(min(1 - dot(d, e), 1), 0)
+                f = max(min(1 - dot(d, e), 1), 0.001) # never set factor to 0
 
                 #if hard:
                 #    f = f * f

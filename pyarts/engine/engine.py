@@ -55,9 +55,6 @@ class Engine(object):
         self.map.step()
         self.entities.step()
 
-    def render(self):
-        self.sprites.draw()
-
     def getteam(self, tid):
         return self.teams[tid]
 

@@ -1,5 +1,5 @@
-use crate::util::PyGgezError;
-use ggez::event::{self, EventHandler};
+use crate::util::{YartsResult, YartsError};
+use ggez::event::{self, EventHandler, MouseButton};
 use ggez::{graphics, Context, ContextBuilder, GameResult};
 use pyo3::prelude::*;
 
@@ -17,23 +17,27 @@ pub enum Transition {
 
 pub enum Event {
     KeyUp(event::KeyCode, event::KeyMods),
+    KeyDown(event::KeyCode, event::KeyMods),
+    TextInput(char),
     MouseMotion { x: f32, y: f32, dx: f32, dy: f32 },
+    MouseDown { x: f32, y: f32, button: MouseButton },
+    MouseUp { x: f32, y: f32, button: MouseButton },
 }
 
 pub trait Screen {
-    fn update<'p>(&mut self, py: Python<'p>, ctx: &mut Context) -> PyResult<()>;
+    fn update<'p>(&mut self, py: Python<'p>, ctx: &mut Context) -> YartsResult<()>;
 
     fn event<'p>(
         &mut self,
         py: Python<'p>,
         ctx: &mut Context,
         event: Event,
-    ) -> PyResult<Transition>;
+    ) -> YartsResult<Transition>;
 
-    fn draw<'p>(&mut self, py: Python<'p>, ctx: &mut Context) -> PyResult<()>;
+    fn draw<'p>(&mut self, py: Python<'p>, ctx: &mut Context) -> YartsResult<()>;
 }
 
-pub fn launch(py: Python<'_>) -> PyResult<()> {
+pub fn launch(py: Python<'_>) -> YartsResult<()> {
     let cwd = std::env::current_dir().unwrap();
 
     let (mut ctx, mut event_loop) = ContextBuilder::new("yarts", "Steve Lee")
@@ -49,8 +53,7 @@ pub fn launch(py: Python<'_>) -> PyResult<()> {
             ..Default::default()
         })*/
         .with_conf_file(true)
-        .build()
-        .map_err(PyGgezError::from)?;
+        .build()?;
 
     //ggez::filesystem::mount(&mut ctx, &cwd, true);
 
@@ -90,17 +93,30 @@ impl<'p> ScreenStack<'p> {
             }
         };
     }
+
+    fn do_event(&mut self, ctx: &mut Context, event: Event) {
+        python_protect(self.py, ctx, |py, ctx| {
+            let screen = self.screens.last_mut().expect("popped last screen?");
+            let transition = screen.event(py, ctx, event)?;
+            self.transition(transition);
+            Ok(())
+        });
+    }
 }
 
-fn python_protect<F, R>(py: Python, ctx: &mut Context, mut f: F) -> Option<R>
+fn python_protect<F, R>(py: Python, ctx: &mut Context, f: F) -> Option<R>
 where
-    F: FnMut(Python, &mut Context) -> PyResult<R>,
+    F: FnOnce(Python, &mut Context) -> YartsResult<R>,
 {
     match f(py, ctx) {
         Ok(r) => Some(r),
         Err(err) => {
             event::quit(ctx);
-            err.print(py);
+            match err {
+                YartsError::GameError(err) => println!("game error: {}", err),
+                YartsError::PyErr(pyerr) => pyerr.print(py),
+                YartsError::Other(err) => println!("other error: {}", err),
+            };
             None
         }
     }
@@ -132,13 +148,32 @@ impl EventHandler for ScreenStack<'_> {
         Ok(())
     }
 
+    fn mouse_button_down_event(&mut self, ctx: &mut Context, button: MouseButton, x: f32, y: f32) {
+        self.do_event(ctx, Event::MouseDown { x, y, button });
+    }
+
+    fn mouse_button_up_event(&mut self, ctx: &mut Context, button: MouseButton, x: f32, y: f32) {
+        self.do_event(ctx, Event::MouseUp { x, y, button });
+    }
+
     fn mouse_motion_event(&mut self, ctx: &mut Context, x: f32, y: f32, dx: f32, dy: f32) {
-        python_protect(self.py, ctx, |py, ctx| {
-            let screen = self.screens.last_mut().expect("popped last screen?");
-            let transition = screen.event(py, ctx, Event::MouseMotion { x, y, dx, dy })?;
-            self.transition(transition);
-            Ok(())
-        });
+        self.do_event(ctx, Event::MouseMotion { x, y, dx, dy });
+    }
+
+    fn key_down_event(
+        &mut self,
+        ctx: &mut Context,
+        keycode: event::KeyCode,
+        keymods: event::KeyMods,
+        repeat: bool,
+    ) {
+        if keycode == event::KeyCode::Escape {
+            event::quit(ctx);
+        }
+
+        if !repeat {
+            self.do_event(ctx, Event::KeyDown(keycode, keymods));
+        }
     }
 
     fn key_up_event(
@@ -147,15 +182,10 @@ impl EventHandler for ScreenStack<'_> {
         keycode: event::KeyCode,
         keymods: event::KeyMods,
     ) {
-        if keycode == event::KeyCode::Escape {
-            event::quit(ctx);
-        }
+        self.do_event(ctx, Event::KeyUp(keycode, keymods));
+    }
 
-        python_protect(self.py, ctx, |py, ctx| {
-            let screen = self.screens.last_mut().expect("popped last screen?");
-            let transition = screen.event(py, ctx, Event::KeyUp(keycode, keymods))?;
-            self.transition(transition);
-            Ok(())
-        });
+    fn text_input_event(&mut self, ctx: &mut Context, character: char) {
+        self.do_event(ctx, Event::TextInput(character));
     }
 }

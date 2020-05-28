@@ -1,10 +1,12 @@
 '''
 Game
 
-The game represents the entire state of a game.
-It holds the local player specific information (ie. stuff that
-does not need to be communicated over the network to other players)
-It also holds the Engine which has all the shared stuff.
+Hold state that is local to a player.
+(Used to be a monolith pre dependency injection, now it's functionality has been split up)
+
+* Hold entity selection
+* Translates ability buttons and autocommand into orders
+* Holds the info about all players (but not the local player id)
 '''
 
 from .player import Player
@@ -16,7 +18,7 @@ from pyarts.container import component
 
 @component
 class Game(object):
-    depends = ['engine', 'datasrc', 'network', 'settings', 'entitymanager', 'local']
+    depends = ['engine', 'datasrc', 'network', 'settings', 'entitymanager', 'local', 'modestack']
 
     def __init__(self):
         self.selection = []
@@ -25,19 +27,16 @@ class Game(object):
         self.latency = 16
         self.orderthisturn = None
         
-        self.modes = []
-        
         self.onselectionchange = Event()
-        self.onmodechange = Event()
+        
 
-        self.push_mode(NormalMode(self))
-
-    def inject(self, engine, datasrc, network, settings, entitymanager, local):
+    def inject(self, engine, datasrc, network, settings, entitymanager, local, modestack):
         self.engine = engine
         self.datasrc = datasrc
         self.network = network
         self.entities = entitymanager
         self.local = local
+        self.modes = modestack
 
         datasrc.onload.add(self.init_players)
     
@@ -53,27 +52,6 @@ class Game(object):
         for p in self.players:
             data = p.save()
             sink.addplayer(data)
-
-    @property
-    def mode(self):
-        '''
-        Get the current mode - modes decide what the
-        mouse buttons and keys do
-        '''
-        return self.modes[-1]
-
-    def push_mode(self, mode):
-        ''' Enter a new mode '''
-        if self.modes:
-            self.mode.exit()
-        self.modes.append(mode)
-        mode.enter()
-
-    def pop_mode(self):
-        ''' Return to the previous mode '''
-        self.mode.exit()
-        self.modes.pop()
-        self.mode.enter()
 
     def startturn(self):
         ''' Called when we are ready for the next turn '''
@@ -125,8 +103,6 @@ class Game(object):
             self.startturn()
             self.validate_selection()
 
-    def render(self):
-        self.engine.render() # FIXME - engine should not have any graphics in it
 
     def select(self, ents, add):
         ''' Select ents or add ents to the current selection '''
@@ -184,24 +160,29 @@ class Game(object):
             self.order(AutoCommandOrder(eids, target, add))
 
     def ability(self, idx, add):
+        print(f'trying to do ability {idx}')
         ''' Do the ability at idx for the currently selected entities '''
         if not self.selection:
             # nothing selected
+            print('no selection')
             return
 
         # grab the ability - defined by the first entity in the selection
         ent = self.selection[0]
         if not ent.has('abilities'):
             # no abilities
+            print('entity has no abilities')
             return
 
         if not ent.ownedby(self.local.player):
             # should never happen, player doesn't own the entity
+            print('entity not owned by local player')
             return
 
         try:
             ability = ent.abilities[idx].ability
         except IndexError:
+            print('index out of bounds')
             return
 
         # get the ents - non group abilities cannot be done by
@@ -252,11 +233,11 @@ class Game(object):
         elif ability.type == ability.ACTIVITY:
             self.order(order)
         elif ability.type == ability.TARGETED:
-            self.push_mode(TargetingMode(self, order, allowpos=False))
+            self.modes.push_mode(TargetingMode(order, allowpos=False))
         elif ability.type == ability.BUILD:
-            self.push_mode(BuildMode(self, order, ghost=ability.ghost, allowent=False))
+            self.modes.push_mode(BuildMode(order, ghost=ability.ghost, allowent=False))
         elif ability.type == ability.AREA_OF_EFFECT:
-            self.push_mode(TargetingMode(self, order))
+            self.modes.push_mode(TargetingMode(order))
         elif ability.type == ability.STATIC:
             pass # do nothing
         else:

@@ -64,6 +64,7 @@ class Moving(Component):
         print(f'moving d={d}')
         if d <= 0:
             self.waypoints.pop()
+            print(f'waypoints remaining: {self.waypoints}')
 
     def save(self):
         return {
