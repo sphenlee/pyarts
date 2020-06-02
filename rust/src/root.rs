@@ -2,12 +2,14 @@ use pyo3::prelude::*;
 use pyo3::types::PyDict;
 
 use crate::map::renderer::MapRenderer;
+use crate::scene::{Event, Transition, HEIGHT, WIDTH};
 use crate::sprites::SpriteManager;
-use crate::ui::{Event, Transition, HEIGHT, WIDTH};
+use crate::ui::game_ui::GameUi;
 use crate::util::YartsResult;
 use ggez::event::MouseButton;
 use ggez::graphics::{self, Color, DrawMode, DrawParam, Rect};
 use ggez::Context;
+use std::collections::HashMap;
 
 #[pyclass]
 pub struct Root {
@@ -16,6 +18,7 @@ pub struct Root {
     game_state: PyObject,
     sprite_manager: PyObject,
     control: PyObject,
+    game_ui: PyObject,
     deps: PyObject,
 
     // for tracking camera movement - move somewhere else?
@@ -41,6 +44,7 @@ impl Root {
             "camera",
             "spritemanager",
             "control",
+            "gameui",
         ]
     }
 
@@ -52,6 +56,7 @@ impl Root {
             game_state: py.None(),
             sprite_manager: py.None(),
             control: py.None(),
+            game_ui: py.None(),
             deps: py.None(),
 
             dx: 0,
@@ -71,6 +76,7 @@ impl Root {
         self.game_state = deps.get_item("gamestate")?.into();
         self.sprite_manager = deps.get_item("spritemanager")?.into();
         self.control = deps.get_item("control")?.into();
+        self.game_ui = deps.get_item("gameui")?.into();
         self.deps = deps.into();
 
         Ok(())
@@ -78,11 +84,11 @@ impl Root {
 }
 
 impl Root {
-    pub fn load(&mut self, py: Python) -> PyResult<()> {
+    pub fn load(&mut self, py: Python, settings: HashMap<String, String>) -> PyResult<()> {
         self.deps
             .as_ref(py)
             .get_item("settings")?
-            .call_method0("load")?;
+            .call_method1("load", (settings,))?;
 
         Ok(())
     }
@@ -93,10 +99,19 @@ impl Root {
         }
 
         self.game_state.call_method0(py, "step")?;
+
+        let mut game_ui = self.game_ui.extract::<PyRefMut<GameUi>>(py)?;
+        game_ui.step(py)?;
+
         Ok(())
     }
 
-    pub fn event(&mut self, py: Python, _ctx: &mut Context, event: Event) -> YartsResult<Transition> {
+    pub fn event(
+        &mut self,
+        py: Python,
+        _ctx: &mut Context,
+        event: Event,
+    ) -> YartsResult<Transition> {
         match event {
             Event::MouseMotion { x, y, .. } => {
                 self.dx = 5 * if x < 10.0 {
@@ -124,7 +139,8 @@ impl Root {
             Event::TextInput(c) => {
                 if c >= '1' && c < '9' {
                     let num = c as u32 - '1' as u32;
-                    self.control.call_method1(py, "ability_button", (num, false))?;
+                    self.control
+                        .call_method1(py, "ability_button", (num, false))?;
                 }
             }
             Event::MouseDown { x, y, button } => match button {
@@ -138,11 +154,13 @@ impl Root {
                 MouseButton::Left => {
                     if let (Some((x1, y1)), Some((x2, y2))) = (self.click, self.drag) {
                         if x1 == x2 && y1 == y2 {
-                            self.control
-                                .call_method1(py, "left_click", (x, y, false))?;
+                            self.control.call_method1(py, "left_click", (x, y, false))?;
                         } else {
-                            self.control
-                                .call_method1(py, "left_click_box", (x1, y1, x2, y2, false))?;
+                            self.control.call_method1(
+                                py,
+                                "left_click_box",
+                                (x1, y1, x2, y2, false),
+                            )?;
                         }
 
                         self.click = None;
@@ -187,6 +205,9 @@ impl Root {
 
             graphics::draw(ctx, &rect, DrawParam::new())?;
         }
+
+        let mut game_ui = self.game_ui.extract::<PyRefMut<GameUi>>(py)?;
+        game_ui.draw(py, ctx)?;
 
         Ok(())
     }

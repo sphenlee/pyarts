@@ -24,22 +24,25 @@ class Settings(object):
 
     def load(self, settings=None):
         # TODO
-        if settings is None:
-            settings = {
-                'localpid': 0,
-                'data': {
-                    'core': mapfile,
-                    'map': mapfile,
-                    'save': mapfile
-                }
-            }
+        default_settings = {
+            'localpid': 0,
+            'core': mapfile,
+            'map': mapfile,
+            'save': mapfile
+        }
+
+        default_settings.update(settings)
+        settings = default_settings
 
         self.localpid = settings['localpid']
         self.server = settings.get('server', False)
         self.join = settings.get('join', None)
-        self.data_core = settings['data']['core']
-        self.data_map = settings['data']['map']
-        self.data_save = settings['data']['save']
+        self.data_core = settings['core']
+        self.data_map = settings['map']
+        self.data_save = settings['save']
+
+        self.width = int(settings.get('width', 800))
+        self.height = int(settings.get('height', 600))
 
         self.onload.emit(self)
         self.onready.emit(self)

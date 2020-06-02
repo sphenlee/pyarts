@@ -32,5 +32,5 @@ class MultiEntityPanel(object):
     def step(self):
         pass
 
-    def draw(self):
-        self.sg.drawat(0, 0)
+    def render(self):
+        return self.sg.getimage()

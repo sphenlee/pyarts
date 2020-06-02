@@ -1,15 +1,15 @@
-use crate::ui::gamescreen::GameScreen;
-use crate::ui::{Event, Screen, Transition};
+use crate::scene::game_scene::GameScene;
+use crate::scene::{Event, Screen, Transition};
 use crate::util::YartsResult;
 use ggez::graphics::DrawParam;
 use ggez::{event, graphics, Context};
 use pyo3::prelude::*;
 
-pub struct MainMenu {
+pub struct MainScene {
     text: graphics::Text,
 }
 
-impl MainMenu {
+impl MainScene {
     pub fn new() -> Box<dyn Screen> {
         Box::new(Self {
             text: graphics::Text::new("Press S to Start!"),
@@ -17,14 +17,19 @@ impl MainMenu {
     }
 }
 
-impl Screen for MainMenu {
+impl Screen for MainScene {
     fn update(&mut self, _py: Python<'_>, _ctx: &mut Context) -> YartsResult<()> {
         Ok(())
     }
 
-    fn event(&mut self, py: Python<'_>, _ctx: &mut Context, event: Event) -> YartsResult<Transition> {
+    fn event(
+        &mut self,
+        py: Python<'_>,
+        ctx: &mut Context,
+        event: Event,
+    ) -> YartsResult<Transition> {
         if let Event::KeyUp(event::KeyCode::S, _) = event {
-            let game_ui = GameScreen::new(py)?;
+            let game_ui = GameScene::new(py, ctx)?;
             Ok(Transition::Next(game_ui))
         } else {
             Ok(Transition::None)

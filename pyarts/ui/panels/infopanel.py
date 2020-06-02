@@ -2,30 +2,32 @@
 InfoPanel
 '''
 
-import pyglet
-from pyglet import gl
+
 
 from .singleentitypanel import SingleEntityPanel
 from .multientitypanel import MultiEntityPanel
-from ..screen import Screen
 
 from pyarts.container import component
 
 @component
 class InfoPanel(object):
-    depends = ['imagecache', 'game']
-
-    WIDTH = Screen.WIDTH / 2
-    HEIGHT = Screen.HEIGHT / 4
+    depends = ['game', 'local', 'imagecache', 'settings']
 
     def __init__(self):
         self.display = None
 
-    def inject(self, imagecache, game):
+    def inject(self, game, local, imagecache, settings):
         self.game = game
+        self.local = local
         self.imagecache = imagecache
 
         self.game.onselectionchange.add(self.update)
+
+        settings.onload.add(self.onload)
+
+    def onload(self, settings):
+        self.WIDTH = settings.width // 2
+        self.HEIGHT = settings.height // 4
 
     def step(self):
         if self.display:
@@ -39,18 +41,9 @@ class InfoPanel(object):
         else:
             self.display = None
 
-    def draw(self):
-        gl.glDisable(gl.GL_TEXTURE_2D)
-        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
-        gl.glEnable(gl.GL_BLEND)
-        
-        #gl.glColor4f(0, 0, 0, 0.8)
-        #gl.glBegin(gl.GL_QUADS)
-        #gl.glVertex2f(0, 0)
-        #gl.glVertex2f(0, self.HEIGHT)
-        #gl.glVertex2f(self.WIDTH, self.HEIGHT)
-        #gl.glVertex2f(self.WIDTH, 0)
-        #gl.glEnd()
-
+    def render(self):
         if self.display:
-            self.display.draw()
+            return self.display.render()
+
+    def destination(self, w, h):
+        return (0, h - self.HEIGHT)

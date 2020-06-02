@@ -1,7 +1,7 @@
 use ggez::GameError;
 use pyo3::PyErr;
-use thiserror::Error;
 use std::error::Error;
+use thiserror::Error;
 
 pub type YartsResult<T> = std::result::Result<T, YartsError>;
 
@@ -27,7 +27,9 @@ impl From<YartsError> for GameError {
     fn from(err: YartsError) -> Self {
         match err {
             YartsError::GameError(ge) => ge,
-            YartsError::PyErr(pyerr) => GameError::EventLoopError(format!("{:?}", pyerr)),
+            YartsError::PyErr(pyerr) => {
+                panic!("{:?}", pyerr);
+            }
             YartsError::Other(err) => GameError::EventLoopError(err.to_string()),
         }
     }

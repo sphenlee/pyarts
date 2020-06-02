@@ -3,7 +3,7 @@
 from .game import *
 from .engine import *
 from .root import *
-#from .ui import *
+from .ui import *
 
 
 from .container import component, construct

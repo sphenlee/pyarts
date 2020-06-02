@@ -4,7 +4,6 @@ TownsPanel
 Shows towns and resource info
 '''
 
-from ..screen import Screen
 from .. import cairosg as sg
 
 from pyarts.container import component
@@ -15,7 +14,7 @@ class TownsPanel(object):
 
 
     def __init__(self):
-        self.WIDTH = Screen.WIDTH // 4
+        self.WIDTH = 200
         self.HEIGHT = 36
 
         self.resources = {}
@@ -27,6 +26,9 @@ class TownsPanel(object):
     def inject(self, imagecache, engine):
         self.imagecache = imagecache
         engine.ontowncreated.add(self.townadded)
+
+    def step(self):
+        pass
 
     def townadded(self, team, town):
         print('added town', team, town)
@@ -62,5 +64,8 @@ class TownsPanel(object):
         self.resources[resources.rpid][1].text = str(resources.energy)
         self.sg.repaint()
 
-    def draw(self):
-        self.sg.drawat(x=Screen.WIDTH - self.WIDTH, y=Screen.HEIGHT - self.HEIGHT)
+    def render(self):
+        return self.sg.getimage()
+
+    def destination(self, w, h):
+        return (w - self.WIDTH, 0)

@@ -1,6 +1,6 @@
+use log::trace;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
-use log::trace;
 
 pub const NUM_TILES: u16 = 32;
 pub const NUM_VERTS: u16 = NUM_TILES + 1;

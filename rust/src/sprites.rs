@@ -1,4 +1,5 @@
 use crate::map::sector_renderer::SECTOR_SZ;
+use crate::util::YartsResult;
 use ggez::graphics::{DrawParam, Drawable, Image};
 use ggez::{graphics, Context};
 use log::info;
@@ -7,7 +8,6 @@ use pyo3::types::PyDict;
 use slab::Slab;
 use std::collections::HashMap;
 use std::path::PathBuf;
-use crate::util::YartsResult;
 
 const SPRITE_SIZE: f32 = 128.0;
 
@@ -28,7 +28,6 @@ pub struct SpriteManager {
     dx: f32,
     dy: f32,
     //tidmask: u8,
-
     unresolved: Vec<(String, usize)>, // sprites that have not loaded images yet
 
     datasrc: PyObject,
@@ -68,7 +67,6 @@ impl SpriteManager {
 
         slf.borrow_mut().datasrc = deps.get_item("datasrc")?.into();
         slf.borrow_mut().local = deps.get_item("local")?.into();
-
 
         Ok(())
     }
@@ -168,7 +166,7 @@ impl SpriteManager {
                             ctx,
                             DrawParam::new()
                                 .dest([sprite.dx, sprite.dy])
-                                .scale([sprite.scale, sprite.scale])
+                                .scale([sprite.scale, sprite.scale]),
                         )?;
                     }
                 }

@@ -42,8 +42,7 @@ def get_layout(w, h):
 
 class SingleEntityPanel(object):
     def __init__(self, infopanel):
-        game = infopanel.game
-        self.ent = game.selection[0]
+        self.ent = infopanel.game.selection[0]
 
         self.sg = sg.json_load(get_layout(infopanel.WIDTH, infopanel.HEIGHT))
 
@@ -52,7 +51,7 @@ class SingleEntityPanel(object):
             r = self.sg['portrait']
             r.paint(img)
 
-        self.showvars = (self.ent.ownedby(game.localplayer) and self.ent.has('variables'))
+        self.showvars = (self.ent.ownedby(infopanel.local.player) and self.ent.has('variables'))
 
         if self.showvars:
             vars = self.ent.variables
@@ -78,5 +77,5 @@ class SingleEntityPanel(object):
             self.sg.mark_dirty()
 
         
-    def draw(self):
-        self.sg.drawat(0, 0)
+    def render(self):
+        return self.sg.getimage()

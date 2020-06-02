@@ -9,13 +9,9 @@ from ..engine.map import SECTOR_SZ
 
 from pyarts.container import component
 
-# TODO make a component for the window details
-WIDTH = 800
-HEIGHT = 600
-
 @component
 class Camera(object):
-    depends = ['datasrc', 'maprenderer', 'map', 'spritemanager', 'local']
+    depends = ['datasrc', 'maprenderer', 'map', 'spritemanager', 'local', 'settings']
 
     def __init__(self):
         self.lookx = 0
@@ -23,7 +19,7 @@ class Camera(object):
 
         self.onlookpointchanged = Event()
 
-    def inject(self, datasrc, maprenderer, map, spritemanager, local):
+    def inject(self, datasrc, maprenderer, map, spritemanager, local, settings):
         self.datasrc = datasrc
         self.datasrc.onload.add(self.load_data)
         self.datasrc.onready.add(self.setup_camera)
@@ -33,6 +29,8 @@ class Camera(object):
         self.sprites = spritemanager
         
         self.local = local
+
+        settings.onload.add(self.onload)
         
     def load_data(self):
         print('camera load data')
@@ -40,6 +38,11 @@ class Camera(object):
         look = data[str(self.local.pid)]
         self.lookx = int(look['x'])
         self.looky = int(look['y'])
+
+    def onload(self, settings):
+        self.WIDTH = settings.width
+        self.HEIGHT = settings.height
+
 
     def setup_camera(self):
         # camera maybe should not be doing this?
@@ -76,36 +79,36 @@ class Camera(object):
         sec = self.mapren.looksector
         
         # this bit clamps the viewport to loaded sectors
-        if self.lookx > SECTOR_SZ - WIDTH:
+        if self.lookx > SECTOR_SZ - self.WIDTH:
             if not sec.neighbour[1, 0]:
-                self.lookx = SECTOR_SZ - WIDTH
+                self.lookx = SECTOR_SZ - self.WIDTH
         if self.lookx < 0:
             if not sec.neighbour[-1, 0]:
                 self.lookx = 0
 
-        if self.looky > SECTOR_SZ - HEIGHT:
+        if self.looky > SECTOR_SZ - self.HEIGHT:
             if not sec.neighbour[0, 1]:
-                self.looky = SECTOR_SZ - HEIGHT
+                self.looky = SECTOR_SZ - self.HEIGHT
         if self.looky < 0:
             if not sec.neighbour[0, -1]:
                 self.looky = 0
 
 
         # this bit moves the look point when when crosses a sector boundary
-        if self.lookx < -WIDTH//2:
+        if self.lookx < -self.WIDTH//2:
             if sec.neighbour[-1, 0]:
                 self.lookx += SECTOR_SZ
                 self.onlookpointchanged.emit(sec.neighbour[-1, 0])
-        elif self.lookx > SECTOR_SZ - WIDTH//2:
+        elif self.lookx > SECTOR_SZ - self.WIDTH//2:
             if sec.neighbour[1, 0]:
                 self.lookx -= SECTOR_SZ
                 self.onlookpointchanged.emit(sec.neighbour[1, 0])
         
-        if self.looky < -HEIGHT//2:
+        if self.looky < -self.HEIGHT//2:
             if sec.neighbour[0, -1]:
                 self.looky += SECTOR_SZ
                 self.onlookpointchanged.emit(sec.neighbour[0, -1])
-        elif self.looky > SECTOR_SZ - HEIGHT//2:
+        elif self.looky > SECTOR_SZ - self.HEIGHT//2:
             if sec.neighbour[0, 1]:
                 self.looky -= SECTOR_SZ
                 self.onlookpointchanged.emit(sec.neighbour[0, 1])

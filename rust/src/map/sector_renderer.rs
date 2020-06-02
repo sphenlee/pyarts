@@ -68,7 +68,10 @@ impl SectorRenderer {
     fn prepare_gfx(&mut self, py: Python, ctx: &mut Context) -> GameResult<GfxState> {
         trace!("updating gfx");
 
-        let pypeer = self.sector.getattr(py, "peer").expect("sector missing peer");
+        let pypeer = self
+            .sector
+            .getattr(py, "peer")
+            .expect("sector missing peer");
         let peer: PyRefMut<Sector> = pypeer.extract(py).expect("peer is wrong type");
 
         let mut vdata = Vec::with_capacity(NUM_TILES_CAPACITY * 4);
@@ -210,7 +213,10 @@ impl SectorRenderer {
             self.gfx = Some(self.prepare_gfx(py, ctx)?);
         }
 
-        let pypeer = self.sector.getattr(py, "peer").expect("sector missing peer");
+        let pypeer = self
+            .sector
+            .getattr(py, "peer")
+            .expect("sector missing peer");
         let peer: PyRefMut<Sector> = pypeer.extract(py).expect("peer is wrong type");
 
         if self.update_token != peer.update_token() {
@@ -225,7 +231,7 @@ impl SectorRenderer {
         gfx.fog1
             .draw(ctx, DrawParam::new().dest([self.dx, self.dy]))?;
         gfx.fog2
-           .draw(ctx, DrawParam::new().dest([self.dx, self.dy]))?;
+            .draw(ctx, DrawParam::new().dest([self.dx, self.dy]))?;
         Ok(())
     }
 }

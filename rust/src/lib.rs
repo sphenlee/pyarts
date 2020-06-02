@@ -5,13 +5,14 @@ use pyo3::wrap_pyfunction;
 
 mod map;
 mod root;
+mod scene;
 mod sprites;
 mod ui;
 mod util;
 
 #[pyfunction]
 fn launch(py: Python) -> PyResult<()> {
-    ui::launch(py)?;
+    scene::launch(py)?;
     Ok(())
 }
 
@@ -35,6 +36,7 @@ fn yarts(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<map::sector::Sector>()?;
     m.add_class::<map::renderer::MapRenderer>()?;
     m.add_class::<sprites::SpriteManager>()?;
+    m.add_class::<ui::game_ui::GameUi>()?;
 
     m.add_class::<Rust>()?;
 

@@ -5,7 +5,6 @@ Renders the buttons for entity abilities
 '''
 
 from .. import cairosg as sg
-from ..screen import Screen
 
 from pyarts.container import component
 
@@ -15,7 +14,7 @@ EMPTY_PAINT = sg.ColourPaint(0, 0, 0, 0.8)
 
 @component
 class AbilityPanel(object):
-    depends = ['imagecache', 'game']
+    depends = ['imagecache', 'game', 'local']
 
     WIDTH = 96*3
     HEIGHT = 96*2
@@ -27,9 +26,10 @@ class AbilityPanel(object):
             self.grid.append(sg.Rect().paint(EMPTY_PAINT))
         self.sg.append(self.grid)
 
-    def inject(self, imagecache, game):
+    def inject(self, imagecache, game, local):
         self.imagecache = imagecache
         self.game = game
+        self.local = local
 
         self.game.onselectionchange.add(self.update)
 
@@ -39,7 +39,7 @@ class AbilityPanel(object):
         except IndexError:
             ent = None
 
-        if ent and ent.has('abilities') and ent.ownedby(self.game.localplayer):
+        if ent and ent.has('abilities') and ent.ownedby(self.local.player):
             ab = ent.abilities
             n = len(ab)
 
@@ -62,10 +62,10 @@ class AbilityPanel(object):
 
         self.sg.mark_dirty()
 
-    def draw(self):
+    def step(self):
         if self.game.selection:
             ent = self.game.selection[0]
-            if ent.has('abilities') and ent.ownedby(self.game.localplayer):
+            if ent.has('abilities') and ent.ownedby(self.local.player):
                 ab = ent.abilities
                 
                 for i in range(len(ab)):
@@ -73,4 +73,9 @@ class AbilityPanel(object):
                         percent = float(ab[i].cooldown) / ab[i].ability.cooldown
                         self.grid.children[i].children[1].paint(1, 0, 0, percent)
 
-        self.sg.drawat(x=Screen.WIDTH - self.WIDTH, y=0)
+
+    def render(self):        
+        return self.sg.getimage()
+
+    def destination(self, w, h):
+        return (w - self.WIDTH, h - self.HEIGHT)

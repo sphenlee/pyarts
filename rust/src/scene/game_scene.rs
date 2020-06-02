@@ -1,37 +1,43 @@
 use crate::root::Root;
-use crate::ui::{Event, Screen, Transition};
+use crate::scene::{Event, Screen, Transition, WIDTH, HEIGHT};
+use crate::util::YartsResult;
 use ggez::{timer, Context};
 use pyo3::prelude::*;
 use pyo3::{PyObject, PyResult, Python};
-use crate::util::YartsResult;
+use std::collections::HashMap;
 
-pub struct GameScreen {
+pub struct GameScene {
     root: PyObject,
 }
 
-fn construct_root(py: Python<'_>) -> PyResult<PyObject> {
+fn construct_root(py: Python, ctx: &mut Context) -> PyResult<PyObject> {
     let pyarts = py.import("pyarts")?;
     let construct: PyObject = pyarts.get("construct")?.into();
+
+    let mut settings = HashMap::<String, String>::new();
+
+    settings.insert("width".to_owned(), WIDTH.to_string());
+    settings.insert("height".to_owned(), HEIGHT.to_string());
 
     let pyroot = construct.call1(py, ("root",))?;
 
     {
         let mut root = pyroot.as_ref(py).extract::<PyRefMut<Root>>()?;
-        root.load(py)?;
+        root.load(py, settings)?;
     }
 
     Ok(pyroot)
 }
 
-impl GameScreen {
-    pub fn new(py: Python<'_>) -> PyResult<Box<dyn Screen>> {
-        let root = construct_root(py)?;
+impl GameScene {
+    pub fn new(py: Python, ctx: &mut Context) -> PyResult<Box<dyn Screen>> {
+        let root = construct_root(py, ctx)?;
 
         Ok(Box::new(Self { root }))
     }
 }
 
-impl Screen for GameScreen {
+impl Screen for GameScene {
     fn update(&mut self, py: Python<'_>, ctx: &mut Context) -> YartsResult<()> {
         let mut root = self.root.as_ref(py).extract::<PyRefMut<Root>>()?;
 
@@ -44,7 +50,12 @@ impl Screen for GameScreen {
         Ok(())
     }
 
-    fn event(&mut self, py: Python<'_>, ctx: &mut Context, event: Event) -> YartsResult<Transition> {
+    fn event(
+        &mut self,
+        py: Python<'_>,
+        ctx: &mut Context,
+        event: Event,
+    ) -> YartsResult<Transition> {
         let mut root = self.root.as_ref(py).extract::<PyRefMut<Root>>()?;
 
         root.event(py, ctx, event)

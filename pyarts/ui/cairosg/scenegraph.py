@@ -5,7 +5,6 @@ The root object - creates the cairo objects and then
 renders the graph
 '''
 
-import pyglet
 import cairocffi as cairo
 
 from .nodes import Canvas, Paintable
@@ -19,8 +18,8 @@ class SceneGraph(Canvas, Paintable):
         self.h = int(h)
         self.surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.w, self.h)
         self.ctx = cairo.Context(self.surf)
-        self.ctx.scale(1, -1)
-        self.ctx.translate(0, -h)
+        #self.ctx.scale(1, -1)
+        #self.ctx.translate(0, -h)
         self.dirty = True
         self.img = None
 
@@ -41,7 +40,7 @@ class SceneGraph(Canvas, Paintable):
 
     def getimage(self):
         if not self.dirty:
-            return self.img
+            return self.img, self.w, self.h
 
         self.layout()
 
@@ -54,11 +53,7 @@ class SceneGraph(Canvas, Paintable):
             self.render(self.ctx)
 
         data = self.surf.get_data()
-        self.img = pyglet.image.ImageData(self.w, self.h, 'BGRA', bytes(data))
+        self.img = bytes(data)
         self.dirty = False
-        return self.img
+        return self.img, self.w, self.h
 
-    def drawat(self, x, y):
-        img = self.getimage()
-        s = pyglet.sprite.Sprite(img, x=x, y=y)
-        s.draw()
