@@ -27,11 +27,11 @@ def distance2(x1, y1, x2, y2):
     '''Euclidean distance squared'''
     return (x1 - x2)**2 + (y1 - y2)**2
 
-def get_hex_resource(datasrc, name):
-    '''Helper to get a hex encoded resource'''
-    res = datasrc.getresource(name)
-    with open(res, 'rb') as fp:
-        return binascii.unhexlify(fp.read().replace(b'\n', b''))
+# def get_hex_resource(datasrc, name):
+#     '''Helper to get a hex encoded resource'''
+#     res = datasrc.getresource(name)
+#     with open(res, 'rb') as fp:
+#         return binascii.unhexlify(fp.read().replace(b'\n', b''))
 
 
 class Sector(object):
@@ -54,15 +54,16 @@ class Sector(object):
         tileset['texture'] = '/' + datasrc.getresource(tileset['texture'])
         tileset['fogofwar'] = '/' + datasrc.getresource(tileset['fogofwar'])
 
-        tiles = get_hex_resource(datasrc, data['tiles'])
-        visited = get_hex_resource(datasrc, data['visited']) if 'visited' in data else None
-        walkmap = get_hex_resource(datasrc, data['walkmap']) if 'walkmap' in data else None
+        #tiles = get_hex_resource(datasrc, data['tiles'])
+        #visited = get_hex_resource(datasrc, data['visited']) if 'visited' in data else None
+        #walkmap = get_hex_resource(datasrc, data['walkmap']) if 'walkmap' in data else None
 
         entities = data.get('entities', ()) # this is bad - the value is eids and is not kept updated
+        file = datasrc.getresource(data['file'])
 
-        peer = RsSector(sx, sy, tiles, visited, walkmap)
+        peer = RsSector(sx, sy, file)
         return cls(peer, map, entities, tileset)
-
+        
 
     def __init__(self, peer, map, entities, tileset):
         self.peer = peer
@@ -86,6 +87,7 @@ class Sector(object):
                 s.neighbour[-dx, -dy] = self
 
     def save(self, datasink):
+        # TODO - save the map visited data
         #data = binascii.hexlify(self.visited.tostring())
         #fname = 'visited/%d_%d.hex' % (self.sx, self.sy)
         #datasink.addresource(fname, data)

@@ -1,6 +1,6 @@
 use log::trace;
 use pyo3::prelude::*;
-use pyo3::types::PyBytes;
+use super::loader::load_map;
 
 pub const NUM_TILES: u16 = 32;
 pub const NUM_VERTS: u16 = NUM_TILES + 1;
@@ -21,6 +21,7 @@ pub struct Sector {
     visible: Vec<u8>,
     walk: Vec<u8>,
     update_token: u8,
+    tilset: String,
 }
 
 #[pymethods]
@@ -29,23 +30,20 @@ impl Sector {
     pub fn new(
         sx: i32,
         sy: i32,
-        tiles: &PyBytes,
-        visited: Option<&PyBytes>,
-        walk: Option<&PyBytes>,
-    ) -> Self {
-        Sector {
+        file: String,
+    ) -> PyResult<Self> {
+        let loaded = load_map(file)?;
+
+        Ok(Sector {
             sx,
             sy,
-            tiles: tiles.as_bytes().to_owned(),
-            visited: visited
-                .map(|bytes| bytes.as_bytes().to_owned())
-                .unwrap_or_else(|| vec![0u8; NUM_VERTS_CAPACITY]),
+            tiles: loaded.tiles,
+            visited: vec![0u8; NUM_VERTS_CAPACITY], // TODO - load visited data here
             visible: vec![0u8; NUM_VERTS_CAPACITY],
-            walk: walk
-                .map(|bytes| bytes.as_bytes().to_owned())
-                .unwrap_or_else(|| vec![0u8; NUM_TILES_CAPACITY]),
+            walk: loaded.walk,
             update_token: 0,
-        }
+            tilset: loaded.tileset,
+        })
     }
 
     fn footprint(&mut self, x: i16, y: i16, r: i16) {

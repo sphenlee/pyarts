@@ -23,7 +23,7 @@ def raw_distance(p1, p2):
 
 def distance(ent, pt):
     ept = ent.locator.pos()
-    print(f'distance ept={ept}')
+    #print(f'distance ept={ept}')
     return raw_distance(ent.locator.pos(), pt) - ent.locator.r**2
     
 
@@ -61,10 +61,10 @@ class Moving(Component):
         self.steering.towards(pt)
 
         d = distance(self.ent, pt)
-        print(f'moving d={d}')
+        #print(f'moving d={d}')
         if d <= 0:
             self.waypoints.pop()
-            print(f'waypoints remaining: {self.waypoints}')
+            #print(f'waypoints remaining: {self.waypoints}')
 
     def save(self):
         return {

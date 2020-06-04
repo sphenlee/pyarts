@@ -22,7 +22,7 @@ class Appearance(Component):
 
     def configure(self, data):
         img = 'maps/test/' + data['sprite'] # TODO
-        self.sprite = self.sprites.new_sprite(img, self.locator.r * 2)
+        self.sprite = self.sprites.new_sprite(img, self.locator.r)
         self.portrait = data['portrait']
         self.visibility = data.get('visibility', self.VISIBLE_VIEWING)
         self.is_selected = False

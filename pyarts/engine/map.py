@@ -84,7 +84,7 @@ class Map(object):
 
             while self.dirty:
                 sec = self.dirty.pop()
-                print(f'sector {sec} is dirty')
+                #print(f'sector {sec} is dirty')
                 sec.updatefog()
 
             if was_dirty:

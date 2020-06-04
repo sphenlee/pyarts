@@ -1,7 +1,7 @@
 use crate::map::sector_renderer::SECTOR_SZ;
 use crate::util::YartsResult;
 use ggez::graphics::{DrawParam, Drawable, Image};
-use ggez::{graphics, Context};
+use ggez::{graphics, Context, GameResult};
 use log::info;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
@@ -9,7 +9,10 @@ use slab::Slab;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-const SPRITE_SIZE: f32 = 128.0;
+const SPRITE_SIZE: f32 = 64.0;
+
+const SPRITE_OFFSET_X: f32 = 64.0;
+const SPRITE_OFFSET_Y: f32 = 96.0;
 
 struct Sprite {
     img: Option<Image>,
@@ -17,13 +20,12 @@ struct Sprite {
     visible: u8,
     dx: f32,
     dy: f32,
-    scale: f32,
+    r: f32,
 }
 
 #[pyclass]
 pub struct SpriteManager {
     images: HashMap<String, Image>,
-    ring: Option<Image>,
     sprites: Slab<Sprite>,
     dx: f32,
     dy: f32,
@@ -45,7 +47,6 @@ impl SpriteManager {
     fn new(py: Python) -> Self {
         SpriteManager {
             images: HashMap::new(),
-            ring: None,
             sprites: Slab::new(),
             dx: 0.0,
             dy: 0.0,
@@ -83,7 +84,7 @@ impl SpriteManager {
         Ok(())
     }
 
-    fn new_sprite(&mut self, imgname: String, scale: i16) -> PyResult<usize> {
+    fn new_sprite(&mut self, imgname: String, r: i16) -> PyResult<usize> {
         let img = self.images.get(&imgname).cloned();
 
         let is_unresolved = img.is_none();
@@ -94,7 +95,7 @@ impl SpriteManager {
             visible: 0,
             dx: 0.0,
             dy: 0.0,
-            scale: f32::from(scale) / SPRITE_SIZE,
+            r: f32::from(r),// / SPRITE_SIZE,
         };
 
         let idx = self.sprites.insert(sprite);
@@ -129,13 +130,7 @@ impl SpriteManager {
     }
 
     pub fn draw(&mut self, py: Python, ctx: &mut Context) -> YartsResult<()> {
-        if self.ring.is_none() {
-            self.ring = Some(Image::new(ctx, &"/maps/test/res/selected-ring.png")?);
-        }
-
         let tidmask = self.get_tidmask(py)?;
-
-        let ring = self.ring.as_mut().unwrap();
 
         for (imgname, idx) in self.unresolved.drain(..) {
             let sprite = self.sprites.get_mut(idx).expect("idx missing from slab");
@@ -152,23 +147,23 @@ impl SpriteManager {
         graphics::apply_transformations(ctx)?;
 
         for (_, sprite) in self.sprites.iter() {
+            let scale = sprite.r / SPRITE_SIZE;
+
+
             if (sprite.visible & tidmask) > 0 {
                 if let Some(ref img) = sprite.img {
-                    img.draw(
-                        ctx,
-                        DrawParam::new()
-                            .dest([sprite.dx, sprite.dy])
-                            .scale([sprite.scale, sprite.scale]),
-                    )?;
-
                     if sprite.selected {
-                        ring.draw(
-                            ctx,
-                            DrawParam::new()
-                                .dest([sprite.dx, sprite.dy])
-                                .scale([sprite.scale, sprite.scale]),
-                        )?;
+                        let circle = SpriteManager::make_ring(ctx, sprite)?;
+
+                        circle.draw(ctx, DrawParam::new()
+                            .dest([sprite.dx + sprite.r, sprite.dy + (sprite.r * 1.5)]))?;
                     }
+
+                    let param = DrawParam::new()
+                        .dest([sprite.dx, sprite.dy])
+                        .scale([scale, scale]);
+
+                    img.draw(ctx, param)?;
                 }
             }
         }
@@ -177,5 +172,17 @@ impl SpriteManager {
         graphics::apply_transformations(ctx)?;
 
         Ok(())
+    }
+
+    fn make_ring(ctx: &mut Context, sprite: &Sprite) -> GameResult<graphics::Mesh> {
+        graphics::Mesh::new_ellipse(
+            ctx,
+            graphics::DrawMode::stroke(2.0),
+            [0.0, 0.0],
+            sprite.r,
+            sprite.r * 0.5,
+            0.01,
+            graphics::Color::new(0.5, 1.0, 0.0, 1.0),
+        )
     }
 }
