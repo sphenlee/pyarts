@@ -3,11 +3,9 @@ use crate::map::sector::{NUM_TILES, NUM_TILES_CAPACITY};
 use std::collections::HashMap;
 use thiserror::Error;
 use pyo3::PyErr;
-use log::debug;
-use std::num::ParseIntError;
 
 pub struct LoadedMap {
-    pub tiles: Vec<u8>,
+    pub tiles: Vec<u32>,
     pub walk: Vec<u8>,
     pub tileset: String,
 }
@@ -63,7 +61,7 @@ pub fn load_map(file: String) -> Result<LoadedMap, MapLoadError> {
             walk |= 0x02;
         }
         if !air {
-            walk |= 0x03;
+            walk |= 0x04;
         }
 
         tile_to_walk.insert(tileset0.first_gid + tile.id, walk);
@@ -71,13 +69,13 @@ pub fn load_map(file: String) -> Result<LoadedMap, MapLoadError> {
 
     let layer0 = &map.layers[0];
 
-    let mut tiles = Vec::<u8>::with_capacity(NUM_TILES_CAPACITY);
-    let mut walk = Vec::<u8>::with_capacity(NUM_TILES_CAPACITY);
+    let mut tiles = Vec::with_capacity(NUM_TILES_CAPACITY);
+    let mut walk = Vec::with_capacity(NUM_TILES_CAPACITY);
 
     for row in &layer0.tiles {
         for tile in row {
-            tiles.push(tile.gid as u8 - 1); // tiled starts counting tiles at 1
-            let mask = tile_to_walk.get(&tile.gid).copied().unwrap_or(0);
+            tiles.push(tile.gid - tileset0.first_gid); // tiled starts counting tiles at 1
+            let mask = tile_to_walk.get(&tile.gid).copied().unwrap_or(0x07);
             walk.push(mask);
         }
     }

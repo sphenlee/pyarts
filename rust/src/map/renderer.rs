@@ -9,7 +9,7 @@ use std::sync::Arc;
 #[pyclass]
 pub struct MapRenderer {
     map: PyObject,
-    data_src: PyObject,
+    _data_src: PyObject,
 
     active_renderers: Vec<Arc<RefCell<SectorRenderer>>>,
     all_renderers: HashMap<(u32, u32), Arc<RefCell<SectorRenderer>>>,
@@ -29,7 +29,7 @@ impl MapRenderer {
     fn new(py: Python) -> Self {
         MapRenderer {
             map: py.None(),
-            data_src: py.None(),
+            _data_src: py.None(),
             looksector: py.None(),
 
             active_renderers: Vec::new(),

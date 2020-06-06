@@ -41,7 +41,7 @@ class Appearance(Component):
         if not self.locator.placed:
             self.visible = 0
         elif self.visibility == self.VISIBLE_ALWAYS:
-            self.visible = ~0
+            self.visible = 0xFF
         else:
             pt = self.locator.x, self.locator.y
             cell = self.map.pos_to_cell(*pt)

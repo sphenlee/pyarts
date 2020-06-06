@@ -1,6 +1,7 @@
 import sys
 
-sys.path.append('rust/target/debug/')
+
+sys.path.append('rust/target/release/')
 
 
 import yarts

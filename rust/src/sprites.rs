@@ -11,9 +11,6 @@ use std::path::PathBuf;
 
 const SPRITE_SIZE: f32 = 64.0;
 
-const SPRITE_OFFSET_X: f32 = 64.0;
-const SPRITE_OFFSET_Y: f32 = 96.0;
-
 struct Sprite {
     img: Option<Image>,
     selected: bool,

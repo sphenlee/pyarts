@@ -5,8 +5,11 @@ use pyo3::prelude::*;
 use super::sector::{Sector, NUM_TILES};
 use ggez::graphics::{DrawParam, Drawable, FilterMode};
 
-pub const VERTEX_SZ: f32 = 64.0;
+pub const VERTEX_SZ: f32 = 32.0;
+pub const TILES_PER_ROW: u16 = 16;
 pub const TEX_SZ: f32 = 1.0 / 8.0;
+pub const TEX_SZ_X: f32 = 1.0 / TILES_PER_ROW as f32; // tiles per row
+pub const TEX_SZ_Y: f32 = 1.0 / 259.0; // tiles per column TODO this can't be a const!
 pub const SECTOR_SZ: f32 = NUM_TILES as f32 * VERTEX_SZ;
 pub const NUM_TILES_CAPACITY: usize = (NUM_TILES * NUM_TILES) as usize;
 
@@ -74,20 +77,23 @@ impl SectorRenderer {
             .expect("sector missing peer");
         let peer: PyRefMut<Sector> = pypeer.extract(py).expect("peer is wrong type");
 
+        trace!("(sector is {},{})", peer.sx(), peer.sy());
+
         let mut vdata = Vec::with_capacity(NUM_TILES_CAPACITY * 4);
         let mut index = Vec::with_capacity(NUM_TILES_CAPACITY * 6);
         let mut i = 0;
 
+        trace!("preparing vert data for terrain");
         for y in 0..NUM_TILES {
             for x in 0..NUM_TILES {
                 let vx = f32::from(x) * VERTEX_SZ;
                 let vy = f32::from(y) * VERTEX_SZ;
 
                 //let tile = i16::from(self.tiles[(x + y * NUM_TILES) as usize]);
-                let tile = peer.tile((x, y)) as i8;
-                let (ty, tx): (i8, i8) = num_integer::div_rem(tile, 8);
-                let tx = f32::from(tx) * TEX_SZ;
-                let ty = f32::from(ty) * TEX_SZ;
+                let tile = peer.tile((x, y)) as u16;
+                let (ty, tx): (u16, u16) = num_integer::div_rem(tile, TILES_PER_ROW);
+                let tx = f32::from(tx) * TEX_SZ_X;
+                let ty = f32::from(ty) * TEX_SZ_Y;
 
                 index.extend_from_slice(&[i, i + 1, i + 2, i, i + 3, i + 1]);
                 i += 4;
@@ -96,28 +102,33 @@ impl SectorRenderer {
                 vdata.push(vert(
                     vx + VERTEX_SZ,
                     vy + VERTEX_SZ,
-                    tx + TEX_SZ,
-                    ty + TEX_SZ,
+                    tx + TEX_SZ_X,
+                    ty + TEX_SZ_Y,
                     2,
                 ));
-                vdata.push(vert(vx, vy + VERTEX_SZ, tx, ty + TEX_SZ, 3));
-                vdata.push(vert(vx + VERTEX_SZ, vy, tx + TEX_SZ, ty, 4));
+                vdata.push(vert(vx, vy + VERTEX_SZ, tx, ty + TEX_SZ_Y, 3));
+                vdata.push(vert(vx + VERTEX_SZ, vy, tx + TEX_SZ_X, ty, 4));
             }
         }
 
+        trace!("loading texture image: {}", self.texture);
         let mut image = graphics::Image::new(ctx, &self.texture)?;
         image.set_filter(FilterMode::Nearest);
 
+        trace!("building mesh");
         let terrain = graphics::MeshBuilder::new()
             .raw(&vdata, &index, Some(image))
             .build(ctx)?;
 
+        trace!("loading fog image: {}", self.fogofwar);
         let mut image = graphics::Image::new(ctx, &self.fogofwar)?;
         image.set_filter(FilterMode::Nearest);
 
+        trace!("building fog mesh1");
         let fog1 = graphics::MeshBuilder::new()
             .raw(&vdata, &index, Some(image.clone()))
             .build(ctx)?;
+        trace!("building fog mesh2");
         let fog2 = graphics::MeshBuilder::new()
             .raw(&vdata, &index, Some(image.clone()))
             .build(ctx)?;
@@ -201,7 +212,9 @@ impl SectorRenderer {
 
         let gfx = self.gfx.as_mut().unwrap();
 
+        trace!("update fog mesh 1");
         gfx.fog1.set_vertices(ctx, &fog1, &index);
+        trace!("update fog mesh 2");
         gfx.fog2.set_vertices(ctx, &fog2, &index);
 
         trace!("fog done");

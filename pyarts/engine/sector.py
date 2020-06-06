@@ -14,9 +14,9 @@ from .event import Event
 
 from yarts import Sector as RsSector
 
-NUM_TILES = 32 # the number of tiles in a sector
+NUM_TILES = 64 # the number of tiles in a sector
 NUM_VERTS = NUM_TILES + 1 # the number of vertices in a sector
-VERTEX_SZ = 64 # the number of pixels per tile
+VERTEX_SZ = 32 # the number of pixels per tile
 SECTOR_SZ = NUM_TILES * VERTEX_SZ
 
 NEIGHBOURS = [ (-1, -1), (0, -1), (1, -1),
@@ -47,7 +47,12 @@ class Sector(object):
 
     @classmethod
     def construct(cls, map, datasrc, sx, sy):
-        data = datasrc.getmapsector(sx, sy)
+        try:
+            data = datasrc.getmapsector(sx, sy)
+        except KeyError:
+            print(f"sector {sx},{sy} doesn't exist")
+            return None
+
         tileset = datasrc.gettileset(data['tileset']).copy()
 
         # TODO - work out ggez's crazy path system!
@@ -63,7 +68,7 @@ class Sector(object):
 
         peer = RsSector(sx, sy, file)
         return cls(peer, map, entities, tileset)
-        
+
 
     def __init__(self, peer, map, entities, tileset):
         self.peer = peer

@@ -114,7 +114,7 @@ class Game(object):
             rank = min(e.rank for e in ents)
             selection = [e for e in ents
                 if e.rank == rank
-                and e.appearance.visible_to(lp.tidmask)][:0]
+                and e.appearance.visible_to(lp.tidmask)][:1]
         else:
             # select only my ents
             if add:

@@ -61,7 +61,7 @@ class Steering(Component):
 
         cur = self.locator.pos()
         r = self.locator.r
-        speed = self.stats.get('speed', 4)
+        speed = self.stats.get('speed', 8)
         factor = 1
 
         # get normed vector of our direction
@@ -89,7 +89,7 @@ class Steering(Component):
             # print 'hard:', hard, 'f:', f
             # print '---'
 
-            factor *= f
+            # TODO factor *= f
 
 
 

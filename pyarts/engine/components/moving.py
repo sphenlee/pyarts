@@ -50,10 +50,15 @@ class Moving(Component):
             self.waypoints = data.get('waypoints')
             self.intransit = bool(self.waypoints)
 
+    def set_incorporeal(self, val):
+        if val:
+            self.walk &= (0xFF ^ Sector.WALK_FOOT)
+        else:
+            self.walk |= Sector.WALK_FOOT
+
     def step(self):
         if not self.waypoints:
             self.steering.stop()
-            self.intransit = False
             return
 
         pt = self.waypoints[-1]
@@ -61,10 +66,12 @@ class Moving(Component):
         self.steering.towards(pt)
 
         d = distance(self.ent, pt)
-        #print(f'moving d={d}')
+        #print(f'moving d^2={d}')
         if d <= 0:
             self.waypoints.pop()
             #print(f'waypoints remaining: {self.waypoints}')
+            if not self.waypoints:
+                self.intransit = False
 
     def save(self):
         return {
@@ -76,6 +83,9 @@ class Moving(Component):
 
         start = self.locator.pos()
         goal = target.getpos()
+
+        if range is None and target.isent():
+            range = target.ent.locator.r + self.locator.r
         
         path = self.pathfinder.findpath(start, goal, self.walk, range)
         if path is not None:
@@ -89,12 +99,17 @@ class Moving(Component):
                 # for an exact target we don't want the centre of the destination
                 # cell, so replace it with the actual goal
                 self.waypoints[0] = goal
+
+            #print('--------- moveto!')
+            #print(f'{target} {range}')
+            #print(f'{start} {goal}')
+            #print(f'{self.waypoints}')
         else:
             print('no path to', target)
             self.stop()
 
 
     def stop(self):
-        self.intransit = False
+        #self.intransit = False
 
         del self.waypoints[:]

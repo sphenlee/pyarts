@@ -7,8 +7,10 @@ pub mod game_scene;
 pub mod main_scene;
 //pub mod tree;
 
-pub const WIDTH: f32 = 800.0; //1920.0;
-pub const HEIGHT: f32 = 600.0; //1080.0;
+pub const WIDTH: f32 = //800.0;
+    1920.0;
+pub const HEIGHT: f32 = //600.0;
+    1080.0;
 
 pub enum Transition {
     None,
@@ -52,7 +54,7 @@ pub fn launch(py: Python<'_>) -> YartsResult<()> {
             height: HEIGHT,
             //maximized: true,
             //resizable: true,
-            //fullscreen_type: ggez::conf::FullscreenType::Desktop,
+            fullscreen_type: ggez::conf::FullscreenType::Desktop,
             ..Default::default()
         })
         .with_conf_file(true)

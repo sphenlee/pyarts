@@ -45,28 +45,30 @@ class Map(object):
         return (x*VERTEX_SZ, y*VERTEX_SZ)
 
     def pos_to_sector(self, x, y):
+        # 11 = log2(SECTOR_SZ)
         return (int(x) >> 11), (int(y) >> 11)
 
     def cell_to_sector(self, x, y):
-        return (int(x) >> 5), (int(y) >> 5)
+        # 6 = log2(NUM_TILES)
+        return (int(x) >> 6), (int(y) >> 6)
 
     def cell_to_offset(self, x, y):
-        return (int(x) & 0x1f), (int(y) & 0x1f)
+        # 0x3f = NUM_TILES - 1
+        return (int(x) & 0x3f), (int(y) & 0x3f)
 
     def pos_to_offset(self, x, y):
+        # 0x7ff = SECTOR_SZ - 1
         return (int(x) & 0x7ff), (int(y) & 0x7ff)
 
     def loadsector(self, sx, sy):
         try:
             return self.sectors[sx, sy]
         except KeyError:
-            try:
-                s = Sector.construct(self, self.datasrc, sx, sy)
-            except KeyError:
-                return None
+            s = Sector.construct(self, self.datasrc, sx, sy)
             self.sectors[sx, sy] = s
-            self.dirty.add(s)
-            self.onsectorloaded.emit(s)
+            if s is not None:
+                self.dirty.add(s)
+                self.onsectorloaded.emit(s)
             return s
 
     def sector_at_point(self, x, y):

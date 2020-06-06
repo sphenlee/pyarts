@@ -10,7 +10,7 @@ pub struct GameScene {
     root: PyObject,
 }
 
-fn construct_root(py: Python, ctx: &mut Context) -> PyResult<PyObject> {
+fn construct_root(py: Python, _ctx: &mut Context) -> PyResult<PyObject> {
     let pyarts = py.import("pyarts")?;
     let construct: PyObject = pyarts.get("construct")?.into();
 

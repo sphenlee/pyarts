@@ -2,7 +2,7 @@ use log::trace;
 use pyo3::prelude::*;
 use super::loader::load_map;
 
-pub const NUM_TILES: u16 = 32;
+pub const NUM_TILES: u16 = 64;
 pub const NUM_VERTS: u16 = NUM_TILES + 1;
 
 pub const NUM_TILES_CAPACITY: usize = (NUM_TILES * NUM_TILES) as usize;
@@ -16,12 +16,11 @@ pub struct Sector {
     sx: i32,
     #[pyo3(get)]
     sy: i32,
-    tiles: Vec<u8>,
+    tiles: Vec<u32>,
     visited: Vec<u8>,
     visible: Vec<u8>,
     walk: Vec<u8>,
     update_token: u8,
-    tilset: String,
 }
 
 #[pymethods]
@@ -42,12 +41,11 @@ impl Sector {
             visible: vec![0u8; NUM_VERTS_CAPACITY],
             walk: loaded.walk,
             update_token: 0,
-            tilset: loaded.tileset,
         })
     }
 
     fn footprint(&mut self, x: i16, y: i16, r: i16) {
-        trace!("foot printing ({},{})@{}", x, y, r);
+        trace!("foot printing sector {},{} -> ({},{})@{}", self.sx, self.sy, x, y, r);
         for i in (x - r)..(x + r) {
             for j in (y - r)..(y + r) {
                 if i >= 0 && j >= 0 && i < NUM_TILES as i16 && j < NUM_TILES as i16 {
@@ -59,7 +57,7 @@ impl Sector {
         }
     }
 
-    pub fn tile(&self, pt: (u16, u16)) -> u8 {
+    pub fn tile(&self, pt: (u16, u16)) -> u32 {
         let idx = pt.0 + NUM_TILES * pt.1;
         self.tiles[idx as usize]
     }
@@ -79,15 +77,13 @@ impl Sector {
         self.walk[idx as usize]
     }
 
-    pub fn update_token(&self) -> u8 {
-        self.update_token
-    }
-
     fn clear_fog(&mut self) {
         self.visible.iter_mut().for_each(|x| *x = 0);
     }
 
     fn update_fog(&mut self, x: i16, y: i16, sight: i16, tid: u8) {
+        trace!("update fog sector {},{} -> ({},{})@{} tid={}", self.sx, self.sy, x, y, sight, tid);
+
         for i in (x - sight)..(x + sight) {
             for j in (y - sight)..(y + sight) {
                 if i >= 0 && j >= 0 && i < NUM_VERTS as i16 && j < NUM_VERTS as i16 {
@@ -104,18 +100,15 @@ impl Sector {
 }
 
 impl Sector {
-    pub fn copy_tiles(&self, out: &mut [u8]) {
-        assert_eq!(out.len(), self.tiles.len());
-        out.copy_from_slice(&self.tiles);
+    pub fn sx(&self) -> i32 {
+        self.sx
     }
 
-    pub fn copy_visible(&self, out: &mut [u8]) {
-        assert_eq!(out.len(), self.visible.len());
-        out.copy_from_slice(&self.visible);
+    pub fn sy(&self) -> i32 {
+        self.sy
     }
 
-    pub fn copy_visited(&self, out: &mut [u8]) {
-        assert_eq!(out.len(), self.visited.len());
-        out.copy_from_slice(&self.visited);
+    pub fn update_token(&self) -> u8 {
+        self.update_token
     }
 }
