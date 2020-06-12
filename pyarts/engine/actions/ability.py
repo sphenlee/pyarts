@@ -8,6 +8,8 @@ from .action import Action
 from .move import MoveAction
 from ..components.moving import distance
 
+from pyarts.log import debug, info
+
 def distance_to_target(ent, target):
     '''
     Distance from an entity to a target taking into account the radii of each
@@ -15,7 +17,7 @@ def distance_to_target(ent, target):
     d = distance(ent, target.getpos())
     if target.isent():
         d -= target.ent.locator.r**2
-        print(f'adjusted2 d {d}')
+        #print(f'adjusted2 d {d}')
 
     return d
 
@@ -30,7 +32,7 @@ class AbilityAction(Action):
         if self.target:
             dist = distance_to_target(self.ent, self.target)
 
-            print(f'moving into position: ent={self.ent!r} target={self.target!r} dist={dist!r} range={self.ability.range!r}')
+            debug(f'moving into position: ent={self.ent!r} target={self.target!r} dist={dist!r} range={self.ability.range!r}')
 
             mindist = 0 if self.ability.range is None else self.ability.range
             if dist > mindist:
@@ -54,7 +56,7 @@ class AbilityAction(Action):
             self.ainst.wait -= 1
 
     def doability(self):
-        print('entity %d doing action %s at %s' % (
+        info('entity %d doing action %s at %s' % (
             self.ent.eid,
             self.ability.name,
             self.target))

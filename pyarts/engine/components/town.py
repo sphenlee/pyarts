@@ -9,6 +9,8 @@ from .component import Component, register
 
 from ..pathfinder import distance
 
+from pyarts.log import error
+
 @register
 class Town(Component):
     depends = ['locator', '@team']
@@ -21,8 +23,8 @@ class Town(Component):
         self.r2 = data['r'] ** 2
 
     def load(self, data):
-        if data is not None:
-            self.town = self.team.gettown(int(data))
+        if 'id' in data:
+            self.town = self.team.gettown(data['id'])
         else:
             # new entity, search for the right town
             # founding a town requires that an empty town is created first
@@ -31,10 +33,12 @@ class Town(Component):
         self.town.addentity(self.ent)
 
     def save(self):
-        return self.town.twid
+        return {
+            'id': self.town.twid
+        }
 
     def contains(self, pt):
         return distance(pt, self.locator.pos()) < self.r2
 
     def destroy(self):
-        print('TODO - remove from town')
+        error('TODO - remove from town')

@@ -1,5 +1,5 @@
 use crate::root::Root;
-use crate::scene::{Event, Screen, Transition, WIDTH, HEIGHT};
+use crate::scene::{Event, Screen, Transition, HEIGHT, WIDTH};
 use crate::util::YartsResult;
 use ggez::{timer, Context};
 use pyo3::prelude::*;

@@ -6,6 +6,8 @@ Right now there are going to be two different DI systems - this global one
 and the entity specific one. Perhaps merged the implementations later?
 '''
 
+from pyarts.log import trace, info
+
 def get_deps(cls):
     deps = cls.depends
     if isinstance(deps, list):
@@ -15,7 +17,7 @@ def get_deps(cls):
 
 
 def construct(name):
-    print('constructing ', name)
+    info('constructing {0}', name)
     # find all the dependencies - transitive
     deps = set([name])
     while 1:
@@ -34,7 +36,7 @@ def construct(name):
     components = {}
     for cname in deps:
         cls = getcomponentclass(cname)
-        print('creating ', cname)
+        trace('creating {0}', cname)
         components[cname] = cls()
 
     # perform the injection
@@ -42,10 +44,10 @@ def construct(name):
         args = {}
         for cname in get_deps(type(comp)):
             args[cname] = components[cname]
-        print('injecting ', comp.__class__.__name__)
+        trace('injecting {0}', comp.__class__.__name__)
         comp.inject(**args)
 
-    print('done')
+    info('done')
     return components[name]
 
 

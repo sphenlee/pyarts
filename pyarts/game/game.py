@@ -14,7 +14,9 @@ from .order import *
 from .modes import *
 
 from pyarts.engine.event import Event
+from pyarts.engine.target import Target
 from pyarts.container import component
+from pyarts.log import error, warn, info
 
 @component
 class Game(object):
@@ -88,7 +90,7 @@ class Game(object):
 
         orders = [p.getorder(self.cycle) for p in self.players if p.type == Player.HUMAN]
         if not all(orders):
-            print('No Order for player in cycle %d' % self.cycle) 
+            error('No Order for player in cycle {0}', self.cycle) 
         else:
             self.endturn()
             
@@ -130,7 +132,7 @@ class Game(object):
         
         if not selection:
             # no valid entities selected, so don't change selection
-            print('no entities were selected')
+            warn('no entities were selected')
             return
 
         for s in self.selection:
@@ -151,38 +153,46 @@ class Game(object):
             self.selection = valid
             self.onselectionchange.emit()        
 
-    def autocommand(self, target, add):
+    def autocommand(self, x, y, ents, add):
         ''' Give an autocommand on target to the selected entities '''
         if self.selection:
+            tidmask = self.local.tidmask
+            ents = [e for e in ents if e.appearance.visible_to(tidmask)]
+
+            if ents:
+                target = Target(ents[0])
+            else:
+                target = Target((x, y))            
+
             if not self.selection[0].ownedby(self.local.player):
                 return
             eids = [e.eid for e in self.selection]
             self.order(AutoCommandOrder(eids, target, add))
 
     def ability(self, idx, add):
-        print(f'trying to do ability {idx}')
+        info(f'trying to do ability {idx}')
         ''' Do the ability at idx for the currently selected entities '''
         if not self.selection:
             # nothing selected
-            print('no selection')
+            warn('no selection')
             return
 
         # grab the ability - defined by the first entity in the selection
         ent = self.selection[0]
         if not ent.has('abilities'):
             # no abilities
-            print('entity has no abilities')
+            warn('entity has no abilities')
             return
 
         if not ent.ownedby(self.local.player):
             # should never happen, player doesn't own the entity
-            print('entity not owned by local player')
+            warn('entity not owned by local player')
             return
 
         try:
             ability = ent.abilities[idx].ability
         except IndexError:
-            print('index out of bounds')
+            error('index out of bounds')
             return
 
         # get the ents - non group abilities cannot be done by
@@ -203,24 +213,27 @@ class Game(object):
             ainst = e.abilities[idx]
 
             if e.proto.epid != ent.proto.epid:
-                print('entity does not have ability %s' % ability.name)
+                warn('entity does not have ability {0}', ability.name)
                 return False
 
             if ainst.cooldown > 0:
-                print('not ready - game checked it')
+                warn('not ready - game checked it')
                 return False
 
             if not ability.queue and ainst.wait > 0:
-                print('already doing this - game checked it')
+                warn('already doing this - game checked it')
                 return False
 
             if not ability.check_cost(e):
-                print('cannot pay cost - game checked it')
+                warn('cannot pay cost - game checked it')
                 return False
 
             return True
 
         entids = [eid for eid in entids if check_ability(eid)]
+        if not entids:
+            warn('no entities can do the ability now')
+            return
         
         # create the order
         order = AbilityOrder(entids, idx, add)

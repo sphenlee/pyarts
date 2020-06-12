@@ -7,6 +7,8 @@ TODO:
  * auto-ref live lua objects (how??)
 '''
 
+from pyarts.log import trace, warn
+
 # exports
 __all__ = ['Lua', 'func', 'rawfunc', 'table']
 
@@ -86,11 +88,11 @@ class LuaRef(object):
             lua.lua_getfield(self.L, LUA_REGISTRYINDEX, b'.pyrefs')
             lua.lua_pushvalue(self.L, -2)
             self.ref = lua.luaL_ref(self.L, -2)
-            print('<ref %d>' % self.ref)
+            trace('<ref {}>', self.ref)
             
     def __del__(self):
         with popper(self.L):
-            print('<unref %d>' % self.ref)
+            trace('<unref {}>', self.ref)
             lua.lua_getfield(self.L, LUA_REGISTRYINDEX, b'.pyrefs')
             lua.luaL_unref(self.L, -1, self.ref)
 
@@ -195,7 +197,7 @@ class State(object):
         #self.close()
 
     def close(self):
-        print('closubg Lua interp')
+        warn('closing Lua interp')
         self.lua.lua_close(self.L)
 
     def loadstring(self, code):

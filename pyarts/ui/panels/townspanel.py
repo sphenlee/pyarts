@@ -7,10 +7,11 @@ Shows towns and resource info
 from .. import cairosg as sg
 
 from pyarts.container import component
+from pyarts.log import debug, trace
 
 @component
 class TownsPanel(object):
-    depends = ['imagecache', 'engine']
+    depends = ['imagecache', 'engine', 'local']
 
 
     def __init__(self):
@@ -23,15 +24,22 @@ class TownsPanel(object):
         self.grid = sg.Grid(0, 4)
         self.sg.append(self.grid)
 
-    def inject(self, imagecache, engine):
+    def inject(self, imagecache, engine, local):
         self.imagecache = imagecache
+        self.local = local
+
         engine.ontowncreated.add(self.townadded)
+
 
     def step(self):
         pass
 
     def townadded(self, team, town):
-        print('added town', team, town)
+        debug('added town', team, town)
+
+        #if not team.controlled_by(self.local.player):
+        #    print('local player doesn\'t control this town')
+        #    return
 
         resource = self.imagecache.getimage(town.race['resource_icon'])
         icon1 = sg.Rect().paint(resource)
@@ -52,14 +60,13 @@ class TownsPanel(object):
         g.append(text2)
 
         self.resources[town.resources.rpid] = (text1, text2)
-        print(town, town.resources.rpid)
-
+        
         town.resources.onchange.add(self.update_resources)
         # refresh the number right now
         self.update_resources(town.resources)
 
     def update_resources(self, resources):
-        print('update', resources)
+        trace('update', resources)
         self.resources[resources.rpid][0].text = str(resources.resource)
         self.resources[resources.rpid][1].text = str(resources.energy)
         self.sg.repaint()

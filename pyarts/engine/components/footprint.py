@@ -8,6 +8,8 @@ NOTE: Assumes the entity does NOT move! (ie. buildings)
 
 from .component import Component, register
 
+from pyarts.log import warn, debug
+
 @register
 class Footprint(Component):
     depends = ['locator', '@map']
@@ -24,11 +26,11 @@ class Footprint(Component):
 
     def step(self):
         if not self.ready:
-            print('footprinting', self.ent)
+            debug('footprinting', self.ent)
             self.ready = self.map.footprint(self.locator)
     
     def save(self):
         return { }
 
     def destroy(self):
-        print('TODO - unfootprint')
+        warn('TODO - unfootprint')

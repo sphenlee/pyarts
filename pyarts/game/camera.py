@@ -8,6 +8,7 @@ from ..engine.event import Event
 from ..engine.map import SECTOR_SZ
 
 from pyarts.container import component
+from pyarts.log import debug
 
 @component
 class Camera(object):
@@ -33,7 +34,7 @@ class Camera(object):
         settings.onload.add(self.onload)
         
     def load_data(self):
-        print('camera load data')
+        debug('camera load data')
         data = self.datasrc.getmisc('camera.initial.position')
         look = data[str(self.local.pid)]
         self.lookx = int(look['x'])

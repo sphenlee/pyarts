@@ -8,6 +8,7 @@ This holds the "run state" of the game.
 '''
 
 from pyarts.container import component
+from pyarts.log import info
 
 @component
 class GameState(object):
@@ -26,7 +27,7 @@ class GameState(object):
         self.game = game
 
     def start(self):
-        print('gamestate starting!')
+        info('gamestate starting!')
         self.state = GameState.RUNNING
 
     def step(self):

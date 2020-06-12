@@ -10,6 +10,7 @@ other players
 from pyarts.container import component
 from pyarts.engine.target import Target
 from pyarts.engine.event import Event
+from pyarts.log import info
 
 from .order import Order, AbilityOrder, AutoCommandOrder, NoOrder
 
@@ -125,7 +126,7 @@ class MasterNetwork(NanomsgNetwork):
         self.game.orderfor(order, pid)
 
     def handle_ready(self, msg):
-        print('master got ready message', self.waiting)
+        info('master got ready message: waiting={}', self.waiting)
         self.waiting -= 1
         if self.waiting == 0:
             self.send_startgame()

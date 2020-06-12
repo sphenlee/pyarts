@@ -5,6 +5,7 @@ use pyo3::types::PyDict;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::sync::Arc;
+use log::info;
 
 #[pyclass]
 pub struct MapRenderer {
@@ -13,7 +14,7 @@ pub struct MapRenderer {
 
     active_renderers: Vec<Arc<RefCell<SectorRenderer>>>,
     all_renderers: HashMap<(u32, u32), Arc<RefCell<SectorRenderer>>>,
-
+    //image_cache: HashMap<String, Image>,
     #[pyo3(get)]
     looksector: PyObject,
 }
@@ -34,6 +35,7 @@ impl MapRenderer {
 
             active_renderers: Vec::new(),
             all_renderers: HashMap::new(),
+            //image_cache: HashMap::new(),
         }
     }
 
@@ -57,7 +59,7 @@ impl MapRenderer {
     }
 
     fn look_at(&mut self, py: Python, sector: &PyAny) -> PyResult<()> {
-        println!("looking at sector: {}", sector);
+        info!("looking at sector: {}", sector);
 
         self.looksector = sector.into();
 

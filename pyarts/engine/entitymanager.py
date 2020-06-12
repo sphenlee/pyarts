@@ -11,6 +11,7 @@ from .actions import AbilityAction
 from .event import Event
 
 from pyarts.container import component
+from pyarts.log import info
 
 @component
 class EntityManager(object):
@@ -70,7 +71,7 @@ class EntityManager(object):
 
     def _docreate(self, proto, eid=None):
         '''Create an entity from a proto - implementation method'''
-        print('creating ', proto.name)
+        info('creating {0}', proto.name)
 
         if eid is None:
             eid = self.nextentid

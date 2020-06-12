@@ -16,9 +16,6 @@ class Locator(Component):
     def configure(self, data):
         self.r = data.get('r', 16)
         self.sight = data.get('sight', self.r + 16) # guess?
-        self.x = 0
-        self.y = 0
-        self.placed = False
 
     def save(self):
         return {
@@ -28,12 +25,11 @@ class Locator(Component):
         }
 
     def load(self, data):
-        if data:
-            self.x = data.get('x', 0)
-            self.y = data.get('y', 0)
-            self.placed = data.get('placed', True)
-            if self.placed:
-                self.map.place(self)
+        self.x = data.get('x', 0)
+        self.y = data.get('y', 0)
+        self.placed = data.get('placed', True)
+        if self.placed:
+            self.map.place(self)
 
     def place(self, x, y):
         ''' Put the entity onto the map '''
@@ -46,7 +42,8 @@ class Locator(Component):
         ''' Move the entity - an instant jump to the new location '''
         self.x = x
         self.y = y
-        self.map.move(self)
+        if self.placed:
+            self.map.move(self)
         
     def unplace(self):
         ''' Remove entity from the map (eg. picked up by a transport unit) '''

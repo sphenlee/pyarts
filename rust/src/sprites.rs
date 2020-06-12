@@ -92,7 +92,7 @@ impl SpriteManager {
             visible: 0,
             dx: 0.0,
             dy: 0.0,
-            r: f32::from(r),// / SPRITE_SIZE,
+            r: f32::from(r), // / SPRITE_SIZE,
         };
 
         let idx = self.sprites.insert(sprite);
@@ -146,14 +146,16 @@ impl SpriteManager {
         for (_, sprite) in self.sprites.iter() {
             let scale = sprite.r / SPRITE_SIZE;
 
-
             if (sprite.visible & tidmask) > 0 {
                 if let Some(ref img) = sprite.img {
                     if sprite.selected {
                         let circle = SpriteManager::make_ring(ctx, sprite)?;
 
-                        circle.draw(ctx, DrawParam::new()
-                            .dest([sprite.dx + sprite.r, sprite.dy + (sprite.r * 1.5)]))?;
+                        circle.draw(
+                            ctx,
+                            DrawParam::new()
+                                .dest([sprite.dx + sprite.r, sprite.dy + (sprite.r * 1.5)]),
+                        )?;
                     }
 
                     let param = DrawParam::new()

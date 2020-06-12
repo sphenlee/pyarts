@@ -6,12 +6,13 @@ and hence can be modified by upgrades.
 '''
 
 class EntityProto(object):
-    sprite = None
-
     def __init__(self, epid, team):
         self.epid = epid
         self.instances = set()
         self.team = team
+
+    def __repr__(self):
+        return f'<EntityProto {self.epid} "{self.name}"" owned by {self.team}>'
 
     def load(self, data):
         self.name = data['name']

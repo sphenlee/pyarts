@@ -10,6 +10,8 @@ from .component import Component, register
 
 from ..sector import Sector
 
+from pyarts.log import warn
+
 def parse_walk(value):
     parts = value.toupper().split('|')
     walk = 0
@@ -41,14 +43,10 @@ class Moving(Component):
             self.walk = parse_walk(data['walk'])
         else:
             self.walk = Sector.WALK_GROUND | Sector.WALK_FOOT
-
-        self.waypoints = []
-        self.intransit = False
     
     def load(self, data):
-        if data:
-            self.waypoints = data.get('waypoints')
-            self.intransit = bool(self.waypoints)
+        self.waypoints = data.get('waypoints', [])
+        self.intransit = bool(self.waypoints)
 
     def set_incorporeal(self, val):
         if val:
@@ -88,24 +86,27 @@ class Moving(Component):
             range = target.ent.locator.r + self.locator.r
         
         path = self.pathfinder.findpath(start, goal, self.walk, range)
-        if path is not None:
-            self.waypoints[:] = list(path)
-            if len(self.waypoints) > 1:
-                # the first point is just the centre of the current cell,
-                # so if we have more than one point we skip this
-                self.waypoints.pop()
+        if path:
+            # waypoints list is backwards
+            # popping off completed points from the end is cheaper
+            self.waypoints[:] = list(reversed(path))
 
-            if range is None:
-                # for an exact target we don't want the centre of the destination
-                # cell, so replace it with the actual goal
-                self.waypoints[0] = goal
+            # if len(self.waypoints) > 1:
+            #     # the first point is just the centre of the current cell,
+            #     # so if we have more than one point we skip this
+            #     self.waypoints.pop()
+
+            # if range is None:
+            #     # for an exact target we don't want the centre of the destination
+            #     # cell, so replace it with the actual goal
+            #     self.waypoints[0] = goal
 
             #print('--------- moveto!')
             #print(f'{target} {range}')
             #print(f'{start} {goal}')
             #print(f'{self.waypoints}')
         else:
-            print('no path to', target)
+            warn('no path to', target)
             self.stop()
 
 

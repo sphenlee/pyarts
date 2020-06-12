@@ -1,8 +1,8 @@
-use tiled::{TiledError, PropertyValue, Properties};
 use crate::map::sector::{NUM_TILES, NUM_TILES_CAPACITY};
+use pyo3::PyErr;
 use std::collections::HashMap;
 use thiserror::Error;
-use pyo3::PyErr;
+use tiled::{Properties, PropertyValue, TiledError};
 
 pub struct LoadedMap {
     pub tiles: Vec<u32>,
@@ -39,14 +39,30 @@ pub fn load_map(file: String) -> Result<LoadedMap, MapLoadError> {
     let map = tiled::parse_file(file.as_ref())?;
 
     if map.width as u16 != NUM_TILES {
-        return Err(MapLoadError::BadConfig(format!("width must be {}, got {}", NUM_TILES, map.width)));
+        return Err(MapLoadError::BadConfig(format!(
+            "width must be {}, got {}",
+            NUM_TILES, map.width
+        )));
     }
     if map.height as u16 != NUM_TILES {
-        return Err(MapLoadError::BadConfig(format!("height must be {}, got {}", NUM_TILES, map.height)));
+        return Err(MapLoadError::BadConfig(format!(
+            "height must be {}, got {}",
+            NUM_TILES, map.height
+        )));
     }
+
+    if map.tilesets.len() != 1 {
+        return Err(MapLoadError::BadConfig(
+            "expected exactly 1 tileset".to_owned(),
+        ));
+    };
 
     let tileset0 = &map.tilesets[0];
     let mut tile_to_walk = HashMap::<u32, u8>::new();
+
+    if tileset0.tiles.len() == 0 {
+        return Err(MapLoadError::BadConfig("tileset has no tiles?".to_owned()));
+    };
 
     for tile in &tileset0.tiles {
         let ground = get_bool_property(&tile.properties, "Ground").unwrap_or(true);
@@ -67,6 +83,12 @@ pub fn load_map(file: String) -> Result<LoadedMap, MapLoadError> {
         tile_to_walk.insert(tileset0.first_gid + tile.id, walk);
     }
 
+    if map.layers.len() != 1 {
+        return Err(MapLoadError::BadConfig(
+            "expected exactly 1 layer".to_owned(),
+        ));
+    };
+
     let layer0 = &map.layers[0];
 
     let mut tiles = Vec::with_capacity(NUM_TILES_CAPACITY);
@@ -75,7 +97,7 @@ pub fn load_map(file: String) -> Result<LoadedMap, MapLoadError> {
     for row in &layer0.tiles {
         for tile in row {
             tiles.push(tile.gid - tileset0.first_gid); // tiled starts counting tiles at 1
-            let mask = tile_to_walk.get(&tile.gid).copied().unwrap_or(0x07);
+            let mask = tile_to_walk.get(&tile.gid).copied().unwrap_or(0x02);
             walk.push(mask);
         }
     }
@@ -83,6 +105,6 @@ pub fn load_map(file: String) -> Result<LoadedMap, MapLoadError> {
     Ok(LoadedMap {
         tiles,
         walk,
-        tileset: tileset0.images[0].source.clone()
+        tileset: "".to_owned(), //tileset0.images[0].source.clone()
     })
 }

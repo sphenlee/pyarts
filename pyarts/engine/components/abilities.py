@@ -7,6 +7,8 @@ A component for entities that can use abilities
 from .component import Component, register
 from ..actions import AbilityAction
 
+from pyarts.log import warn
+
 class AbilityInstance(object):
     '''
     An ability with the per ent cooldown timer,
@@ -60,11 +62,11 @@ class Abilities(Component):
         ainst = self[idx]
 
         if ainst.cooldown > 0:
-            print('not ready - ability activate checked it')
+            warn('not ready - ability activate checked it')
             return False # not ready
 
         if not ainst.ability.check_cost(self.ent):
-            print('cannot pay cost - ability activate checked it')
+            warn('cannot pay cost - ability activate checked it')
             return False
 
         if ainst.ability.queue:
@@ -74,7 +76,7 @@ class Abilities(Component):
             return True
         else:
             if ainst.wait > 0:
-                print('already doing this - ability activate checked it')
+                warn('already doing this - ability activate checked it')
                 return False # not ready    
 
             action = AbilityAction(ainst, target)

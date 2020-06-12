@@ -26,7 +26,6 @@ class DataSource(object):
         self.map = json.load(open(settings.data_map))
         self.core = json.load(open(settings.data_core))
 
-        print('about to emit onload')
         self.onload.emit()
         self.onready.emit()
 

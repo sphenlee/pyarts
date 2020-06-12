@@ -10,6 +10,8 @@ The queue can also be emptied to cancel everything.
 
 from .component import Component, register
 
+from pyarts.log import warn
+
 @register
 class Actions(Component):
     depends = []
@@ -33,6 +35,10 @@ class Actions(Component):
         action.ent = self.ent
 
         if self.queue:
+            if not self.queue[-1].interruptible():
+                warn('action is not interruptible!')
+                return
+
             self.queue[-1].suspend()
             for ac in self.queue:
                 ac.stop()

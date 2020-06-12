@@ -1,9 +1,9 @@
-use ggez::{graphics, Context, GameResult};
+use ggez::{Context, GameResult};
 use log::trace;
 use pyo3::prelude::*;
 
 use super::sector::{Sector, NUM_TILES};
-use ggez::graphics::{DrawParam, Drawable, FilterMode};
+use ggez::graphics::{self, DrawParam, Drawable, FilterMode};
 
 pub const VERTEX_SZ: f32 = 32.0;
 pub const TILES_PER_ROW: u16 = 16;
@@ -17,6 +17,7 @@ struct GfxState {
     terrain: graphics::Mesh,
     fog1: graphics::Mesh,
     fog2: graphics::Mesh,
+    fogofwar: graphics::Image,
 }
 
 pub struct SectorRenderer {
@@ -29,14 +30,25 @@ pub struct SectorRenderer {
     update_token: u8,
 }
 
-fn vert(vx: f32, vy: f32, tx: f32, ty: f32, _id: u8) -> graphics::Vertex {
+fn vert(vx: f32, vy: f32, tx: f32, ty: f32, walk: u8) -> graphics::Vertex {
+    let _color = match walk {
+        0x00 => [1.0, 1.0, 1.0, 1.0],        // open => shallows (white)
+        0x01 => [0.0, 0.0, 1.0, 1.0],        // sea+air => water (blue)
+        0x02 => [0.0, 1.0, 0.0, 1.0],        // ground+air => land (green)
+        0x03 => [0.1, 0.0, 0.0, 1.0],        // air => hole (red)
+        0x04 => [0.0, 1.0, 1.0, 1.0],        // ground+sea => no fly zone (cyan)
+        0x05 => [1.0, 0.0, 1.0, 1.0],        // sea => deep ocean (magenta)
+        0x06 => [1.0, 1.0, 0.0, 1.0],        // ground => forest (yellow)
+        0x07 => [0.5, 0.5, 0.5, 1.0],        // totally impassable (gray)
+        0x08..=0x0F => [0.0, 0.0, 0.0, 1.0], // footprint (black)
+        _ => panic!("invalid walk bitpattern"),
+    };
+
     graphics::Vertex {
         pos: [vx, vy],
         uv: [tx, ty],
         color: [1.0, 1.0, 1.0, 1.0],
-        /*[if id == 1 || id == 4{ 1.0} else {0.0},
-        if id == 2 || id == 4 {1.0} else {0.0},
-        if id == 3 {1.0} else {0.0}, 1.0],*/
+        //color,
     }
 }
 
@@ -95,19 +107,21 @@ impl SectorRenderer {
                 let tx = f32::from(tx) * TEX_SZ_X;
                 let ty = f32::from(ty) * TEX_SZ_Y;
 
+                let walk = peer.walk((x, y));
+
                 index.extend_from_slice(&[i, i + 1, i + 2, i, i + 3, i + 1]);
                 i += 4;
 
-                vdata.push(vert(vx, vy, tx, ty, 1));
+                vdata.push(vert(vx, vy, tx, ty, walk));
                 vdata.push(vert(
                     vx + VERTEX_SZ,
                     vy + VERTEX_SZ,
                     tx + TEX_SZ_X,
                     ty + TEX_SZ_Y,
-                    2,
+                    walk,
                 ));
-                vdata.push(vert(vx, vy + VERTEX_SZ, tx, ty + TEX_SZ_Y, 3));
-                vdata.push(vert(vx + VERTEX_SZ, vy, tx + TEX_SZ_X, ty, 4));
+                vdata.push(vert(vx, vy + VERTEX_SZ, tx, ty + TEX_SZ_Y, walk));
+                vdata.push(vert(vx + VERTEX_SZ, vy, tx + TEX_SZ_X, ty, walk));
             }
         }
 
@@ -121,16 +135,16 @@ impl SectorRenderer {
             .build(ctx)?;
 
         trace!("loading fog image: {}", self.fogofwar);
-        let mut image = graphics::Image::new(ctx, &self.fogofwar)?;
-        image.set_filter(FilterMode::Nearest);
+        let mut fogofwar = graphics::Image::new(ctx, &self.fogofwar)?;
+        fogofwar.set_filter(FilterMode::Nearest);
 
-        trace!("building fog mesh1");
+        trace!("building (empty) fog mesh1");
         let fog1 = graphics::MeshBuilder::new()
-            .raw(&vdata, &index, Some(image.clone()))
+            .raw(&vdata, &index, None)
             .build(ctx)?;
-        trace!("building fog mesh2");
+        trace!("building (empty) fog mesh2");
         let fog2 = graphics::MeshBuilder::new()
-            .raw(&vdata, &index, Some(image.clone()))
+            .raw(&vdata, &index, None)
             .build(ctx)?;
 
         trace!("gfx done");
@@ -138,6 +152,7 @@ impl SectorRenderer {
             terrain,
             fog1,
             fog2,
+            fogofwar,
         })
     }
 
@@ -213,9 +228,9 @@ impl SectorRenderer {
         let gfx = self.gfx.as_mut().unwrap();
 
         trace!("update fog mesh 1");
-        gfx.fog1.set_vertices(ctx, &fog1, &index);
+        gfx.fog1 = graphics::Mesh::from_raw(ctx, &fog1, &index, Some(gfx.fogofwar.clone()))?;
         trace!("update fog mesh 2");
-        gfx.fog2.set_vertices(ctx, &fog2, &index);
+        gfx.fog2 = graphics::Mesh::from_raw(ctx, &fog2, &index, Some(gfx.fogofwar.clone()))?;
 
         trace!("fog done");
         Ok(())

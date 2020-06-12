@@ -22,3 +22,6 @@ class Action(object):
 
     def step(self):
         raise NotImplementedError()
+
+    def interruptible(self):
+        return True

@@ -8,6 +8,8 @@ perform (usually buildings)
 from .component import Component, register
 from ..actions.queue import QueueAction
 
+from pyarts.log import error
+
 @register
 class Queue(Component):
     depends = [ 'actions' ]
@@ -19,7 +21,7 @@ class Queue(Component):
         self.queue = []
         
     def save(self):
-        pass
+        error('TODO - save queue component')
 
     def load(self, data):
         pass
@@ -28,7 +30,6 @@ class Queue(Component):
         pass
 
     def add(self, ability, target):
-        #print 'queueing', ability, target
         startqueue = len(self.queue) == 0
         
         self.queue.append((ability, target))

@@ -6,6 +6,8 @@ Hold Costs and ResourcePool
 
 from .event import Event
 
+from pyarts.log import debug
+
 class Cost(object):
     __slots__ = ['resource', 'energy', 'mana']
 
@@ -41,7 +43,7 @@ class ResourcePool(object):
         self.resource -= cost.resource
         self.energy -= cost.energy
 
-        print('paid %d, %d, resources now %d, %d' % (cost.resource, cost.energy,
+        debug('paid %d, %d, resources now %d, %d' % (cost.resource, cost.energy,
             self.resource, self.energy))
 
         self.onchange.emit(self)

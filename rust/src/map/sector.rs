@@ -1,6 +1,6 @@
+use super::loader::load_map;
 use log::trace;
 use pyo3::prelude::*;
-use super::loader::load_map;
 
 pub const NUM_TILES: u16 = 64;
 pub const NUM_VERTS: u16 = NUM_TILES + 1;
@@ -26,11 +26,7 @@ pub struct Sector {
 #[pymethods]
 impl Sector {
     #[new]
-    pub fn new(
-        sx: i32,
-        sy: i32,
-        file: String,
-    ) -> PyResult<Self> {
+    pub fn new(sx: i32, sy: i32, file: String) -> PyResult<Self> {
         let loaded = load_map(file)?;
 
         Ok(Sector {
@@ -40,12 +36,19 @@ impl Sector {
             visited: vec![0u8; NUM_VERTS_CAPACITY], // TODO - load visited data here
             visible: vec![0u8; NUM_VERTS_CAPACITY],
             walk: loaded.walk,
-            update_token: 0,
+            update_token: 1, // the renderer defaults to 0
         })
     }
 
     fn footprint(&mut self, x: i16, y: i16, r: i16) {
-        trace!("foot printing sector {},{} -> ({},{})@{}", self.sx, self.sy, x, y, r);
+        trace!(
+            "foot printing sector {},{} -> ({},{})@{}",
+            self.sx,
+            self.sy,
+            x,
+            y,
+            r
+        );
         for i in (x - r)..(x + r) {
             for j in (y - r)..(y + r) {
                 if i >= 0 && j >= 0 && i < NUM_TILES as i16 && j < NUM_TILES as i16 {
@@ -82,7 +85,15 @@ impl Sector {
     }
 
     fn update_fog(&mut self, x: i16, y: i16, sight: i16, tid: u8) {
-        trace!("update fog sector {},{} -> ({},{})@{} tid={}", self.sx, self.sy, x, y, sight, tid);
+        trace!(
+            "update fog sector {},{} -> ({},{})@{} tid={}",
+            self.sx,
+            self.sy,
+            x,
+            y,
+            sight,
+            tid
+        );
 
         for i in (x - sight)..(x + sight) {
             for j in (y - sight)..(y + sight) {

@@ -56,10 +56,9 @@ class Stats(Component):
         '''
         Load status effects and then recalculate
         '''
-        if data is not None:
-            for effdata in data['effects']:
-                eff = StatusEffect(**effdata)
-                self.stack.append(eff)
+        for effdata in data.get('effects', []):
+            eff = StatusEffect(**effdata)
+            self.stack.append(eff)
 
         self.recalculate()
 

@@ -1,6 +1,7 @@
 '''
 Player
 '''
+from pyarts.log import error
 
 from .order import NoOrder
 
@@ -37,6 +38,6 @@ class Player(object):
 
     def addorder(self, order):
         if order.cycle in self.orders:
-            print('WARNING multiple orders for a single player')
+            error('WARNING multiple orders for a single player')
         
         self.orders[order.cycle] = order

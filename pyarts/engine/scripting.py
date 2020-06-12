@@ -7,6 +7,9 @@ Various functions that get exposed to Lua
 from .. import lua
 
 from pyarts.container import component
+from pyarts.log import info
+
+from pyarts.engine.actions import ConstructAction
 
 @component
 class Scripting(object):
@@ -61,12 +64,12 @@ class Scripting(object):
         return ent.eid
 
     def place_entity(self, eid, x, y):
-        print('placing %d at (%d, %d)' % (eid, x, y))
+        info('placing %d at (%d, %d)' % (eid, x, y))
         ent = self.entities.get(eid)
         ent.locator.place(x, y)
 
     def place_entity_near(self, eid, me):
-        print('placing %d near %d' % (eid, me))
+        info('placing %d near %d' % (eid, me))
         ent = self.entities.get(eid)
         meent = self.entities.get(me)
 
@@ -75,7 +78,7 @@ class Scripting(object):
         ent.locator.place(x + meent.locator.r, y)
 
     def write_variable(self, eid, var, op, val):
-        print('write variable', eid, op, val)
+        info('write variable', eid, op, val)
         ent = self.entities.get(eid)
         if ent.has('variables'):
             if op == 'set':
@@ -83,8 +86,14 @@ class Scripting(object):
             elif op == 'add':
                 ent.variables[var] += int(val)
 
+    def construct(self, me, protoname):
+        ent = self.entities.get(me)
+        proto = ent.team.getproto(protoname)
+
+        ent.actions.now(ConstructAction(proto))
+
     def destroy(self, eid):
-        print('destroying ', eid)
+        info('destroying ', eid)
         self.entities.destroy(eid)
 
     # _____________________________________________________________
@@ -96,6 +105,7 @@ class Scripting(object):
         self.lua.setglobal('place_entity_near', self.place_entity_near)
         self.lua.setglobal('write_variable', self.write_variable)
         self.lua.setglobal('destroy', self.destroy)
+        self.lua.setglobal('construct', self.construct)
 
     def runmain(self):
         main = self.datasrc.getresource('main.lua')

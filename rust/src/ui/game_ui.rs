@@ -1,4 +1,4 @@
-use crate::scene::{WIDTH, HEIGHT};
+use crate::scene::{HEIGHT, WIDTH};
 use crate::util::YartsResult;
 use ggez::graphics::DrawParam;
 use ggez::{graphics, Context};
@@ -19,9 +19,7 @@ impl GameUi {
 
     #[new]
     fn new(_py: Python) -> GameUi {
-        GameUi {
-            panels: vec![],
-        }
+        GameUi { panels: vec![] }
     }
 
     #[args(kwargs = "**")]
@@ -53,7 +51,7 @@ impl GameUi {
     }
 
     fn draw_one(py: Python, ctx: &mut Context, panel: &PyObject) -> YartsResult<()> {
-         let rendered = panel.call_method0(py, "render")?;
+        let rendered = panel.call_method0(py, "render")?;
 
         if rendered.is_none() {
             return Ok(());
@@ -74,7 +72,9 @@ impl GameUi {
         // TODO - cache the image
         let img = graphics::Image::from_rgba8(ctx, w, h, &rgba)?;
 
-        let dest: [f32; 2] = panel.call_method1(py, "destination", (WIDTH, HEIGHT))?.extract(py)?;
+        let dest: [f32; 2] = panel
+            .call_method1(py, "destination", (WIDTH, HEIGHT))?
+            .extract(py)?;
 
         graphics::draw(ctx, &img, DrawParam::new().dest(dest))?;
 

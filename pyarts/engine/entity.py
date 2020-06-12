@@ -8,6 +8,7 @@ specified by the components.
 '''
 
 from .components import *
+from pyarts.log import info
 
 class Entity(object):
     def __init__(self, eid, proto):
@@ -17,7 +18,7 @@ class Entity(object):
         self.components = { }
 
     def __del__(self):
-        print('entity %r is being deleted' % self)
+        info('entity %r is being deleted' % self)
 
     def __repr__(self):
         return '<Entity %d proto %s owned by %r>' % (self.eid, self.proto.name, self.team)
@@ -55,7 +56,7 @@ class Entity(object):
     def load(self, data):
         ''' Loads entity specific data into each component '''
         for name, comp in self.components.items():
-            tmp = data.get(name)
+            tmp = data.get(name, {})
             comp.load(tmp)
 
     def step(self):

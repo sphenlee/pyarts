@@ -24,8 +24,7 @@ class GameScreen(Screen):
 
     def load(self):
         # loadtileset should not really be doing this
-        sx, sy = self.map.pos_to_sector(self.camera.lookx, self.camera.looky)
-        sec = self.map.sectors[(sx, sy)]
+        sec = self.map.sector_at_pos(self.camera.lookx, self.camera.looky)
 
         self.maprenderer.lookat(sec)
 

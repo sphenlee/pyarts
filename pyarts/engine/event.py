@@ -1,6 +1,7 @@
 '''
 Event
 '''
+from pyarts.log import debug, error
 
 class Event(object):
     def __init__(self, debug=None):
@@ -16,10 +17,10 @@ class Event(object):
             del self.listeners[idx]
         except ValueError:
             # methods may not compare equal even though they are the same...
-            print('remove failed...')
+            error('event remove of {0} from {1} failed', func, self)
 
     def emit(self, *args, **kwargs):
         for func in self.listeners:
             if self.debug:
-                print('emitting %s to %s(*%r, **%r)' % (self.debug, func, args, kwargs))
+                debug('emitting {0} to {1}(*{2}, **{3})', self.debug, func, args, kwargs)
             func(*args, **kwargs)

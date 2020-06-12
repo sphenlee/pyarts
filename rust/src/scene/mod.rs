@@ -2,6 +2,7 @@ use crate::util::{YartsError, YartsResult};
 use ggez::event::{self, EventHandler, MouseButton};
 use ggez::{graphics, Context, ContextBuilder, GameResult};
 use pyo3::prelude::*;
+use log::{info, error};
 
 pub mod game_scene;
 pub mod main_scene;
@@ -67,8 +68,8 @@ pub fn launch(py: Python<'_>) -> YartsResult<()> {
     screens.screens.push(main_scene::MainScene::new());
 
     match event::run(&mut ctx, &mut event_loop, &mut screens) {
-        Ok(_) => println!("Exited cleanly."),
-        Err(e) => println!("Error occurred: {}", e),
+        Ok(_) => info!("Exited cleanly."),
+        Err(e) => error!("Error occurred: {}", e),
     }
 
     Ok(())
@@ -118,12 +119,12 @@ where
         Err(err) => {
             event::quit(ctx);
             match err {
-                YartsError::GameError(err) => println!("game error: {}", err),
+                YartsError::GameError(err) => error!("game error: {}", err),
                 YartsError::PyErr(pyerr) => {
-                    println!("python error:");
+                    error!("python error:");
                     pyerr.print(py)
-                },
-                YartsError::Other(err) => println!("other error: {}", err),
+                }
+                YartsError::Other(err) => error!("other error: {}", err),
             };
             None
         }

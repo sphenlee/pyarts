@@ -11,6 +11,8 @@ this can for example destroy the entity, or change it's behaviour.
 
 from .component import Component, register
 
+from pyarts.log import debug
+
 @register
 class Resource(Component):
     depends = ['@scripting']
@@ -32,8 +34,7 @@ class Resource(Component):
             self.deplete = None
 
     def load(self, data):
-        if data:
-            self.quantity = data.get('quantity', self.quantity)
+        self.quantity = data.get('quantity', self.quantity)
     
     def save(self):
         return { 
@@ -42,6 +43,7 @@ class Resource(Component):
 
     def deduct(self, amt):
         self.quantity -= amt
+        debug(f'resource has {self.quantity} remaining')
         if self.quantity <= 0:
             if self.deplete:
                 self.deplete(self.eid)

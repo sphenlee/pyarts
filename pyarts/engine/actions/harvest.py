@@ -14,8 +14,8 @@ RETURNING = 'returning'
 
 class HarvestAction(Action):
     def __init__(self, seed):
-        self.seed = seed
-        self.resource = seed.resource
+        self.proto = seed.proto
+        self.pos = seed.locator.pos()
 
     def start(self):
         h = self.ent.harvester
@@ -24,25 +24,31 @@ class HarvestAction(Action):
             self.state = RETURNING
         else:
             self.state = INIT
-            
+    
+    def interruptible(self):
+        if self.state == HARVESTING: # TODO and self.resource.unplace_harvester:
+            return False
+        else:
+            return True
+
     def step(self):
         #print 'harvester state is %s' % self.state
         h = self.ent.harvester
 
         if self.state == INIT:
-            if h.gotopickup(self.seed):
+            if h.gotopickup(self.proto, self.pos):
                 self.state = MOVING
             else:
                 self.done()
 
         elif self.state == MOVING:
             if not h.intransit:
-                h.startharvest(self.resource)
+                h.startharvest()
                 self.state = HARVESTING
 
         elif self.state == HARVESTING:
             if h.full():
-                h.stopharvest(self.resource)
+                h.stopharvest()
                 if h.gotodropoff():
                     self.state = RETURNING
                 else:
@@ -50,9 +56,9 @@ class HarvestAction(Action):
 
         elif self.state == RETURNING:
             if not h.intransit:
-                h.dropoff(self.resource)
+                h.do_dropoff()
                 self.state = INIT
 
     def stop(self):
-        self.ent.harvester.stopharvest(self.resource)
+        self.ent.harvester.stopharvest()
         self.ent.moving.stop()

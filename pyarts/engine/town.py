@@ -6,6 +6,8 @@ A town is a group of entities sharing resources.
 
 from .resource import ResourcePool
 
+from pyarts.log import debug
+
 class Town(object):
     def __init__(self, twid, team):
         self.twid = twid
@@ -31,7 +33,7 @@ class Town(object):
         }
 
     def addentity(self, ent):
-        print('adding entity %d to town %r' % (ent.eid, self))
+        debug('adding entity %d to town %r' % (ent.eid, self))
         self.eids.add(ent.eid)
         self.towncomponents.add(ent.town)
 

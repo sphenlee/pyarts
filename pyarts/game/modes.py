@@ -4,6 +4,8 @@ Modes
 
 from pyarts.engine.target import Target
 
+from pyarts.log import info
+
 
 class BaseMode(object):
     def setup(self, modestack, game):
@@ -36,12 +38,7 @@ class NormalMode(BaseMode):
 
     def right_click(self, x, y, ents, add):
         ''' Right click issues an auto command '''
-        if ents:
-            target = Target(next(iter(ents)))
-        else:
-            target = Target((x, y))
-
-        self.game.autocommand(target, add)
+        self.game.autocommand(x, y, ents, add)
 
     def ability(self, idx, add):
         self.game.ability(idx, add)
@@ -59,10 +56,10 @@ class TargetingMode(BaseMode):
         self.allowpos = allowpos
 
     def enter(self):
-        print('entered targeting mode')
+        info('entered targeting mode')
 
     def exit(self):
-        print('exited targeting mode')
+        info('exited targeting mode')
 
     def left_click_pos(self, x, y, add):
         ''' Select a position target '''

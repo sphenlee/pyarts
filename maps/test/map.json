@@ -38,7 +38,7 @@
             "name" : "Town Hall",
             "rank" : 100,
             "components" : ["town", "appearance", "behaviour", "maprevealer",
-                "footprint", "abilities", "harveststore", "queue"],
+                "footprint", "abilities", "harveststore", "queue", "variables"],
             "appearance" : {
                 "sprite" : "res/bldg-townhall.png",
                 "portrait" : "res/bldg-townhall.png"
@@ -46,9 +46,13 @@
             "behaviour" : { "type" : "building" },
             "locator" : { "r" : 128 },
             "stats" : {
-                "sight" : 1024
+                "sight" : 1024,
+                "maxhp": 1000
             },
-            "abilities" : [ "train_archer" ],
+            "variables" : {
+                "hp" : { "max" : "maxhp" }
+            },
+            "abilities" : [ "train_archer", "train_peasant" ],
             "town" : { "r" : 1024 }
         },
         "goldmine" : {
@@ -85,7 +89,7 @@
             "locator" : { "r" : 64 },
             "resource" : {
                 "kind": "resource",
-                "quantity" : 50,
+                "quantity" : 200,
                 "deplete" : [
                     "function(me)",
                     "    print('tree depleted')",
@@ -101,14 +105,14 @@
             "team" : 0,
             "proto" : "peasant",
             "locator" : {
-                "x" : 700, "y" : 700, "placed" : true
+                "x" : 750, "y" : 500, "placed" : true
             }
         },
         "2" : {
             "team" : 0,
             "proto" : "archer",
             "locator" : {
-                "x" : 800, "y" : 800, "placed" : true
+                "x" : 700, "y" : 500, "placed" : true
             }
         },
         "3" : {
@@ -124,24 +128,24 @@
             "locator" : {
                 "x" : 500, "y" : 500, "placed" : true
             },
-            "town" : 0
+            "town" : {"id": 0}
         },
         "10" : {
             "team" : 1,
             "proto" : "townhall",
             "locator" : {
-                "x" : 1800, "y" : 600, "placed" : true
+                "x" : 2500, "y" : 1000, "placed" : true
             },
-            "town" : 0
+            "town" : {"id": 0}
         },
         "5" : {
             "team" : 2,
             "proto" : "goldmine",
             "locator" : {
-                "x" : 2000, "y" : 500, "placed" : true
+                "x" : 2500, "y" : 500, "placed" : true
             },
             "resource" : {
-                "quantity" : 100
+                "quantity" : 1500
             }
         },
         "6": { "team": 2, "proto": "tree", "locator": {"x": 100, "y": 200}},
@@ -205,6 +209,24 @@
                 ],
                 "wait": 120,
                 "queue" : true,
+                "group": true,
+                "cost" : { "energy" : 100, "resource" : 100 },
+                "image" : "res/unit-archer.png"
+            },
+            "train_peasant" : {
+                "type" : "activity",
+                "name" : "Train Peasant",
+                "description" : "Trains a Peasant",
+                "effect" : [
+                    "function(me)",
+                    "    print('Inside train peasant')",
+                    "    ent = create_entity(0, 'peasant')",
+                    "    place_entity_near(ent, me)",
+                    "end"
+                ],
+                "wait": 120,
+                "queue" : true,
+                "group": true,
                 "cost" : { "energy" : 100, "resource" : 100 },
                 "image" : "res/unit-pesant.png"
             },
@@ -214,8 +236,8 @@
                 "description" : "Builds a Townhall",
                 "effect" : { "file": "abilities.lua", "function": "build_townhall" },
                 "onstart" : { "file": "abilities.lua", "function": "start_building" },
-                "cooldown" : 60,
-                "cost" : { },
+                "cooldown" : 0,
+                "cost": { "energy" : 100, "resource" : 500 },
                 "image" : "res/bldg-townhall.png",
                 "ghost" : "res/bldg-townhall.png"
             }
@@ -228,7 +250,7 @@
                 "peasant" : {
                     "name" : "Peasant Upgraded",
                     "rank" : 30,
-                    "components" : ["moving", "appearance", "behaviour", "maprevealer","abilities", "harvester"],
+                    "components" : ["moving", "appearance", "behaviour", "maprevealer", "abilities", "harvester", "constructor"],
                     "appearance" : {
                         "sprite" : "res/unit-pesant.png",
                         "portrait" : "res/unit-pesant.png"
@@ -238,9 +260,9 @@
                     "locator" : { "r" : 32 },
                     "stats" : {
                         "sight" : 256,
-                        "speed" : 8
+                        "speed" : 10
                     },
-                    "harvester" : { "rate": 100, "capacity": 10 }
+                    "harvester" : { "rate": 1, "capacity": 50 }
                 }
             },    
             "towns" : {
@@ -319,11 +341,11 @@
                 "entities" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
             },
             "0/1" : {
-                "file" : "map0000.tmx",
+                "file" : "map0001.tmx",
                 "tileset": "grass"
             },
             "1/1" : {
-                "file" : "map0000.tmx",
+                "file" : "map0101.tmx",
                 "tileset": "grass"
             },
             "1/0" : {

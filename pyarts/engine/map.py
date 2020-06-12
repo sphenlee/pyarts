@@ -38,11 +38,25 @@ class Map(object):
 
         datasink.setloadedsectors(iter(self.sectors.keys()))
 
-    def pos_to_cell(self, x, y):
-        return (x/VERTEX_SZ, y/VERTEX_SZ)
 
-    def cell_to_pos(self, x, y):
-        return (x*VERTEX_SZ, y*VERTEX_SZ)
+    # _________________________________________________________
+    # TODO - work out how many of these are actually being used
+
+    def pos_to_sector_offset(self, pos):
+        off = self.pos_to_offset(*pos)
+        sec = self.sector_at_pos(*pos)
+        return sec, off
+
+    def cell_to_sector_offset(self, x, y):
+        off = self.cell_to_offset(x, y)
+        sec = self.sector_at_cell(x, y)
+        return sec, off
+
+    # def pos_to_cell(self, x, y):
+    #     return (x/VERTEX_SZ, y/VERTEX_SZ)
+
+    # def cell_to_pos(self, x, y):
+    #     return (x*VERTEX_SZ, y*VERTEX_SZ)
 
     def pos_to_sector(self, x, y):
         # 11 = log2(SECTOR_SZ)
@@ -57,8 +71,13 @@ class Map(object):
         return (int(x) & 0x3f), (int(y) & 0x3f)
 
     def pos_to_offset(self, x, y):
+        return (int(x/VERTEX_SZ) & 0x3f), (int(y/VERTEX_SZ) & 0x3f)
+
+    def pos_to_offset_mystery(self, x, y):
         # 0x7ff = SECTOR_SZ - 1
         return (int(x) & 0x7ff), (int(y) & 0x7ff)
+
+    # _________________________________________________________
 
     def loadsector(self, sx, sy):
         try:
@@ -71,13 +90,23 @@ class Map(object):
                 self.onsectorloaded.emit(s)
             return s
 
-    def sector_at_point(self, x, y):
+    def sector_at_pos(self, x, y):
         sx, sy = self.pos_to_sector(x, y)
         return self.sectors.get((sx, sy))
 
     def sector_at_cell(self, x, y):
         sx, sy = self.cell_to_sector(x, y)
         return self.sectors.get((sx, sy))
+
+
+    def cell_walkable(self, walk, x, y):
+        ''' used by the pathfinder in Rust '''
+        sec, off = self.cell_to_sector_offset(x, y)
+        if sec:
+            return sec.cellwalkable(walk, off) and sec.cellvisited(0, off) # TODO - get the current tid
+        else:
+            return False
+   
 
     def step(self):
         self.n += 1
@@ -102,7 +131,7 @@ class Map(object):
         x, y = locator.x, locator.y
 
         sx, sy = self.pos_to_sector(x, y)
-        ox, oy = self.pos_to_offset(x, y)
+        ox, oy = self.pos_to_offset_mystery(x, y)
 
         for sec in self.placedon[locator]:
             sec.unplace(locator)

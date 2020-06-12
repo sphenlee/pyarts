@@ -13,6 +13,7 @@ import time
 from .event import Event
 
 from yarts import Sector as RsSector
+from pyarts.log import warn
 
 NUM_TILES = 64 # the number of tiles in a sector
 NUM_VERTS = NUM_TILES + 1 # the number of vertices in a sector
@@ -50,7 +51,7 @@ class Sector(object):
         try:
             data = datasrc.getmapsector(sx, sy)
         except KeyError:
-            print(f"sector {sx},{sy} doesn't exist")
+            warn(f"sector {sx},{sy} doesn't exist")
             return None
 
         tileset = datasrc.gettileset(data['tileset']).copy()
@@ -139,10 +140,10 @@ class Sector(object):
         return len(self.locators) > 0
 
     def cellvisited(self, tid, pt):
-        return self.peer.visited(pt) & (1 << tid)
+        return (self.peer.visited(pt) & (1 << tid)) > 0
 
     def cellvisible(self, tid, pt):
-        return self.peer.visible(pt) & (1 << tid)
+        return (self.peer.visible(pt) & (1 << tid)) > 0
 
     def cellvisited_mask(self, pt):
         return self.peer.visited(pt)

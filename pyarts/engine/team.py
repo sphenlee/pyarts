@@ -45,8 +45,6 @@ class Team(object):
 
             self.eng.ontowncreated.emit(self, town)
 
-        print(self.towns)
-
     def save(self):
         protos = {}
         for id_, ep in self.entityprotos.items():
@@ -61,11 +59,14 @@ class Team(object):
             'towns' : towns
         }
 
+    def controlled_by(self, player):
+        '''Check if a player controls'''
+        return bool(player.tidmask & (1 << self.tid))
+
     def getproto(self, name):
         return self.entityprotos[name]
 
     def gettown(self, twid):
-        print(self, repr(self.towns))
         return self.towns[twid]
 
     def gettownat(self, pos):

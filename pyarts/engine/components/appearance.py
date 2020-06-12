@@ -43,10 +43,13 @@ class Appearance(Component):
         elif self.visibility == self.VISIBLE_ALWAYS:
             self.visible = 0xFF
         else:
-            pt = self.locator.x, self.locator.y
-            cell = self.map.pos_to_cell(*pt)
-            sec = self.map.sector_at_cell(*cell)
-            off = self.map.cell_to_offset(*cell)
+            #pt = self.locator.x, self.locator.y
+            #cell = self.map.pos_to_cell(*pt)
+            #sec = self.map.sector_at_cell(*cell)
+            #off = self.map.cell_to_offset(*cell)
+
+            sec, off = self.map.pos_to_sector_offset(self.locator.pos())
+
             if sec:
                 if self.visibility == self.VISIBLE_VISITED:
                     self.visible = sec.cellvisited_mask(off)

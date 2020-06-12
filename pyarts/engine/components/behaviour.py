@@ -25,8 +25,7 @@ class Behaviour(Component):
         }
 
     def load(self, data):
-        if data:
-            self.type = data.get('type', self.type)
+        self.type = data.get('type', self.type)
 
     def autocommand(self, target, add):
         '''
@@ -38,9 +37,8 @@ class Behaviour(Component):
                 # move to the target position
                 action = MoveAction(target)
             else:
-                ent = target.ent
-                if self.ent.has('harvester') and ent.has('resource'):
-                    action = HarvestAction(ent)
+                if self.ent.has('harvester') and target.ent.has('resource'):
+                    action = HarvestAction(target.ent)
                 else:
                     # TODO - check if the entity is friend or enemy (Follow, Attack,
                     # or all of the other possible actions)
