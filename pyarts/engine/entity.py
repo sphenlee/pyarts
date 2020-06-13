@@ -21,7 +21,8 @@ class Entity(object):
         info('entity %r is being deleted' % self)
 
     def __repr__(self):
-        return '<Entity %d proto %s owned by %r>' % (self.eid, self.proto.name, self.team)
+        #return '<Entity %d proto %s owned by %r>' % (self.eid, self.proto.name, self.team)
+        return '<Entity %d "%s">' % (self.eid, self.proto.name)
 
     def configure(self):
         ''' Loads shared data from the entity proto into each component '''

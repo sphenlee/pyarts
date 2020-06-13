@@ -30,8 +30,8 @@ class Control(object):
 
 
     def left_click_box(self, x1, y1, x2, y2, add):
-        x1, y1 = self.camera.unproject((x1, y1))
-        x2, y2 = self.camera.unproject((x2, y2))
+        x1, y1 = self.camera.unproject((int(x1), int(y1)))
+        x2, y2 = self.camera.unproject((int(x2), int(y2)))
 
         ents = self.entities_in_rect(x1, y1, x2, y2)
         
@@ -40,7 +40,7 @@ class Control(object):
 
 
     def left_click(self, x, y, add):
-        x, y = self.camera.unproject((x, y))
+        x, y = self.camera.unproject((int(x), int(y)))
         
         ents = self.entities_at_point(x, y)
         
@@ -51,7 +51,7 @@ class Control(object):
 
 
     def right_click(self, x, y, add):
-        x, y = self.camera.unproject((x, y))
+        x, y = self.camera.unproject((int(x), int(y)))
         ents = self.entities_at_point(x, y)
         self.modestack.mode.right_click(x, y, ents, add)
 

@@ -61,7 +61,9 @@ class AbilityAction(Action):
             self.ability.name,
             self.target))
 
-        self.ability.deduct_cost(self.ent)
+        if not self.ability.queue:
+            # queued abilities get paid when added to the queue
+            self.ability.deduct_cost(self.ent)
 
         self.ainst.startcooldown()
 

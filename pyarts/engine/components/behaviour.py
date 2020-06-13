@@ -48,6 +48,9 @@ class Behaviour(Component):
                 self.actions.later(action)
             else:
                 self.actions.give(action)
+
         else:
-            #print 'building auto command', self, target, add
             pass
+        
+        #elif self.type == 'building' and self.ent.has('waypoint'):
+        #    self.ent.waypoint.settarget(target)           

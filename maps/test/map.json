@@ -30,7 +30,7 @@
                 "hpregen" : 20,
                 "maxmp" : 200,
                 "mpregen" : 20,
-                "sight" : 256
+                "sight" : 512
             },
             "abilities" : [ "boost", "heal", "killme"]
         },
@@ -97,6 +97,28 @@
                     "end"
                 ]
             }
+        },
+        "fishing_boat" : {
+            "name" : "Fishing Boat",
+            "rank" : 30,
+            "components" : ["moving", "appearance", "behaviour", "variables", "maprevealer"],
+            "appearance" : {
+                "sprite" : "res/unit-fishingboat.png",
+                "portrait" : "res/unit-fishingboat.png"
+            },
+            "behaviour" : { "type" : "unit" },
+            "locator" : { "r" : 64 },
+            "variables" : {
+                "hp" : { "max" : "maxhp", "regen" : "hpregen" }
+            },
+            "moving": {
+                "walk": "SEA|FOOT"
+            },
+            "stats" : {
+                "maxhp" : 100,
+                "hpregen" : 5,
+                "sight" : 512
+            }
         }
     },
 
@@ -151,7 +173,14 @@
         "6": { "team": 2, "proto": "tree", "locator": {"x": 100, "y": 200}},
         "7": { "team": 2, "proto": "tree", "locator": {"x": 164, "y": 200}},
         "8": { "team": 2, "proto": "tree", "locator": {"x": 228, "y": 200}},
-        "9": { "team": 2, "proto": "tree", "locator": {"x": 292, "y": 200}}
+        "9": { "team": 2, "proto": "tree", "locator": {"x": 292, "y": 200}},
+        "11": {
+            "team": 0,
+            "proto": "fishing_boat",
+            "locator": {
+                "x" : 750, "y" : 800, "placed" : true
+            }
+        }
     },
 
     "content" : {
@@ -259,7 +288,7 @@
                     "behaviour" : { "type" : "unit" },
                     "locator" : { "r" : 32 },
                     "stats" : {
-                        "sight" : 256,
+                        "sight" : 512,
                         "speed" : 10
                     },
                     "harvester" : { "rate": 1, "capacity": 50 }
@@ -338,7 +367,7 @@
             "0/0" : {
                 "file" : "map0000.tmx",
                 "tileset": "grass",
-                "entities" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                "entities" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
             },
             "0/1" : {
                 "file" : "map0001.tmx",

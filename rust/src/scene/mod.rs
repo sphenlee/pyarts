@@ -1,8 +1,8 @@
 use crate::util::{YartsError, YartsResult};
 use ggez::event::{self, EventHandler, MouseButton};
 use ggez::{graphics, Context, ContextBuilder, GameResult};
+use log::{error, info};
 use pyo3::prelude::*;
-use log::{info, error};
 
 pub mod game_scene;
 pub mod main_scene;

@@ -224,9 +224,9 @@ class Game(object):
                 warn('already doing this - game checked it')
                 return False
 
-            if not ability.check_cost(e):
-                warn('cannot pay cost - game checked it')
-                return False
+            #if not ability.check_cost(e):
+            #    warn('cannot pay cost - game checked it')
+            #    return False
 
             return True
 

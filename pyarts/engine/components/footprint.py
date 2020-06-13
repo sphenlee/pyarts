@@ -26,7 +26,7 @@ class Footprint(Component):
 
     def step(self):
         if not self.ready:
-            debug('footprinting', self.ent)
+            debug('footprinting {}', self.ent)
             self.ready = self.map.footprint(self.locator)
     
     def save(self):

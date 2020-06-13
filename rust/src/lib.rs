@@ -18,7 +18,7 @@ fn launch(py: Python) -> PyResult<()> {
 }
 
 #[pyfunction]
-fn emit_log(py: Python, target: String, level: String, msg: String) -> PyResult<()> {
+fn emit_log(_py: Python, target: String, level: String, msg: String) -> PyResult<()> {
     let level = level.parse::<log::Level>().unwrap();
 
     log::log!(target: &target, level, "{}", msg);

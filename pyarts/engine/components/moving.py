@@ -10,10 +10,10 @@ from .component import Component, register
 
 from ..sector import Sector
 
-from pyarts.log import warn
+from pyarts.log import warn, trace, debug
 
 def parse_walk(value):
-    parts = value.toupper().split('|')
+    parts = value.upper().split('|')
     walk = 0
     for part in parts:
         walk |= getattr(Sector, 'WALK_' + part)
@@ -26,7 +26,7 @@ def raw_distance(p1, p2):
 def distance(ent, pt):
     ept = ent.locator.pos()
     #print(f'distance ept={ept}')
-    return raw_distance(ent.locator.pos(), pt) - ent.locator.r**2
+    return raw_distance(ent.locator.pos(), pt) # - ent.locator.r**2
     
 
 @register
@@ -45,18 +45,42 @@ class Moving(Component):
             self.walk = Sector.WALK_GROUND | Sector.WALK_FOOT
     
     def load(self, data):
+        self.target = data.get('target')
+        self.range = data.get('range')
         self.waypoints = data.get('waypoints', [])
-        self.intransit = bool(self.waypoints)
+        #self.intransit = bool(self.waypoints)
+
+    @property
+    def intransit(self):
+        return self.target is not None
 
     def set_incorporeal(self, val):
+        '''
+        Allows a unit to pass through buildings, trees etc...
+        Used to allow units to "exit" a building when constructing
+        '''
         if val:
             self.walk &= (0xFF ^ Sector.WALK_FOOT)
         else:
             self.walk |= Sector.WALK_FOOT
 
     def step(self):
+        if not self.target:
+            return
+
         if not self.waypoints:
-            self.steering.stop()
+            d = distance(self.ent, self.target.getpos())
+            if d <= self.range**2:
+                trace('{0} reached target {1}', self.ent, self.target)
+                self.stop()
+                return
+
+            else:
+                trace('{0} not at target {1} yet, d={2}', self.ent, self.target, d)
+                self.findpath()
+
+        if not self.waypoints:
+            # have to check waypoints again - findpath may not be able to find one
             return
 
         pt = self.waypoints[-1]
@@ -64,28 +88,37 @@ class Moving(Component):
         self.steering.towards(pt)
 
         d = distance(self.ent, pt)
-        #print(f'moving d^2={d}')
-        if d <= 0:
+        trace('{0} distance to waypoint at {1} = {2}', self.ent, pt, d)
+        if d <= self.range**2:
+            trace('{0} reached waypoint at {1}', self.ent, pt)
             self.waypoints.pop()
-            #print(f'waypoints remaining: {self.waypoints}')
-            if not self.waypoints:
-                self.intransit = False
+
 
     def save(self):
         return {
-            'waypoints' : self.waypoints
+            'target': self.target,
+            'range': self.range,
+            'waypoints' : self.waypoints,
         }
 
+
     def moveto(self, target, range=None):
-        self.intransit = True
+        debug('moveto {0}@{1}', target, range)
+        self.target = target
+        self.range = range
+        self.findpath()
 
+
+    def findpath(self):
         start = self.locator.pos()
-        goal = target.getpos()
+        goal = self.target.getpos()
 
-        if range is None and target.isent():
-            range = target.ent.locator.r + self.locator.r
+        if self.range is None and self.target.isent():
+            self.range = self.target.ent.locator.r + self.locator.r
+        else:
+            self.range = 0#self.locator.r
         
-        path = self.pathfinder.findpath(start, goal, self.walk, range)
+        path = self.pathfinder.findpath(start, goal, self.walk, self.range)
         if path:
             # waypoints list is backwards
             # popping off completed points from the end is cheaper
@@ -96,21 +129,17 @@ class Moving(Component):
             #     # so if we have more than one point we skip this
             #     self.waypoints.pop()
 
-            # if range is None:
+            # if self.range == 0:
             #     # for an exact target we don't want the centre of the destination
             #     # cell, so replace it with the actual goal
             #     self.waypoints[0] = goal
-
-            #print('--------- moveto!')
-            #print(f'{target} {range}')
-            #print(f'{start} {goal}')
-            #print(f'{self.waypoints}')
         else:
-            warn('no path to', target)
+            warn('no path to', self.target)
             self.stop()
 
 
     def stop(self):
-        #self.intransit = False
-
+        self.target = None
+        self.range = None
         del self.waypoints[:]
+        self.steering.stop()
