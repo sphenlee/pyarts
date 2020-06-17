@@ -5,10 +5,11 @@ use pyo3::wrap_pyfunction;
 
 mod map;
 mod pathfinder;
+mod promise;
 mod root;
 mod scene;
 mod sprites;
-mod ui;
+pub mod ui;
 mod util;
 
 #[pyfunction]

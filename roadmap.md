@@ -4,6 +4,7 @@
 
 ### Features needed for the game to be playable:
 
+- [ ] UI functioning
 - [ ] harvest resources
     + [x] improve harvester cycle
     + [ ] limit simultaneous harvesters

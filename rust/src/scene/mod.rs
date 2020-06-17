@@ -65,7 +65,7 @@ pub fn launch(py: Python<'_>) -> YartsResult<()> {
 
     let mut screens = SceneStack::new(py);
 
-    screens.screens.push(main_scene::MainScene::new());
+    screens.screens.push(main_scene::MainScene::new(&mut ctx)?);
 
     match event::run(&mut ctx, &mut event_loop, &mut screens) {
         Ok(_) => info!("Exited cleanly."),

@@ -12,8 +12,16 @@ type Cost = i32;
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 struct Pt(i64, i64);
 
-const NEIGHBORS: &[(i64, i64)] = &[(0, 1), (1, 0), (0, -1), (-1, 0),
-    (1, 1), (1, -1), (-1, -1), (-1, 1)];
+const NEIGHBORS: &[(i64, i64)] = &[
+    (0, 1),
+    (1, 0),
+    (0, -1),
+    (-1, 0),
+    (1, 1),
+    (1, -1),
+    (-1, -1),
+    (-1, 1),
+];
 const COSTS: &[Cost] = &[2, 2, 2, 2, 3, 3, 3, 3];
 
 impl Pt {
@@ -93,12 +101,14 @@ impl Pathfinder {
         // first convert the raw points into cells
         let start_pt = Pt::from(start);
         let goal_pt = Pt::from(goal);
-        // let range = //if range == 0 {
-        //     0
-        // //} else {
-        //     (range / CELL_FACTOR) * (range / CELL_FACTOR)
-        // //}
-        // ;
+
+        // don't consider any nodes that are 1.5x further away than the goal
+        // otherwise we have to travsese the entire map to determine that no
+        // path exists in trivial cases eg. goal is in the water
+        let search_radius = {
+            let d = start_pt.dist(goal_pt);
+            d + d / 2 // (to avoid a float operation of 1.5x )
+        };
 
         info!(
             "pathfinding from {:?} to {:?}, range of {}",
@@ -107,7 +117,11 @@ impl Pathfinder {
 
         let (path_map, found) = dijkstra::dijkstra_partial(
             &start_pt,
-            |node| node.successors(self.map.as_ref(py), walk),
+            |node| {
+                node.successors(self.map.as_ref(py), walk)
+                    .into_iter()
+                    .filter(|(pt, _cost)| pt.dist(goal_pt) < search_radius)
+            },
             |node| node.dist(goal_pt) <= range,
         );
 
@@ -118,7 +132,11 @@ impl Pathfinder {
             warn!("no path to goal! finding closest approach");
             match path_map.keys().min_by_key(|node| node.dist(goal_pt)) {
                 Some(closest) => {
-                    trace!("closest approach is {:?}@{}", closest, closest.dist(goal_pt));
+                    trace!(
+                        "closest approach is {:?}@{}",
+                        closest,
+                        closest.dist(goal_pt)
+                    );
                     if closest.dist(goal_pt) >= start_pt.dist(goal_pt) {
                         warn!("can't get any closer");
                         vec![]
@@ -133,7 +151,12 @@ impl Pathfinder {
             }
         };
 
-        let mut result = path.into_iter().map(|pt| pt.to_pos()).collect::<Vec<_>>();
+        // skip the first path point - it moves us from start to the centre of the start cell
+        let mut result = path
+            .into_iter()
+            .skip(1)
+            .map(|pt| pt.to_pos())
+            .collect::<Vec<_>>();
 
         if found.is_some() && range == 0 {
             // update the goal cell with the actual goal pos (if we found the goal)

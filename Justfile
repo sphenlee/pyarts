@@ -4,7 +4,7 @@ build:
 build-release:
 	cd rust ; cargo build --release ; cd ..
 
-run LOG="yarts=debug,pyarts=debug":
+run LOG="yarts=info,pyarts=info":
 	#!/bin/sh
 	. .ve/bin/activate
 	export RUST_LOG={{LOG}}
