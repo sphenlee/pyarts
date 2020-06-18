@@ -236,7 +236,7 @@ impl SectorRenderer {
         Ok(())
     }
 
-    pub fn draw(&mut self, py: Python, ctx: &mut Context) -> GameResult<()> {
+    pub fn draw(&mut self, py: Python, ctx: &mut Context, offset: (f32, f32)) -> GameResult<()> {
         if self.gfx.is_none() {
             self.gfx = Some(self.prepare_gfx(py, ctx)?);
         }
@@ -254,12 +254,11 @@ impl SectorRenderer {
 
         let gfx = self.gfx.as_mut().unwrap();
 
-        gfx.terrain
-            .draw(ctx, DrawParam::new().dest([self.dx, self.dy]))?;
-        gfx.fog1
-            .draw(ctx, DrawParam::new().dest([self.dx, self.dy]))?;
-        gfx.fog2
-            .draw(ctx, DrawParam::new().dest([self.dx, self.dy]))?;
+        let dp = DrawParam::new().dest([self.dx + offset.0, self.dy + offset.1]);
+
+        gfx.terrain.draw(ctx, dp)?;
+        gfx.fog1.draw(ctx, dp)?;
+        gfx.fog2.draw(ctx, dp)?;
         Ok(())
     }
 }

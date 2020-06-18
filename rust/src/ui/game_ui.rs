@@ -1,34 +1,41 @@
-use crate::scene::{HEIGHT, WIDTH};
+use crate::scene::{HEIGHT_I, WIDTH_I};
+use crate::ui::ggez_renderer::GgezRenderer;
+use crate::ui::tk::*;
 use crate::util::YartsResult;
-use ggez::graphics::DrawParam;
-use ggez::{graphics, Context};
+use ggez::Context;
 use pyo3::prelude::*;
-use pyo3::types::{PyBytes, PyDict};
+use pyo3::types::{PyDict, PyList};
+use glyph_brush::HorizontalAlign;
+
+#[derive(Clone, Debug)]
+pub enum GameMsg {
+    AbilityButton(u32),
+}
 
 #[pyclass]
 pub struct GameUi {
-    panels: Vec<PyObject>,
+    infopanel: PyObject,
 }
 
 #[pymethods]
 impl GameUi {
     #[staticmethod]
     fn depends() -> Vec<&'static str> {
-        vec!["infopanel", "abilitypanel", "townspanel"]
+        vec!["infopanel"]
     }
 
     #[new]
-    fn new(_py: Python) -> GameUi {
-        GameUi { panels: vec![] }
+    fn new(py: Python) -> GameUi {
+        GameUi {
+            infopanel: py.None(),
+        }
     }
 
     #[args(kwargs = "**")]
     fn inject(&mut self, kwargs: Option<&PyDict>) -> PyResult<()> {
         let deps: &PyAny = kwargs.expect("inject must be called with kwargs").as_ref();
 
-        self.panels.push(deps.get_item("infopanel")?.into());
-        self.panels.push(deps.get_item("abilitypanel")?.into());
-        self.panels.push(deps.get_item("townspanel")?.into());
+        self.infopanel = deps.get_item("infopanel")?.into();
 
         Ok(())
     }
@@ -36,48 +43,67 @@ impl GameUi {
 
 impl GameUi {
     pub fn step(&mut self, py: Python) -> YartsResult<()> {
-        for panel in &self.panels {
-            panel.call_method1(py, "step", ())?;
+        self.infopanel.call_method1(py, "step", ())?;
+        Ok(())
+    }
+
+    pub fn draw(
+        &mut self,
+        py: Python,
+        ctx: &mut Context,
+        ggez_rend: &mut GgezRenderer,
+    ) -> YartsResult<()> {
+        let infopanel = self.build_infopanel(py, ctx, ggez_rend)?;
+
+        let messages = ggez_rend.render(
+            ctx,
+            infopanel,
+            rect(0, HEIGHT_I / 4 * 3, WIDTH_I / 2, HEIGHT_I / 4),
+        )?;
+        for msg in messages {
+            log::warn!("{:?}", msg);
         }
 
         Ok(())
     }
 
-    pub fn draw(&mut self, py: Python, ctx: &mut Context) -> YartsResult<()> {
-        for panel in &self.panels {
-            GameUi::draw_one(py, ctx, panel)?;
+    fn build_infopanel(
+        &mut self,
+        py: Python,
+        _ctx: &mut Context,
+        _ggez_rend: &mut GgezRenderer,
+    ) -> YartsResult<Element<GameMsg>> {
+        let entities: &PyList = self.infopanel.as_ref(py).getattr("data")?.extract()?;
+
+        if entities.len() == 1 {
+            let data: &PyDict = entities.get_item(0).extract()?;
+
+            let name = data
+                .get_item("name")
+                .map(|val| val.extract::<String>().expect("infopanel.name must be a string"))
+                .unwrap_or_default();
+            let mut info = Panel::vbox().add(Text::new(name)?.align(HorizontalAlign::Center));
+
+            let hp = data
+                .get_item("hp")
+                .map(|val| val.extract::<(i32, i32)>().expect("infopanel.hp must be (int, int)"));
+            if let Some((val, max)) = hp {
+                info.push(1, Progress::new()
+                    .percentage(val as f32 / max as f32)
+                    .text(format!("{}/{}", val, max)));
+            }
+
+            let panel = Panel::hbox().add(info)
+                .add(Panel::vbox())
+                .add(Panel::vbox())
+                ;
+
+            Ok(Border::new(panel).build())
+        } else {
+            let text = Text::new("Multiple Entities Selected *TODO*")?;
+            Ok(Border::new(text).build())
         }
-        Ok(())
-    }
 
-    fn draw_one(py: Python, ctx: &mut Context, panel: &PyObject) -> YartsResult<()> {
-        let rendered = panel.call_method0(py, "render")?;
 
-        if rendered.is_none() {
-            return Ok(());
-        }
-
-        let (bytes, w, h): (&PyBytes, u16, u16) = rendered.extract(py)?;
-
-        let mut rgba = bytes.as_bytes().to_vec();
-        rgba.chunks_exact_mut(4).for_each(|pixel| {
-            // pixels are stored BGRA but ggez wants RGBA
-            // swap red and blue
-            let b = pixel[0];
-            let r = pixel[2];
-            pixel[0] = r;
-            pixel[2] = b;
-        });
-
-        // TODO - cache the image
-        let img = graphics::Image::from_rgba8(ctx, w, h, &rgba)?;
-
-        let dest: [f32; 2] = panel
-            .call_method1(py, "destination", (WIDTH, HEIGHT))?
-            .extract(py)?;
-
-        graphics::draw(ctx, &img, DrawParam::new().dest(dest))?;
-
-        Ok(())
     }
 }

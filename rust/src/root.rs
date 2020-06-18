@@ -5,6 +5,7 @@ use crate::map::renderer::MapRenderer;
 use crate::scene::{Event, Transition, HEIGHT, WIDTH};
 use crate::sprites::SpriteManager;
 use crate::ui::game_ui::GameUi;
+use crate::ui::ggez_renderer::GgezRenderer;
 use crate::util::YartsResult;
 use ggez::event::MouseButton;
 use ggez::graphics::{self, Color, DrawMode, DrawParam, Rect};
@@ -179,21 +180,21 @@ impl Root {
     }
 
     pub fn draw(&mut self, py: Python, ctx: &mut Context) -> YartsResult<()> {
-        let (x, y): (f32, f32) = self.camera.call_method0(py, "get_transform")?.extract(py)?;
+        let offset: (f32, f32) = self.camera.call_method0(py, "get_transform")?.extract(py)?;
 
-        let transform = DrawParam::new().dest([x, y]).to_matrix();
+        //let transform = DrawParam::new().dest([x, y]).to_matrix();
 
-        graphics::push_transform(ctx, Some(transform));
-        graphics::apply_transformations(ctx)?;
+        //graphics::push_transform(ctx, Some(transform));
+        //graphics::apply_transformations(ctx)?;
 
         let mut map_renderer = self.map_renderer.extract::<PyRefMut<MapRenderer>>(py)?;
-        map_renderer.draw(py, ctx)?;
+        map_renderer.draw(py, ctx, offset)?;
 
         let mut sprite_manager = self.sprite_manager.extract::<PyRefMut<SpriteManager>>(py)?;
-        sprite_manager.draw(py, ctx)?;
+        sprite_manager.draw(py, ctx, offset)?;
 
-        graphics::pop_transform(ctx);
-        graphics::apply_transformations(ctx)?;
+        //graphics::pop_transform(ctx);
+        //graphics::apply_transformations(ctx)?;
 
         if let (Some((x1, y1)), Some((x2, y2))) = (self.click, self.drag) {
             let rect = graphics::Mesh::new_rectangle(
@@ -206,9 +207,19 @@ impl Root {
             graphics::draw(ctx, &rect, DrawParam::new())?;
         }
 
-        let mut game_ui = self.game_ui.extract::<PyRefMut<GameUi>>(py)?;
-        game_ui.draw(py, ctx)?;
+        Ok(())
+    }
 
+    pub fn draw_ui(
+        &mut self,
+        py: Python,
+        ctx: &mut Context,
+        ggez_rend: &mut GgezRenderer,
+    ) -> YartsResult<()> {
+        let mut game_ui = self.game_ui.extract::<PyRefMut<GameUi>>(py)?;
+        game_ui.draw(py, ctx, ggez_rend)?;
+
+        graphics::draw_queued_text(ctx, DrawParam::default(), None, graphics::FilterMode::Nearest)?;
         Ok(())
     }
 }

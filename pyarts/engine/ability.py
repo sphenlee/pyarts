@@ -4,6 +4,7 @@ Ability
 An ability is a special action an entity can do.
 They are bound to the buttons
 '''
+from pyarts.log import warn
 
 from .resource import Cost
 
@@ -41,7 +42,9 @@ class Ability(object):
     def check_cost(self, ent):
         if self.cost.is_town_cost():
             if not ent.has('town'):
-                return False
+                warn('ignoring out of town cost')
+                return True
+
             res = ent.town.town.resources
             if not res.sufficient(self.cost):
                 return False
@@ -57,6 +60,10 @@ class Ability(object):
 
     def deduct_cost(self, ent):
         if self.cost.is_town_cost():
+            if not ent.has('town'):
+                warn('ignoring out of town cost')
+                return
+
             res = ent.town.town.resources
             res.deduct(self.cost)
 

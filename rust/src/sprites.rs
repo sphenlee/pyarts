@@ -126,7 +126,7 @@ impl SpriteManager {
         self.local.getattr(py, "tidmask")?.extract(py)
     }
 
-    pub fn draw(&mut self, py: Python, ctx: &mut Context) -> YartsResult<()> {
+    pub fn draw(&mut self, py: Python, ctx: &mut Context, offset: (f32, f32)) -> YartsResult<()> {
         let tidmask = self.get_tidmask(py)?;
 
         for (imgname, idx) in self.unresolved.drain(..) {
@@ -138,11 +138,6 @@ impl SpriteManager {
             sprite.img = Some(img)
         }
 
-        graphics::push_transform::<ggez::nalgebra::Matrix4<f32>>(ctx, None);
-        let transform = DrawParam::new().dest([-self.dx, -self.dy]).to_matrix();
-        graphics::mul_transform(ctx, transform);
-        graphics::apply_transformations(ctx)?;
-
         for (_, sprite) in self.sprites.iter() {
             let scale = sprite.r / SPRITE_SIZE;
 
@@ -153,22 +148,24 @@ impl SpriteManager {
 
                         circle.draw(
                             ctx,
-                            DrawParam::new()
-                                .dest([sprite.dx + sprite.r, sprite.dy + (sprite.r * 1.5)]),
+                            DrawParam::new().dest([
+                                sprite.dx + sprite.r - self.dx + offset.0,
+                                sprite.dy + (sprite.r * 1.5) - self.dy + offset.1,
+                            ]),
                         )?;
                     }
 
                     let param = DrawParam::new()
-                        .dest([sprite.dx, sprite.dy])
+                        .dest([
+                            sprite.dx - self.dx + offset.0,
+                            sprite.dy - self.dy + offset.1,
+                        ])
                         .scale([scale, scale]);
 
                     img.draw(ctx, param)?;
                 }
             }
         }
-
-        graphics::pop_transform(ctx);
-        graphics::apply_transformations(ctx)?;
 
         Ok(())
     }

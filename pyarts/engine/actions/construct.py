@@ -40,7 +40,7 @@ class ConstructAction(Action):
     def step(self):
         if self.wait:
             self.wait -= 1
-            self.construction_site.variables['hp'] = (1.0 - self.wait / 200.0) * self.maxhp
+            self.construction_site.variables['hp'] = int((1.0 - self.wait / 200.0) * self.maxhp)
         else:
             self.complete_construction()
 

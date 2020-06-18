@@ -8,10 +8,13 @@ pub mod game_scene;
 pub mod main_scene;
 //pub mod tree;
 
-pub const WIDTH: f32 = //800.0;
+pub const WIDTH: f32 = //800;
     1920.0;
-pub const HEIGHT: f32 = //600.0;
+pub const HEIGHT: f32 = //600;
     1080.0;
+
+pub const WIDTH_I: i32 = WIDTH as i32;
+pub const HEIGHT_I: i32 = HEIGHT as i32;
 
 pub enum Transition {
     None,
@@ -19,6 +22,7 @@ pub enum Transition {
     Prev,
 }
 
+#[derive(Clone, Debug)]
 pub enum Event {
     KeyUp(event::KeyCode, event::KeyMods),
     KeyDown(event::KeyCode, event::KeyMods),
@@ -38,7 +42,7 @@ pub trait Screen {
         event: Event,
     ) -> YartsResult<Transition>;
 
-    fn draw<'p>(&mut self, py: Python<'p>, ctx: &mut Context) -> YartsResult<()>;
+    fn draw<'p>(&mut self, py: Python<'p>, ctx: &mut Context) -> YartsResult<Transition>;
 }
 
 pub fn launch(py: Python<'_>) -> YartsResult<()> {
@@ -124,6 +128,7 @@ where
                     error!("python error:");
                     pyerr.print(py)
                 }
+                YartsError::TkError(tkerr) => error!("tk error: {}", tkerr),
                 YartsError::Other(err) => error!("other error: {}", err),
             };
             None
@@ -148,7 +153,8 @@ impl EventHandler for SceneStack<'_> {
 
         python_protect(self.py, ctx, |py, ctx| {
             let screen = self.screens.last_mut().expect("popped last screen?");
-            screen.draw(py, ctx)?;
+            let transition = screen.draw(py, ctx)?;
+            self.transition(transition);
             Ok(())
         });
 

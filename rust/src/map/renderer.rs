@@ -1,6 +1,6 @@
 use super::sector_renderer::SectorRenderer;
 use ggez::{Context, GameResult};
-use log::info;
+use log::{debug, info};
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use std::cell::RefCell;
@@ -100,13 +100,15 @@ impl MapRenderer {
         };
 
         sr.borrow_mut().update_offset(dx, dy);
+        // TODO - calculate which renderers are visible and update active
         self.active_renderers.push(sr);
+        debug!("{} renderers active", self.active_renderers.len());
         Ok(())
     }
 
-    pub fn draw(&mut self, py: Python, ctx: &mut Context) -> GameResult<()> {
+    pub fn draw(&mut self, py: Python, ctx: &mut Context, offset: (f32, f32)) -> GameResult<()> {
         for sr in &self.active_renderers {
-            sr.borrow_mut().draw(py, ctx)?;
+            sr.borrow_mut().draw(py, ctx, offset)?;
         }
 
         Ok(())

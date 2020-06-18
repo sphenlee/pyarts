@@ -19,6 +19,7 @@ pub struct Button<Msg: Clone> {
     onclick: Option<Msg>,
     bounds: Rect,
     icon: Option<Icon>,
+    popup: Option<Element<Msg>>,
 }
 
 impl<Msg: Clone + 'static> Button<Msg> {
@@ -28,6 +29,7 @@ impl<Msg: Clone + 'static> Button<Msg> {
             onclick: None,
             bounds: Rect::default(),
             icon: None,
+            popup: None,
         }
     }
 
@@ -38,6 +40,11 @@ impl<Msg: Clone + 'static> Button<Msg> {
 
     pub fn icon(mut self, icon: Icon) -> Self {
         self.icon = Some(icon);
+        self
+    }
+
+    pub fn popup(mut self, popup: impl Widget<Msg> + 'static) -> Self {
+        self.popup = Some(Box::new(popup));
         self
     }
 
@@ -54,6 +61,9 @@ impl<Msg: Clone + 'static> Button<Msg> {
 impl<Msg: Clone + 'static> Widget<Msg> for Button<Msg> {
     fn layout(&mut self, bounds: Rect) -> TkResult<()> {
         self.bounds = bounds;
+        if let Some(popup) = &mut self.popup {
+            popup.layout(bounds)?;
+        }
         Ok(())
     }
 
@@ -118,6 +128,12 @@ impl<Msg: Clone + 'static> Widget<Msg> for Button<Msg> {
             };
 
             buffer.text(sec);
+        }
+
+        if let Some(popup) = &self.popup {
+            if self.bounds.contains(input.mouse_pos) {
+                popup.render(input, buffer)?;
+            }
         }
 
         Ok(())

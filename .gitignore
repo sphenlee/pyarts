@@ -1,4 +1,3 @@
-syntax: glob
 *.pyc
 oldstuff/
 venv/

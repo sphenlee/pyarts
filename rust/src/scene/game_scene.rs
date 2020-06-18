@@ -1,5 +1,6 @@
 use crate::root::Root;
 use crate::scene::{Event, Screen, Transition, HEIGHT, WIDTH};
+use crate::ui::ggez_renderer::GgezRenderer;
 use crate::util::YartsResult;
 use ggez::{timer, Context};
 use pyo3::prelude::*;
@@ -8,6 +9,7 @@ use std::collections::HashMap;
 
 pub struct GameScene {
     root: PyObject,
+    ggez_rend: GgezRenderer,
 }
 
 fn construct_root(py: Python, _ctx: &mut Context) -> PyResult<PyObject> {
@@ -30,10 +32,11 @@ fn construct_root(py: Python, _ctx: &mut Context) -> PyResult<PyObject> {
 }
 
 impl GameScene {
-    pub fn new(py: Python, ctx: &mut Context) -> PyResult<Box<dyn Screen>> {
+    pub fn new(py: Python, ctx: &mut Context) -> YartsResult<Box<dyn Screen>> {
         let root = construct_root(py, ctx)?;
+        let ggez_rend = GgezRenderer::new(ctx)?;
 
-        Ok(Box::new(Self { root }))
+        Ok(Box::new(Self { root, ggez_rend }))
     }
 }
 
@@ -56,16 +59,19 @@ impl Screen for GameScene {
         ctx: &mut Context,
         event: Event,
     ) -> YartsResult<Transition> {
-        let mut root = self.root.as_ref(py).extract::<PyRefMut<Root>>()?;
+        self.ggez_rend.event(event.clone());
 
+        let mut root = self.root.as_ref(py).extract::<PyRefMut<Root>>()?;
         root.event(py, ctx, event)
     }
 
-    fn draw(&mut self, py: Python<'_>, ctx: &mut Context) -> YartsResult<()> {
+    fn draw(&mut self, py: Python<'_>, ctx: &mut Context) -> YartsResult<Transition> {
         let mut root = self.root.as_ref(py).extract::<PyRefMut<Root>>()?;
 
         root.draw(py, ctx)?;
 
-        Ok(())
+        root.draw_ui(py, ctx, &mut self.ggez_rend)?;
+
+        Ok(Transition::None)
     }
 }

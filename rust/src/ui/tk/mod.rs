@@ -8,8 +8,11 @@ mod image;
 mod input;
 mod markup;
 mod panel;
+mod popup;
 mod text;
+mod theme;
 mod widget;
+mod progress;
 
 pub use border::Border;
 pub use button::Button;
@@ -17,6 +20,8 @@ pub use command::{Command, CommandBuffer};
 pub use image::{Icon, Sprite, TextureId};
 pub use input::{Event, InputState, MouseButton};
 pub use panel::Panel;
+pub use popup::Popup;
+pub use progress::Progress;
 pub use text::Text;
 pub use widget::{Element, Widget};
 

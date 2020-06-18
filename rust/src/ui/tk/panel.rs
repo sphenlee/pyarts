@@ -58,6 +58,11 @@ impl<Msg: 'static> Panel<Msg> {
         self
     }
 
+    pub fn push(&mut self, flex: i32, child: impl Widget<Msg> + 'static) {
+        self.children.push(Box::new(child));
+        self.flex.push(flex);
+    }
+
     pub fn build(self) -> Element<Msg> {
         Box::new(self)
     }

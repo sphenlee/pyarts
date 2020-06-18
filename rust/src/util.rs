@@ -1,3 +1,4 @@
+use crate::ui::tk::TkError;
 use ggez::GameError;
 use pyo3::PyErr;
 use std::error::Error;
@@ -9,6 +10,9 @@ pub type YartsResult<T> = std::result::Result<T, YartsError>;
 pub enum YartsError {
     #[error("GGEZ Error: {0}")]
     GameError(#[from] GameError),
+
+    #[error("TkError: {0}")]
+    TkError(#[from] TkError),
 
     #[error("Python Exception {0:?}")]
     PyErr(PyErr),
@@ -31,6 +35,7 @@ impl From<YartsError> for GameError {
                 panic!("{:?}", pyerr);
             }
             YartsError::Other(err) => GameError::EventLoopError(err.to_string()),
+            YartsError::TkError(err) => GameError::RenderError(err.to_string()),
         }
     }
 }
@@ -41,6 +46,7 @@ impl From<YartsError> for PyErr {
             YartsError::GameError(ge) => pyo3::exceptions::IOError::py_err(ge.to_string()),
             YartsError::PyErr(pyerr) => pyerr,
             YartsError::Other(err) => pyo3::exceptions::IOError::py_err(err.to_string()),
+            YartsError::TkError(err) => pyo3::exceptions::IOError::py_err(err.to_string()),
         }
     }
 }

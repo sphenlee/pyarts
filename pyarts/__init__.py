@@ -2,8 +2,6 @@
 
 from .game import *
 from .engine import *
-from .root import *
-from .ui import *
 from .log import *
 
 
@@ -12,5 +10,8 @@ from .container import component, construct
 
 # register components implemented in Rust
 
-from yarts import MapRenderer
+from yarts import MapRenderer, GameUi, Root
+
 component(MapRenderer)
+component(GameUi)
+component(Root)

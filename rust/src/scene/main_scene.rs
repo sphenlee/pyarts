@@ -1,23 +1,61 @@
 use crate::scene::game_scene::GameScene;
-use crate::scene::{Event, Screen, Transition};
-use crate::ui::demo::{Demo, DemoMsg};
+use crate::scene::{Event, Screen, Transition, HEIGHT, WIDTH};
+use crate::ui::ggez_renderer::GgezRenderer;
+use crate::ui::tk::*;
 use crate::util::YartsResult;
 use ggez::graphics::{DrawParam, FilterMode};
 use ggez::{event, graphics, Context, GameResult};
-use log::info;
+use log::warn;
 use pyo3::prelude::*;
 
-pub struct MainScene {
-    text: graphics::Text,
-    demo: Demo,
+#[derive(Clone)]
+enum Msg {
+    StartGame,
 }
+
+pub struct MainScene {
+    ggez_rend: GgezRenderer,
+}
+
+const WELCOME_MSG: &str = r##"\
+# Welcome to Pyarts #
+
+Click on *"Start Game"* to being a new game.
+
+This is just a test for the popup component ;)
+"##;
 
 impl MainScene {
     pub fn new(ctx: &mut Context) -> GameResult<Box<dyn Screen>> {
         Ok(Box::new(Self {
-            text: graphics::Text::new("Press S to Start!"),
-            demo: Demo::new(ctx)?,
+            ggez_rend: GgezRenderer::new(ctx)?,
         }))
+    }
+
+    fn build(&self) -> TkResult<Element<Msg>> {
+        let panel = Panel::vbox()
+            .add(
+                Button::new()
+                    .text("Start Game")
+                    .onclick(Msg::StartGame)
+                    .popup(
+                        Popup::new()
+                            .anchor(point(WIDTH as i32 - 300, HEIGHT as i32 - 400))
+                            .size(size(300, 400))
+                            .add(Border::new(Text::new("Start a new game")?)),
+                    ),
+            )
+            .add(Button::new().text("Join Game"))
+            .add(Button::new().text("Exit"))
+            .add_flex(
+                0,
+                Popup::new()
+                    .anchor(point(1000, 100))
+                    .size(size(300, 300))
+                    .add(Border::new(Text::new(WELCOME_MSG)?)),
+            );
+
+        Ok(panel.build())
     }
 }
 
@@ -32,8 +70,9 @@ impl Screen for MainScene {
         ctx: &mut Context,
         event: Event,
     ) -> YartsResult<Transition> {
-        self.demo.event(&event);
+        self.ggez_rend.event(event.clone());
 
+        // TODO - add hotkeys to buttons to reduce duplication
         if let Event::KeyUp(event::KeyCode::S, _) = event {
             let game_ui = GameScene::new(py, ctx)?;
             Ok(Transition::Next(game_ui))
@@ -42,24 +81,24 @@ impl Screen for MainScene {
         }
     }
 
-    fn draw(&mut self, _py: Python<'_>, ctx: &mut Context) -> YartsResult<()> {
-        graphics::draw(ctx, &self.text, DrawParam::new().dest([100.0, 100.0]))?;
+    fn draw(&mut self, py: Python<'_>, ctx: &mut Context) -> YartsResult<Transition> {
+        let mut transition = Transition::None;
 
-        for msg in self.demo.render(ctx)? {
+        let root = self.build()?;
+
+        let bounds = rect(860, 508, 200, 64 * 3);
+        for msg in self.ggez_rend.render(ctx, root, bounds)? {
             match msg {
-                DemoMsg::Button1Click => {
-                    info!("button 1 clicked!");
-                }
-                DemoMsg::Button2Click => {
-                    info!("button 2 clicked!");
-                }
-                DemoMsg::AbilityButton(n) => {
-                    info!("ability {}", n);
+                Msg::StartGame => {
+                    warn!("START GAME!");
+                    let game_ui = GameScene::new(py, ctx)?;
+                    transition = Transition::Next(game_ui);
                 }
             }
         }
+
         graphics::draw_queued_text(ctx, DrawParam::default(), None, FilterMode::Nearest)?;
 
-        Ok(())
+        Ok(transition)
     }
 }

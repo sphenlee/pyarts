@@ -373,12 +373,24 @@
                 "file" : "map0001.tmx",
                 "tileset": "grass"
             },
+            "0/2" : {
+                "file" : "map0002.tmx",
+                "tileset": "grass"
+            },
             "1/1" : {
                 "file" : "map0101.tmx",
                 "tileset": "grass"
             },
+            "1/2" : {
+                "file" : "map0102.tmx",
+                "tileset": "grass"
+            },
             "1/0" : {
                 "file" : "map0100.tmx",
+                "tileset": "grass"
+            },
+            "2/0" : {
+                "file" : "map0200.tmx",
                 "tileset": "grass"
             }
         }
