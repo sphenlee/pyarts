@@ -14,7 +14,7 @@ impl From<TkError> for GameError {
 }
 
 pub struct GgezRenderer {
-    texture_cache: HashMap<String, TextureId>,
+    texture_cache: HashMap<String, Texture>,
     textures: Slab<Image>,
     input: InputState,
     events: Vec<Event>,
@@ -34,13 +34,16 @@ impl GgezRenderer {
         Ok(slf)
     }
 
-    pub fn load_texture(&mut self, ctx: &mut Context, name: &str) -> GameResult<TextureId> {
+    pub fn load_texture(&mut self, ctx: &mut Context, name: &str) -> GameResult<Texture> {
         match self.texture_cache.entry(name.to_owned()) {
             Entry::Occupied(entry) => Ok(*entry.get()),
             Entry::Vacant(entry) => {
-                let tex_id = TextureId(self.textures.insert(Image::new(ctx, name)?));
-                entry.insert(tex_id);
-                Ok(tex_id)
+                let img = Image::new(ctx, name)?;
+                let size = Size::new(img.width() as i32, img.height() as i32);
+                let id = self.textures.insert(img);
+                let tex = Texture{ id, size };
+                entry.insert(tex);
+                Ok(tex)
             }
         }
     }
@@ -91,7 +94,7 @@ impl GgezRenderer {
     fn do_command(&self, ctx: &mut Context, cmd: Command) -> GameResult<()> {
         match cmd {
             Command::Sprite(sprite) => {
-                let img = self.textures.get(sprite.texture.0).ok_or_else(|| {
+                let img = self.textures.get(sprite.texture.id).ok_or_else(|| {
                     GameError::RenderError("texture missing from cache".to_owned())
                 })?;
 
@@ -100,11 +103,16 @@ impl GgezRenderer {
                 } else {
                     sprite.uv.size
                 };
+                let pos_size = if sprite.pos.is_empty() {
+                    size(img.width(), img.height()).to_i32()
+                } else {
+                    sprite.pos.size
+                };
 
                 let dest = [sprite.pos.origin.x as f32, sprite.pos.origin.y as f32];
                 let scale = [
-                    (sprite.pos.size.width as f32 / uv_size.width as f32),
-                    (sprite.pos.size.height as f32 / uv_size.height as f32),
+                    (pos_size.width as f32 / uv_size.width as f32),
+                    (pos_size.height as f32 / uv_size.height as f32),
                 ];
 
                 let src = ggez::graphics::Rect::new(

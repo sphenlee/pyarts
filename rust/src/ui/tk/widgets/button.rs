@@ -1,5 +1,5 @@
 use crate::ui::tk::{
-    rect, CommandBuffer, Element, Event, Icon, InputState, MouseButton, Rect, TextureId, TkError,
+    rect, CommandBuffer, Element, Event, Icon, InputState, MouseButton, Rect, Texture, TkError,
     TkResult, Widget,
 };
 use glyph_brush::rusttype::Scale;
@@ -93,7 +93,7 @@ impl<Msg: Clone + 'static> Widget<Msg> for Button<Msg> {
             )
         };
 
-        for s in TextureId(0).icon(uv).nine_square(self.bounds) {
+        for s in Texture::from_id(0).icon(uv).nine_square(self.bounds) {
             buffer.sprite(s);
         }
 

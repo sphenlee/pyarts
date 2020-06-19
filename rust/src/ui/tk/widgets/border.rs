@@ -1,5 +1,5 @@
 use crate::ui::tk::{
-    rect, CommandBuffer, Element, Event, InputState, Rect, TextureId, TkResult, Widget,
+    rect, CommandBuffer, Element, Event, InputState, Rect, Texture, TkResult, Widget
 };
 use std::sync::mpsc::Sender;
 
@@ -30,7 +30,7 @@ impl<Msg> Widget<Msg> for Border<Msg> {
     }
 
     fn render(&self, input: &InputState, buffer: &mut CommandBuffer) -> TkResult<()> {
-        let sprites = TextureId(0)
+        let sprites = Texture::from_id(0)
             .icon(rect(0, 128, 3 * 64, 64))
             .nine_square(self.bounds);
 

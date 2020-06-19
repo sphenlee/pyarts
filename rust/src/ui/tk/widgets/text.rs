@@ -23,7 +23,7 @@ impl<Msg: 'static> Text<Msg> {
         })
     }
 
-    pub fn align(mut self, halign: HorizontalAlign) -> Self {
+    pub fn halign(mut self, halign: HorizontalAlign) -> Self {
         self.halign = halign;
         self
     }

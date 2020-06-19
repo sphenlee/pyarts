@@ -1,12 +1,11 @@
 use crate::ui::tk::{
-    rect, CommandBuffer, Element, Event, InputState, Rect, TextureId, TkResult, Widget,
+    rect, CommandBuffer, Element, InputState, Rect, Texture, TkResult, Widget,
 };
 use glyph_brush::rusttype::Scale;
 use glyph_brush::{
     BuiltInLineBreaker, FontId, HorizontalAlign, Layout, OwnedSectionText, OwnedVariedSection,
     VerticalAlign,
 };
-use std::sync::mpsc::Sender;
 
 const PROGRESS_OFFSET_X: i32 = 0;
 const PROGRESS_OFFSET_Y: i32 = 192;
@@ -17,7 +16,7 @@ pub struct Progress<Msg> {
     text: String,
     percentage: f32,
     bounds: Rect,
-    phantom: std::marker::PhantomData<Msg>,
+    _msg: std::marker::PhantomData<Msg>,
 }
 
 impl<Msg: 'static> Progress<Msg> {
@@ -26,8 +25,14 @@ impl<Msg: 'static> Progress<Msg> {
             text: String::new(),
             percentage: 0.0,
             bounds: Rect::default(),
-            phantom: std::marker::PhantomData,
+            _msg: std::marker::PhantomData,
         }
+    }
+
+    pub fn fraction(val: i32, max: i32) -> Self {
+        Self::new()
+            .text(format!("{} / {}", val, max))
+            .percentage(val as f32 / max as f32)
     }
 
     pub fn text(mut self, text: impl Into<String>) -> Self {
@@ -81,10 +86,10 @@ impl<Msg: 'static> Widget<Msg> for Progress<Msg> {
             PROGRESS_HEIGHT,
         );
 
-        for s in TextureId(0).icon(uv_bar).nine_square(bar) {
+        for s in Texture::from_id(0).icon(uv_bar).nine_square(bar) {
             buffer.sprite(s);
         }
-        for s in TextureId(0).icon(uv_fill).nine_square(fill) {
+        for s in Texture::from_id(0).icon(uv_fill).nine_square(fill) {
             buffer.sprite(s);
         }
 
@@ -115,10 +120,6 @@ impl<Msg: 'static> Widget<Msg> for Progress<Msg> {
             buffer.text(sec);
         }
 
-        Ok(())
-    }
-
-    fn event(&self, _event: &Event, _tx: &Sender<Msg>) -> TkResult<()> {
         Ok(())
     }
 }

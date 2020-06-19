@@ -41,6 +41,36 @@ impl GameUi {
     }
 }
 
+// small helper functions - maybe move to a pyo3 helpers module?
+fn dict_get_or_else<'a, K, T, F>(dict: &'a PyDict, key: K, f: F) -> PyResult<T>
+where K: pyo3::ToBorrowedObject,
+    T: FromPyObject<'a>,
+    F: FnOnce() -> T
+{
+    match dict.get_item(key) {
+        None => Ok(f()),
+        Some(item) => item.extract::<T>(),
+    }
+}
+
+fn dict_get_or_default<'a, K, T>(dict: &'a PyDict, key: K) -> PyResult<T>
+where  K: pyo3::ToBorrowedObject,
+       T: FromPyObject<'a> + Default
+{
+    dict_get_or_else(dict, key, || Default::default())
+}
+
+fn dict_get<'a, K, T>(dict: &'a PyDict, key: K) -> PyResult<Option<T>>
+    where K: pyo3::ToBorrowedObject,
+          T: FromPyObject<'a>
+{
+    // this is basically a map and transpose, but I think this is easier to read
+    Ok(match dict.get_item(key) {
+        None => None,
+        Some(item) => Some(item.extract::<T>()?),
+    })
+}
+
 impl GameUi {
     pub fn step(&mut self, py: Python) -> YartsResult<()> {
         self.infopanel.call_method1(py, "step", ())?;
@@ -70,32 +100,39 @@ impl GameUi {
     fn build_infopanel(
         &mut self,
         py: Python,
-        _ctx: &mut Context,
-        _ggez_rend: &mut GgezRenderer,
+        ctx: &mut Context,
+        ggez_rend: &mut GgezRenderer,
     ) -> YartsResult<Element<GameMsg>> {
         let entities: &PyList = self.infopanel.as_ref(py).getattr("data")?.extract()?;
 
         if entities.len() == 1 {
             let data: &PyDict = entities.get_item(0).extract()?;
 
-            let name = data
-                .get_item("name")
-                .map(|val| val.extract::<String>().expect("infopanel.name must be a string"))
-                .unwrap_or_default();
-            let mut info = Panel::vbox().add(Text::new(name)?.align(HorizontalAlign::Center));
+            // name
+            let name: String = dict_get_or_default(data, "name")?;
+            let mut info = Panel::vbox().add(Text::new(name)?.halign(HorizontalAlign::Center));
 
-            let hp = data
-                .get_item("hp")
-                .map(|val| val.extract::<(i32, i32)>().expect("infopanel.hp must be (int, int)"));
+            // portrait
+            let portrait: Option<String> = dict_get(data, "portrait")?;
+            if let Some(image) = portrait {
+                let texid = ggez_rend.load_texture(ctx, &image)?;
+                info.push(2, Image::new(texid.whole()))
+            }
+
+            // hp
+            let hp: Option<(i32, i32)> = dict_get(data, "hp")?;
             if let Some((val, max)) = hp {
-                info.push(1, Progress::new()
-                    .percentage(val as f32 / max as f32)
-                    .text(format!("{}/{}", val, max)));
+                info.push(1, Progress::fraction(val, max));
+            }
+
+            // mana
+            let mana: Option<(i32, i32)> = dict_get(data, "mana")?;
+            if let Some((val, max)) = mana {
+                info.push(1, Progress::fraction(val, max));
             }
 
             let panel = Panel::hbox().add(info)
-                .add(Panel::vbox())
-                .add(Panel::vbox())
+                .add_flex(2, Panel::vbox())
                 ;
 
             Ok(Border::new(panel).build())

@@ -2,9 +2,19 @@ use super::{rect, Rect};
 use crate::ui::tk::Size;
 
 #[derive(Copy, Clone, Debug)]
-pub struct TextureId(pub usize);
+pub struct Texture {
+    pub id: usize,
+    pub size: Size
+}
 
-impl TextureId {
+impl Texture {
+    pub fn from_id(id: usize) -> Self {
+        Self {
+            id,
+            size: Size::default()
+        }
+    }
+
     pub fn whole(self) -> Icon {
         Icon(self, Rect::zero())
     }
@@ -15,7 +25,7 @@ impl TextureId {
 }
 
 #[derive(Copy, Clone)]
-pub struct Icon(TextureId, Rect);
+pub struct Icon(Texture, Rect);
 
 const NINE_SQ: i32 = 16;
 
@@ -26,6 +36,14 @@ impl Icon {
             pos: rect,
             uv: self.1,
         }
+    }
+
+    pub fn texture(&self) -> Texture {
+        self.0
+    }
+
+    pub fn uv(&self) -> Rect {
+        self.1
     }
 
     pub fn nine_square(self, pos: Rect) -> impl IntoIterator<Item = Sprite> {
@@ -162,13 +180,13 @@ impl Icon {
 
 #[derive(Debug)]
 pub struct Sprite {
-    pub texture: TextureId,
+    pub texture: Texture,
     pub pos: Rect,
     pub uv: Rect,
 }
 
-impl From<(Rect, Rect, TextureId)> for Sprite {
-    fn from((pos, uv, texture): (Rect, Rect, TextureId)) -> Self {
+impl From<(Rect, Rect, Texture)> for Sprite {
+    fn from((pos, uv, texture): (Rect, Rect, Texture)) -> Self {
         Sprite { pos, uv, texture }
     }
 }
