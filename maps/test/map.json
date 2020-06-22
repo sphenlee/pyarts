@@ -188,7 +188,7 @@
             "boost" : {
                 "type" : "instant",
                 "name" : "HP Boost",
-                "description" : "Raises MaxHP by 10% for 30s",
+                "description" : "# HP Boost #\n\nRaises *MaxHP* by *10%* for *30s*\n\n**Actually does nothing yet ;)**\n",
                 "effect" : [
                     "function(me, target)",
                     "    print('Inside Lua boost' .. me)",
@@ -196,14 +196,14 @@
                     "end"
                 ],
                 "group" : true,
-                "cooldown" : 60,
-                "cost" : { "mana" : 100 },
+                "cooldown" : 300,
+                "cost" : { "mana" : 10 },
                 "image" : "res/unit-pesant.png"
             },
             "killme" : {
                 "type" : "instant",
                 "name" : "Kill Me",
-                "description" : "Self destruct",
+                "description" : "# Kill Me #\n\nYep, this unit **self destructs**\n",
                 "effect" : { "file" : "abilities.lua", "function" : "killme" },
                 "group" : true,
                 "cost" : { },
@@ -212,7 +212,7 @@
             "heal" : {
                 "type" : "targeted",
                 "name" : "Heal",
-                "description" : "Restores 100 HP to target unit",
+                "description" : "# Heal #\n\nRestores *100 HP* to target unit\n",
                 "effect" : [
                     "function(me, target)",
                     "    print('Inside Lua heal' .. me)",
@@ -228,7 +228,7 @@
             "train_archer" : {
                 "type" : "activity",
                 "name" : "Train Archer",
-                "description" : "Trains an Archer",
+                "description" : "# Train Archer #",
                 "effect" : [
                     "function(me)",
                     "    print('Inside train archer')",
@@ -245,7 +245,7 @@
             "train_peasant" : {
                 "type" : "activity",
                 "name" : "Train Peasant",
-                "description" : "Trains a Peasant",
+                "description" : "# Trains a Peasant #",
                 "effect" : [
                     "function(me)",
                     "    print('Inside train peasant')",
@@ -262,7 +262,7 @@
             "build_townhall" : {
                 "type" : "build",
                 "name" : "Build Townhall",
-                "description" : "Builds a Townhall",
+                "description" : "# Builds a Townhall #",
                 "effect" : { "file": "abilities.lua", "function": "build_townhall" },
                 "onstart" : { "file": "abilities.lua", "function": "start_building" },
                 "cooldown" : 0,
@@ -391,6 +391,14 @@
             },
             "2/0" : {
                 "file" : "map0200.tmx",
+                "tileset": "grass"
+            },
+            "2/1" : {
+                "file" : "map0201.tmx",
+                "tileset": "grass"
+            },
+            "2/2" : {
+                "file" : "map0202.tmx",
                 "tileset": "grass"
             }
         }

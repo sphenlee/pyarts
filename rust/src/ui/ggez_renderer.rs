@@ -41,7 +41,7 @@ impl GgezRenderer {
                 let img = Image::new(ctx, name)?;
                 let size = Size::new(img.width() as i32, img.height() as i32);
                 let id = self.textures.insert(img);
-                let tex = Texture{ id, size };
+                let tex = Texture { id, size };
                 entry.insert(tex);
                 Ok(tex)
             }
@@ -56,12 +56,14 @@ impl GgezRenderer {
                 self.input.mouse_button = MouseButton::Left;
             }
             scene::Event::MouseUp { x, y, .. } => {
-                self.events
-                    .push(Event::Click(point(x as i32, y as i32), MouseButton::Left));
+                self.events.push(Event::Click(
+                    Point::new(x as i32, y as i32),
+                    MouseButton::Left,
+                ));
                 self.input.mouse_button = MouseButton::None;
             }
             scene::Event::MouseMotion { x, y, .. } => {
-                self.input.mouse_pos = point(x as i32, y as i32);
+                self.input.mouse_pos = Point::new(x as i32, y as i32);
             }
             _ => {}
         };
@@ -77,6 +79,7 @@ impl GgezRenderer {
 
         let (tx, rx) = std::sync::mpsc::channel();
         for event in self.events.drain(..) {
+            log::trace!("sending event to root component {:?}", event);
             root.event(&event, &tx)?;
         }
         drop(tx); // no more events will be generated
@@ -99,12 +102,12 @@ impl GgezRenderer {
                 })?;
 
                 let uv_size = if sprite.uv.is_empty() {
-                    size(img.width(), img.height()).to_i32()
+                    Size::new(img.width() as i32, img.height() as i32)
                 } else {
                     sprite.uv.size
                 };
                 let pos_size = if sprite.pos.is_empty() {
-                    size(img.width(), img.height()).to_i32()
+                    Size::new(img.width() as i32, img.height() as i32)
                 } else {
                     sprite.pos.size
                 };

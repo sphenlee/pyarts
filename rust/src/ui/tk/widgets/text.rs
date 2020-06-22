@@ -1,6 +1,9 @@
 use crate::ui::tk::markup::parse;
 use crate::ui::tk::{CommandBuffer, Element, Event, InputState, Rect, TkResult, Widget};
-use glyph_brush::{BuiltInLineBreaker, HorizontalAlign, Layout, OwnedVariedSection, VerticalAlign, OwnedSectionText};
+use glyph_brush::{
+    BuiltInLineBreaker, HorizontalAlign, Layout, OwnedSectionText, OwnedVariedSection,
+    VerticalAlign,
+};
 use std::sync::mpsc::Sender;
 
 pub struct Text<Msg> {
@@ -12,7 +15,6 @@ pub struct Text<Msg> {
 
 impl<Msg: 'static> Text<Msg> {
     pub fn new(text: impl Into<String>) -> TkResult<Self> {
-
         let sections = parse(&text.into())?;
 
         Ok(Text {
@@ -41,7 +43,10 @@ impl<Msg> Widget<Msg> for Text<Msg> {
 
     fn render(&self, _input: &InputState, buffer: &mut CommandBuffer) -> TkResult<()> {
         let pos = if self.halign == HorizontalAlign::Center {
-            (self.bounds.origin.x as f32 + self.bounds.size.width as f32 / 2.0, self.bounds.origin.y as f32)
+            (
+                self.bounds.origin.x as f32 + self.bounds.size.width as f32 / 2.0,
+                self.bounds.origin.y as f32,
+            )
         } else {
             (self.bounds.origin.x as f32, self.bounds.origin.y as f32)
         };

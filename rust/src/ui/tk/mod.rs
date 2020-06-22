@@ -18,7 +18,8 @@ pub use widgets::*;
 pub type Point = euclid::default::Point2D<i32>;
 pub type Rect = euclid::default::Rect<i32>;
 pub type Size = euclid::default::Size2D<i32>;
-pub use euclid::{point2 as point, rect, size2 as size};
+pub type Vector = euclid::default::Vector2D<i32>;
+pub use euclid::rect;
 
 pub type TkResult<T> = Result<T, TkError>;
 

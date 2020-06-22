@@ -2,6 +2,12 @@
 
 ## Roadmap
 
+### Bugs
+
+- [ ] Component load should be in dependency order to prevent reading
+      not-yet-loaded data
+
+
 ### Features needed for the game to be playable:
 
 - [ ] UI functioning
@@ -16,6 +22,7 @@
     + [ ] founding new towns
 - [ ] define basic unit set
 - [ ] combat
+    + [ ] attack move by default
     + [ ] attack melee
     + [ ] attack ranged
     + [ ] target finding
@@ -25,6 +32,8 @@
 
 - [ ] improve unit pathfinding/collisions
 - [ ] group movement
+- [ ] game onscreen log
+- [ ] cursors for each mode
 
 
 ## General TODOs

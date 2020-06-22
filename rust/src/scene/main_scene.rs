@@ -40,8 +40,8 @@ impl MainScene {
                     .onclick(Msg::StartGame)
                     .popup(
                         Popup::new()
-                            .anchor(point(WIDTH as i32 - 300, HEIGHT as i32 - 400))
-                            .size(size(300, 400))
+                            .anchor(Point::new(WIDTH as i32 - 300, HEIGHT as i32 - 400))
+                            .size(Size::new(300, 400))
                             .add(Border::new(Text::new("Start a new game")?)),
                     ),
             )
@@ -50,8 +50,8 @@ impl MainScene {
             .add_flex(
                 0,
                 Popup::new()
-                    .anchor(point(1000, 100))
-                    .size(size(300, 300))
+                    .anchor(Point::new(1000, 100))
+                    .size(Size::new(300, 300))
                     .add(Border::new(Text::new(WELCOME_MSG)?)),
             );
 

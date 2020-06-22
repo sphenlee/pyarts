@@ -1,6 +1,4 @@
-use crate::ui::tk::{
-    rect, CommandBuffer, Element, InputState, Rect, Texture, TkResult, Widget,
-};
+use crate::ui::tk::{rect, CommandBuffer, Element, InputState, Rect, Texture, TkResult, Widget};
 use glyph_brush::rusttype::Scale;
 use glyph_brush::{
     BuiltInLineBreaker, FontId, HorizontalAlign, Layout, OwnedSectionText, OwnedVariedSection,
@@ -71,27 +69,23 @@ impl<Msg: 'static> Widget<Msg> for Progress<Msg> {
             PROGRESS_HEIGHT,
         );
 
-        let offset_y = (self.bounds.size.height - PROGRESS_HEIGHT) / 2;
+        let offset_y = 0;//(self.bounds.size.height - PROGRESS_HEIGHT) / 2;
 
         let bar = rect(
             self.bounds.origin.x,
             self.bounds.origin.y + offset_y,
             self.bounds.size.width,
-            PROGRESS_HEIGHT,
+            self.bounds.size.height,
         );
         let fill = rect(
             self.bounds.origin.x,
             self.bounds.origin.y + offset_y,
             (self.bounds.size.width as f32 * self.percentage) as i32,
-            PROGRESS_HEIGHT,
+            self.bounds.size.height,
         );
 
-        for s in Texture::from_id(0).icon(uv_bar).nine_square(bar) {
-            buffer.sprite(s);
-        }
-        for s in Texture::from_id(0).icon(uv_fill).nine_square(fill) {
-            buffer.sprite(s);
-        }
+        buffer.sprite(Texture::from_id(0).icon(uv_bar).at(bar));
+        buffer.sprite(Texture::from_id(0).icon(uv_fill).at(fill));
 
         if !self.text.is_empty() {
             let pos = self.bounds.center().to_tuple();

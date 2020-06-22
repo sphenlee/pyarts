@@ -37,6 +37,7 @@ class Entity(object):
                     configureone(dep)
             tmp = self.proto.data.get(name)
             comp.configure(tmp)
+            comp.configured = True
 
         for name in self.components.keys():
             #print 'configure ', name

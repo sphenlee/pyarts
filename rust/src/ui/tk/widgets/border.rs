@@ -1,5 +1,5 @@
 use crate::ui::tk::{
-    rect, CommandBuffer, Element, Event, InputState, Rect, Texture, TkResult, Widget
+    rect, CommandBuffer, Element, Event, InputState, Rect, Texture, TkResult, Widget,
 };
 use std::sync::mpsc::Sender;
 

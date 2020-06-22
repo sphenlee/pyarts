@@ -1,3 +1,2 @@
-cairocffi
 nanomsg
 msgpack-python

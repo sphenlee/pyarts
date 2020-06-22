@@ -4,7 +4,7 @@ use pyo3::types::PyDict;
 use crate::map::renderer::MapRenderer;
 use crate::scene::{Event, Transition, HEIGHT, WIDTH};
 use crate::sprites::SpriteManager;
-use crate::ui::game_ui::GameUi;
+use crate::ui::game_ui::{GameMsg, GameUi};
 use crate::ui::ggez_renderer::GgezRenderer;
 use crate::util::YartsResult;
 use ggez::event::MouseButton;
@@ -104,6 +104,19 @@ impl Root {
         let mut game_ui = self.game_ui.extract::<PyRefMut<GameUi>>(py)?;
         game_ui.step(py)?;
 
+        for msg in game_ui.messages() {
+            log::debug!("game message: {:?}", msg);
+            match msg {
+                GameMsg::AbilityButton(num) => self.ability_button(py, num)?,
+            }
+        }
+
+        Ok(())
+    }
+
+    fn ability_button(&self, py: Python, num: usize) -> YartsResult<()> {
+        self.control
+            .call_method1(py, "ability_button", (num, false))?;
         Ok(())
     }
 
@@ -139,9 +152,8 @@ impl Root {
             Event::KeyDown(..) => {}
             Event::TextInput(c) => {
                 if c >= '1' && c < '9' {
-                    let num = c as u32 - '1' as u32;
-                    self.control
-                        .call_method1(py, "ability_button", (num, false))?;
+                    let num = c as usize - '1' as usize;
+                    self.ability_button(py, num)?;
                 }
             }
             Event::MouseDown { x, y, button } => match button {
@@ -182,19 +194,11 @@ impl Root {
     pub fn draw(&mut self, py: Python, ctx: &mut Context) -> YartsResult<()> {
         let offset: (f32, f32) = self.camera.call_method0(py, "get_transform")?.extract(py)?;
 
-        //let transform = DrawParam::new().dest([x, y]).to_matrix();
-
-        //graphics::push_transform(ctx, Some(transform));
-        //graphics::apply_transformations(ctx)?;
-
         let mut map_renderer = self.map_renderer.extract::<PyRefMut<MapRenderer>>(py)?;
         map_renderer.draw(py, ctx, offset)?;
 
         let mut sprite_manager = self.sprite_manager.extract::<PyRefMut<SpriteManager>>(py)?;
         sprite_manager.draw(py, ctx, offset)?;
-
-        //graphics::pop_transform(ctx);
-        //graphics::apply_transformations(ctx)?;
 
         if let (Some((x1, y1)), Some((x2, y2))) = (self.click, self.drag) {
             let rect = graphics::Mesh::new_rectangle(
@@ -219,7 +223,12 @@ impl Root {
         let mut game_ui = self.game_ui.extract::<PyRefMut<GameUi>>(py)?;
         game_ui.draw(py, ctx, ggez_rend)?;
 
-        graphics::draw_queued_text(ctx, DrawParam::default(), None, graphics::FilterMode::Nearest)?;
+        graphics::draw_queued_text(
+            ctx,
+            DrawParam::default(),
+            None,
+            graphics::FilterMode::Nearest,
+        )?;
         Ok(())
     }
 }

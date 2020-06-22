@@ -1,8 +1,10 @@
 use crate::util::{YartsError, YartsResult};
 use ggez::event::{self, EventHandler, MouseButton};
+use ggez::graphics::Drawable;
 use ggez::{graphics, Context, ContextBuilder, GameResult};
 use log::{error, info};
 use pyo3::prelude::*;
+use std::time::Duration;
 
 pub mod game_scene;
 pub mod main_scene;
@@ -51,6 +53,7 @@ pub fn launch(py: Python<'_>) -> YartsResult<()> {
     let (mut ctx, mut event_loop) = ContextBuilder::new("yarts", "Steve Lee")
         .window_setup(ggez::conf::WindowSetup {
             title: "Pyarts".to_owned(),
+            vsync: true,
             ..Default::default()
         })
         .add_resource_path(&cwd)
@@ -141,7 +144,9 @@ impl EventHandler for SceneStack<'_> {
         let screen = self.screens.last_mut().expect("popped last screen?");
 
         python_protect(self.py, ctx, |py, ctx| {
-            screen.update(py, ctx)?;
+            while ggez::timer::check_update_time(ctx, 60) {
+                screen.update(py, ctx)?;
+            }
             Ok(())
         });
 
@@ -158,7 +163,16 @@ impl EventHandler for SceneStack<'_> {
             Ok(())
         });
 
+        graphics::Text::new(format!("fps: {}", ggez::timer::fps(ctx))).draw(
+            ctx,
+            graphics::DrawParam::new()
+                .dest([20.0, 20.0])
+                .color(graphics::Color::new(1.0, 0.0, 0.0, 1.0)),
+        )?;
+
         graphics::present(ctx)?;
+
+        ggez::timer::sleep(Duration::from_millis(5));
 
         Ok(())
     }

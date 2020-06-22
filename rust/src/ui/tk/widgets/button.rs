@@ -20,6 +20,7 @@ pub struct Button<Msg: Clone> {
     bounds: Rect,
     icon: Option<Icon>,
     popup: Option<Element<Msg>>,
+    enabled: bool,
 }
 
 impl<Msg: Clone + 'static> Button<Msg> {
@@ -30,6 +31,7 @@ impl<Msg: Clone + 'static> Button<Msg> {
             bounds: Rect::default(),
             icon: None,
             popup: None,
+            enabled: true,
         }
     }
 
@@ -53,6 +55,12 @@ impl<Msg: Clone + 'static> Button<Msg> {
         self
     }
 
+    pub fn enabled(mut self, enabled: bool) -> Self {
+        self.enabled = enabled;
+        self
+    }
+
+
     pub fn build(self) -> Element<Msg> {
         Box::new(self)
     }
@@ -68,17 +76,26 @@ impl<Msg: Clone + 'static> Widget<Msg> for Button<Msg> {
     }
 
     fn render(&self, input: &InputState, buffer: &mut CommandBuffer) -> TkResult<()> {
-        let uv = if self.bounds.contains(input.mouse_pos) {
-            if input.mouse_button == MouseButton::Left {
-                rect(
-                    BUTTON_OFFSET_X + BUTTON_WIDTH * 2,
-                    BUTTON_OFFSET_Y,
-                    BUTTON_WIDTH,
-                    BUTTON_HEIGHT,
-                )
+        let uv = if self.enabled {
+            if self.bounds.contains(input.mouse_pos) {
+                if input.mouse_button == MouseButton::Left {
+                    rect(
+                        BUTTON_OFFSET_X + BUTTON_WIDTH * 2,
+                        BUTTON_OFFSET_Y,
+                        BUTTON_WIDTH,
+                        BUTTON_HEIGHT,
+                    )
+                } else {
+                    rect(
+                        BUTTON_OFFSET_X + BUTTON_WIDTH,
+                        BUTTON_OFFSET_Y,
+                        BUTTON_WIDTH,
+                        BUTTON_HEIGHT,
+                    )
+                }
             } else {
                 rect(
-                    BUTTON_OFFSET_X + BUTTON_WIDTH,
+                    BUTTON_OFFSET_X,
                     BUTTON_OFFSET_Y,
                     BUTTON_WIDTH,
                     BUTTON_HEIGHT,
@@ -86,7 +103,7 @@ impl<Msg: Clone + 'static> Widget<Msg> for Button<Msg> {
             }
         } else {
             rect(
-                BUTTON_OFFSET_X,
+                BUTTON_OFFSET_X + BUTTON_WIDTH * 3,
                 BUTTON_OFFSET_Y,
                 BUTTON_WIDTH,
                 BUTTON_HEIGHT,
@@ -140,9 +157,10 @@ impl<Msg: Clone + 'static> Widget<Msg> for Button<Msg> {
     }
 
     fn event(&self, event: &Event, tx: &Sender<Msg>) -> TkResult<()> {
-        if let Some(onclick) = self.onclick.clone() {
-            if let &Event::Click(pos, button) = event {
-                if button == MouseButton::Left && self.bounds.contains(pos) {
+        if let &Event::Click(pos, button) = event {
+            if button == MouseButton::Left && self.bounds.contains(pos) {
+                if let Some(onclick) = self.onclick.clone() {
+                    log::trace!("mouse button event {:?} {:?}", pos, button);
                     tx.send(onclick).map_err(|_| TkError::SendError)?;
                 }
             }

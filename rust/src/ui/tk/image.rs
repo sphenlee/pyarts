@@ -4,14 +4,14 @@ use crate::ui::tk::Size;
 #[derive(Copy, Clone, Debug)]
 pub struct Texture {
     pub id: usize,
-    pub size: Size
+    pub size: Size,
 }
 
 impl Texture {
     pub fn from_id(id: usize) -> Self {
         Self {
             id,
-            size: Size::default()
+            size: Size::default(),
         }
     }
 

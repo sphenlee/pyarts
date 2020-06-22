@@ -2,7 +2,7 @@ use crate::root::Root;
 use crate::scene::{Event, Screen, Transition, HEIGHT, WIDTH};
 use crate::ui::ggez_renderer::GgezRenderer;
 use crate::util::YartsResult;
-use ggez::{timer, Context};
+use ggez::Context;
 use pyo3::prelude::*;
 use pyo3::{PyObject, PyResult, Python};
 use std::collections::HashMap;
@@ -41,15 +41,9 @@ impl GameScene {
 }
 
 impl Screen for GameScene {
-    fn update(&mut self, py: Python<'_>, ctx: &mut Context) -> YartsResult<()> {
+    fn update(&mut self, py: Python<'_>, _ctx: &mut Context) -> YartsResult<()> {
         let mut root = self.root.as_ref(py).extract::<PyRefMut<Root>>()?;
-
-        while timer::check_update_time(ctx, 60) {
-            root.update(py)?;
-        }
-
-        timer::yield_now();
-
+        root.update(py)?;
         Ok(())
     }
 

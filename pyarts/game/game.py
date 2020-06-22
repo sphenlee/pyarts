@@ -135,6 +135,8 @@ class Game(object):
             warn('no entities were selected')
             return
 
+        selection.sort(key=lambda e: e.rank)
+
         for s in self.selection:
             if s.has('appearance'):
                 s.appearance.selected(False)
@@ -210,7 +212,16 @@ class Game(object):
         # NOTE this is a Game check, the Engine will check again when activating
         def check_ability(eid):
             e = self.engine.entities.get(eid)
-            ainst = e.abilities[idx]
+
+            if not e.has('abilities'):
+                error('entity has no abilities')
+                return False
+
+            try:
+                ainst = e.abilities[idx]
+            except IndexError:
+                error('index out of bounds - entity doesn\'t havethis ability')
+                return False
 
             if e.proto.epid != ent.proto.epid:
                 warn('entity does not have ability {0}', ability.name)

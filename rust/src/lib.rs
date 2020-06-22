@@ -49,6 +49,7 @@ fn yarts(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<map::renderer::MapRenderer>()?;
     m.add_class::<sprites::SpriteManager>()?;
     m.add_class::<ui::game_ui::GameUi>()?;
+    m.add_class::<ui::game_log::GameLog>()?;
     m.add_class::<pathfinder::Pathfinder>()?;
 
     m.add_class::<Rust>()?;

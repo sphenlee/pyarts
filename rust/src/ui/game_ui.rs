@@ -3,31 +3,39 @@ use crate::ui::ggez_renderer::GgezRenderer;
 use crate::ui::tk::*;
 use crate::util::YartsResult;
 use ggez::Context;
+use glyph_brush::HorizontalAlign;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
-use glyph_brush::HorizontalAlign;
+
+const ABILITY_BUTTON: i32 = 96;
 
 #[derive(Clone, Debug)]
 pub enum GameMsg {
-    AbilityButton(u32),
+    AbilityButton(usize),
 }
 
 #[pyclass]
 pub struct GameUi {
     infopanel: PyObject,
+    abilitypanel: PyObject,
+    townspanel: PyObject,
+    messages: Vec<GameMsg>,
 }
 
 #[pymethods]
 impl GameUi {
     #[staticmethod]
     fn depends() -> Vec<&'static str> {
-        vec!["infopanel"]
+        vec!["infopanel", "abilitypanel", "townspanel"]
     }
 
     #[new]
     fn new(py: Python) -> GameUi {
         GameUi {
             infopanel: py.None(),
+            abilitypanel: py.None(),
+            townspanel: py.None(),
+            messages: vec![],
         }
     }
 
@@ -36,6 +44,8 @@ impl GameUi {
         let deps: &PyAny = kwargs.expect("inject must be called with kwargs").as_ref();
 
         self.infopanel = deps.get_item("infopanel")?.into();
+        self.abilitypanel = deps.get_item("abilitypanel")?.into();
+        self.townspanel = deps.get_item("townspanel")?.into();
 
         Ok(())
     }
@@ -43,9 +53,10 @@ impl GameUi {
 
 // small helper functions - maybe move to a pyo3 helpers module?
 fn dict_get_or_else<'a, K, T, F>(dict: &'a PyDict, key: K, f: F) -> PyResult<T>
-where K: pyo3::ToBorrowedObject,
+where
+    K: pyo3::ToBorrowedObject,
     T: FromPyObject<'a>,
-    F: FnOnce() -> T
+    F: FnOnce() -> T,
 {
     match dict.get_item(key) {
         None => Ok(f()),
@@ -54,15 +65,17 @@ where K: pyo3::ToBorrowedObject,
 }
 
 fn dict_get_or_default<'a, K, T>(dict: &'a PyDict, key: K) -> PyResult<T>
-where  K: pyo3::ToBorrowedObject,
-       T: FromPyObject<'a> + Default
+where
+    K: pyo3::ToBorrowedObject,
+    T: FromPyObject<'a> + Default,
 {
     dict_get_or_else(dict, key, || Default::default())
 }
 
 fn dict_get<'a, K, T>(dict: &'a PyDict, key: K) -> PyResult<Option<T>>
-    where K: pyo3::ToBorrowedObject,
-          T: FromPyObject<'a>
+where
+    K: pyo3::ToBorrowedObject,
+    T: FromPyObject<'a>,
 {
     // this is basically a map and transpose, but I think this is easier to read
     Ok(match dict.get_item(key) {
@@ -74,7 +87,12 @@ fn dict_get<'a, K, T>(dict: &'a PyDict, key: K) -> PyResult<Option<T>>
 impl GameUi {
     pub fn step(&mut self, py: Python) -> YartsResult<()> {
         self.infopanel.call_method1(py, "step", ())?;
+        self.abilitypanel.call_method1(py, "step", ())?;
         Ok(())
+    }
+
+    pub fn messages<'a>(&'a mut self) -> impl Iterator<Item = GameMsg> + 'a {
+        self.messages.drain(..)
     }
 
     pub fn draw(
@@ -84,15 +102,35 @@ impl GameUi {
         ggez_rend: &mut GgezRenderer,
     ) -> YartsResult<()> {
         let infopanel = self.build_infopanel(py, ctx, ggez_rend)?;
+        let abilitypanel = self.build_abilitypanel(py, ctx, ggez_rend)?;
+        let townspanel = self.build_townspanel(py, ctx, ggez_rend)?;
 
-        let messages = ggez_rend.render(
-            ctx,
-            infopanel,
-            rect(0, HEIGHT_I / 4 * 3, WIDTH_I / 2, HEIGHT_I / 4),
-        )?;
-        for msg in messages {
-            log::warn!("{:?}", msg);
-        }
+        let ui = Panel::hbox()
+            .add(
+                Popup::new()
+                    .anchor(Point::new(0, HEIGHT_I / 4 * 3))
+                    .size(Size::new(WIDTH_I / 6, HEIGHT_I / 4))
+                    .add(infopanel),
+            )
+            .add(
+                Popup::new()
+                    .anchor(Point::new(
+                        WIDTH_I - ABILITY_BUTTON * 5,
+                        HEIGHT_I - ABILITY_BUTTON * 2,
+                    ))
+                    .size(Size::new(ABILITY_BUTTON * 5, ABILITY_BUTTON * 2))
+                    .add(abilitypanel),
+            )
+            .add(
+                Popup::new()
+                    .anchor(Point::new(WIDTH_I - 600, 0))
+                    .size(Size::new(600, 32))
+                    .add(townspanel),
+            )
+            .build();
+
+        let messages = ggez_rend.render(ctx, ui, rect(0, 0, WIDTH_I, HEIGHT_I))?;
+        self.messages.extend(messages);
 
         Ok(())
     }
@@ -102,7 +140,7 @@ impl GameUi {
         py: Python,
         ctx: &mut Context,
         ggez_rend: &mut GgezRenderer,
-    ) -> YartsResult<Element<GameMsg>> {
+    ) -> YartsResult<impl Widget<GameMsg> + 'static> {
         let entities: &PyList = self.infopanel.as_ref(py).getattr("data")?.extract()?;
 
         if entities.len() == 1 {
@@ -131,16 +169,116 @@ impl GameUi {
                 info.push(1, Progress::fraction(val, max));
             }
 
-            let panel = Panel::hbox().add(info)
-                .add_flex(2, Panel::vbox())
-                ;
+            /*let panel = Panel::hbox().add(info)
+               .add_flex(2, Panel::vbox())
+               ;
+            */
 
-            Ok(Border::new(panel).build())
+            Ok(Border::new(info))
         } else {
-            let text = Text::new("Multiple Entities Selected *TODO*")?;
-            Ok(Border::new(text).build())
+            let mut grid = Grid::new(3, 5);
+
+            for ent in entities {
+                let data: &PyDict = ent.extract()?;
+
+                // portrait
+                let portrait: Option<String> = dict_get(data, "portrait")?;
+                if let Some(image) = portrait {
+                    let texid = ggez_rend.load_texture(ctx, &image)?;
+                    grid.push(Image::new(texid.whole()))
+                }
+            }
+
+            Ok(Border::new(grid))
+        }
+    }
+
+    fn build_abilitypanel(
+        &mut self,
+        py: Python,
+        ctx: &mut Context,
+        ggez_rend: &mut GgezRenderer,
+    ) -> YartsResult<impl Widget<GameMsg> + 'static> {
+        let abilities: &PyList = self.abilitypanel.as_ref(py).getattr("data")?.extract()?;
+
+        let mut grid = Grid::new(2, 5);
+
+        for (idx, a) in abilities.iter().enumerate() {
+            let data: &PyDict = a.extract()?;
+
+            let mut button = Button::new().onclick(GameMsg::AbilityButton(idx));
+            let mut wait_animation = None;
+
+            let image: Option<String> = dict_get(data, "image")?;
+            if let Some(image) = image {
+                let texid = ggez_rend.load_texture(ctx, &image)?;
+                button = button.icon(texid.whole());
+            }
+
+            let cooldown: Option<f32> = dict_get(data, "cooldown")?;
+            if let Some(cooldown) = cooldown {
+                button = button.enabled(cooldown == 0.0);
+
+                let idx = 6 - f32::ceil(6.0 * cooldown) as i32;
+                let icon = Texture::from_id(0).icon(rect(64 * idx, 320, 64, 64));
+                wait_animation = Some(Image::new(icon));
+            }
+
+            let desc: Option<String> = dict_get(data, "description")?;
+            if let Some(desc) = desc {
+                button = button.popup(
+                    Popup::new()
+                        .size(Size::new(400, 400))
+                        .anchor(Point::new(
+                            WIDTH_I - 400,
+                            HEIGHT_I - 400 - ABILITY_BUTTON * 2,
+                        ))
+                        .add(Text::new(desc)?),
+                );
+            }
+
+            let mut stack = Stack::new();
+            stack.push(button);
+            if let Some(w) = wait_animation {
+                stack.push(w);
+            }
+
+            grid.push(stack);
         }
 
+        Ok(Border::new(grid))
+    }
 
+    fn build_townspanel(
+        &mut self,
+        py: Python,
+        ctx: &mut Context,
+        ggez_rend: &mut GgezRenderer,
+    ) -> YartsResult<impl Widget<GameMsg> + 'static> {
+        let towns: &PyDict = self.townspanel.as_ref(py).getattr("resources")?.extract()?;
+
+        let mut panel = Panel::vbox();
+
+        for (_, town) in towns {
+            let dict: &PyDict = town.extract()?;
+            let resource_image: String = dict_get_or_default(dict, "resource_image")?;
+            let energy_image: String = dict_get_or_default(dict, "energy_image")?;
+
+            let resource_icon = ggez_rend.load_texture(ctx, &resource_image)?.whole();
+            let energy_icon = ggez_rend.load_texture(ctx, &energy_image)?.whole();
+
+            let resource_value: u64 = dict_get_or_default(dict, "resource_value")?;
+            let energy_value: u64 = dict_get_or_default(dict, "energy_value")?;
+
+            panel.push(1, Panel::hbox()
+                .add(Image::new(energy_icon))
+                .add(Text::new(format!("{}", energy_value))?)
+                .add(Image::new(resource_icon))
+                .add(Text::new(format!("{}", resource_value))?)
+            );
+
+        }
+
+        Ok(panel)
     }
 }

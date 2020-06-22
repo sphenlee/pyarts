@@ -9,3 +9,6 @@ from .local import *
 from .control import *
 from .modestack import *
 from .infopanel import *
+from .abilitypanel import *
+from .townspanel import *
+
