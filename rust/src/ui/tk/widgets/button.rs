@@ -60,7 +60,6 @@ impl<Msg: Clone + 'static> Button<Msg> {
         self
     }
 
-
     pub fn build(self) -> Element<Msg> {
         Box::new(self)
     }

@@ -2,12 +2,15 @@
 Modes
 '''
 
+from pyarts.container import dynamic_component
 from pyarts.engine.target import Target
-
 from pyarts.log import info
 
 
 class BaseMode(object):
+    def inject(self):
+        pass
+
     def setup(self, modestack, game):
         self.modestack = modestack
         self.game = game
@@ -18,12 +21,16 @@ class BaseMode(object):
     def exit(self):
         pass
 
+    def mouse_move(self, x, y):
+        pass
 
+
+@dynamic_component
 class NormalMode(BaseMode):
     '''
     The mode the game is usually in
     '''
-    name = 'normal'
+    depends = []
 
     def __init__(self):
         pass
@@ -44,11 +51,12 @@ class NormalMode(BaseMode):
         self.game.ability(idx, add)
 
 
+@dynamic_component
 class TargetingMode(BaseMode):
     '''
     A mode used to select a target for an ability
     '''
-    name = 'targeting'
+    depends = []
 
     def __init__(self, order, allowpos=True, allowent=True):
         self.order = order
@@ -84,14 +92,36 @@ class TargetingMode(BaseMode):
         self.modestack.pop_mode()
 
 
+@dynamic_component
 class BuildMode(TargetingMode):
     '''
     A mode used to place new buildings
     '''
-    name = 'building'
+    depends = ['spritemanager', 'datasrc', 'local', 'camera']
 
-    def __init__(self, order, ghost=None, **kwargs):
-        super(BuildMode, self).__init__(order, **kwargs)
+    def __init__(self, order, proto, **kwargs):
+        super(BuildMode, self).__init__(order, allowent=False)
+        self.proto = proto
 
-        # todo - use sprite manager to get the ghost sprite
+    def inject(self, spritemanager, datasrc, local, camera):
+        self.sm = spritemanager
+        self.datasrc = datasrc
+        self.local = local
+        self.camera = camera
 
+    def enter(self):
+        ghost = '/' + self.datasrc.getresource(
+            self.proto.data['appearance']['sprite'])
+
+        self.r = self.proto.data['locator']['r']
+
+        self.sprite = self.sm.new_sprite(ghost, self.r)
+        self.sm.set_color(self.sprite, (0x00, 0xFF, 0x00, 0x80))
+        self.sm.set_visible(self.sprite, self.local.tidmask, selected=False)
+
+    def exit(self):
+        self.sm.remove(self.sprite)
+
+    def mouse_move(self, x, y):
+        x, y = self.camera.unproject((x, y))
+        self.sm.set_pos(self.sprite, x - self.r, y - self.r)

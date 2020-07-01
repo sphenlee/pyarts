@@ -61,6 +61,8 @@ impl MapRenderer {
     fn look_at(&mut self, py: Python, sector: &PyAny) -> PyResult<()> {
         info!("looking at sector: {}", sector);
 
+        self.active_renderers.clear();
+
         self.looksector = sector.into();
 
         self.setup_sector(py, self.looksector.clone_ref(py), 0, 0)?;
@@ -100,7 +102,6 @@ impl MapRenderer {
         };
 
         sr.borrow_mut().update_offset(dx, dy);
-        // TODO - calculate which renderers are visible and update active
         self.active_renderers.push(sr);
         debug!("{} renderers active", self.active_renderers.len());
         Ok(())

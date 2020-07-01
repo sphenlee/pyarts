@@ -3,6 +3,7 @@ Event
 '''
 from pyarts.log import debug, error
 
+
 class Event(object):
     def __init__(self, debug=None):
         self.listeners = []
@@ -22,5 +23,6 @@ class Event(object):
     def emit(self, *args, **kwargs):
         for func in self.listeners:
             if self.debug:
-                debug('emitting {0} to {1}(*{2}, **{3})', self.debug, func, args, kwargs)
+                debug('emitting {0} to {1}(*{2}, **{3})', self.debug, func,
+                      args, kwargs)
             func(*args, **kwargs)

@@ -9,14 +9,16 @@ from .sector import Sector, SECTOR_SZ, VERTEX_SZ
 
 from pyarts.container import component
 
+
 @component
 class Map(object):
     depends = ['engine', 'datasrc']
+
     def __init__(self):
-        self.sectors = { }
+        self.sectors = {}
         self.dirty = set()
         self.locators = set()
-        self.placedon = { } # locator -> set(sectors)
+        self.placedon = {}  # locator -> set(sectors)
 
         self.onsectorloaded = Event()
         self.onfogupdated = Event()
@@ -37,7 +39,6 @@ class Map(object):
             sec.save(datasink)
 
         datasink.setloadedsectors(iter(self.sectors.keys()))
-
 
     # _________________________________________________________
     # TODO - work out how many of these are actually being used
@@ -98,7 +99,6 @@ class Map(object):
         sx, sy = self.cell_to_sector(x, y)
         return self.sectors.get((sx, sy))
 
-
     def cell_walkable(self, walk, x, y):
         ''' used by the pathfinder in Rust '''
         sec, off = self.cell_to_sector_offset(x, y)
@@ -107,7 +107,6 @@ class Map(object):
         else:
             return False
    
-
     def step(self):
         self.n += 1
         if self.n % 500:
@@ -115,12 +114,10 @@ class Map(object):
 
             while self.dirty:
                 sec = self.dirty.pop()
-                #print(f'sector {sec} is dirty')
                 sec.updatefog()
 
             if was_dirty:
                 self.onfogupdated.emit()
-
 
     def place(self, locator):
         self.locators.add(locator)
@@ -183,7 +180,6 @@ class Map(object):
             for sec in secs:
                 sec.footprint(locator)
             return True
-
 
     def entities_in_rect(self, x1, y1, x2, y2):
         # TODO eventually this can use spatial partitioning to speed it up

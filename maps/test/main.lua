@@ -1,1 +1,1 @@
-print('in main.lua')
+log('in main.lua')

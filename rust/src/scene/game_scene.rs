@@ -62,9 +62,7 @@ impl Screen for GameScene {
     fn draw(&mut self, py: Python<'_>, ctx: &mut Context) -> YartsResult<Transition> {
         let mut root = self.root.as_ref(py).extract::<PyRefMut<Root>>()?;
 
-        root.draw(py, ctx)?;
-
-        root.draw_ui(py, ctx, &mut self.ggez_rend)?;
+        root.draw(py, ctx, &mut self.ggez_rend)?;
 
         Ok(Transition::None)
     }

@@ -69,7 +69,7 @@ impl<Msg: 'static> Widget<Msg> for Progress<Msg> {
             PROGRESS_HEIGHT,
         );
 
-        let offset_y = 0;//(self.bounds.size.height - PROGRESS_HEIGHT) / 2;
+        let offset_y = 0; //(self.bounds.size.height - PROGRESS_HEIGHT) / 2;
 
         let bar = rect(
             self.bounds.origin.x,

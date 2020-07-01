@@ -1,14 +1,17 @@
 function start_building(me)
-    print('started building something')
+    log('started building something')
 end
 
 function build_townhall(me, x, y)
-    print('building townhall')
-    construct(me, 'townhall')
+    log('building townhall')
+    construct(me, 'townhall', function(townhall)
+    	create_town(townhall, 'human')
+    	display('Completed constructing Town Hall')
+    end)
 end
 
 
 function killme(me)
-    print('killing', me)
+    log('killing {}', me)
     destroy(me)
 end

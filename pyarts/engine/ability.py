@@ -4,10 +4,13 @@ Ability
 An ability is a special action an entity can do.
 They are bound to the buttons
 '''
+from pyarts.container import dynamic_component
 from pyarts.log import warn
 
 from .resource import Cost
 
+
+@dynamic_component
 class Ability(object):
     STATIC = 'static'            
     INSTANT = 'instant'
@@ -16,17 +19,16 @@ class Ability(object):
     AREA_OF_EFFECT = 'area_of_effect'
     ACTIVITY = 'activity'
 
-    def __init__(self, data, scripting):
+    depends = ['scripting']
+
+    def __init__(self, data):
+        self.data = data
+
         self.name = data['name']
         self.description = data['description']
 
         self.type = data['type']
 
-        self.effect = scripting.code(data['effect'])
-
-        self.onstart = scripting.code(data['onstart']) if 'onstart' in data else None
-        self.onstop = scripting.code(data['onstop']) if 'onstop' in data else None
-        
         self.range = data.get('range', None)
         self.group = data.get('group', False)
         self.queue = data.get('queue', False)
@@ -35,9 +37,17 @@ class Ability(object):
         self.cost = Cost.from_data(data['cost'])
 
         if self.type == Ability.BUILD:
-            self.ghost = data['ghost']
+            self.proto = data['proto']
 
         self.image = data['image']
+
+    def inject(self, scripting):
+        self.effect = scripting.code(self.data['effect'])
+
+        self.onstart = scripting.code(self.data['onstart']) \
+            if 'onstart' in self.data else None
+        self.onstop = scripting.code(self.data['onstop']) \
+            if 'onstop' in self.data else None
 
     def check_cost(self, ent):
         if self.cost.is_town_cost():
@@ -75,7 +85,7 @@ class Ability(object):
             self.effect(me.eid)
         elif self.type in (Ability.TARGETED,):
             if target.isent():
-                self.effect(me.eid, target.ent.eid)    
+                self.effect(me.eid, target.ent.eid)
         elif self.type in (Ability.AREA_OF_EFFECT,  Ability.BUILD):
             x, y = target.getpos()
             self.effect(me.eid, x, y)

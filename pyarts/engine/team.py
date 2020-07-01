@@ -11,17 +11,25 @@ This means that usually every teams starts with the same
 protos but as upgrades are done they can diverge.
 '''
 
+from pyarts.container import dynamic_component
+
 from .entityproto import EntityProto
 from .town import Town
-from .event import Event
 
+
+@dynamic_component
 class Team(object):
-    def __init__(self, eng, tid):
-        self.eng = eng
+    depends = ['engine', 'components']
+
+    def __init__(self, tid):
         self.tid = tid
         self.entityprotos = {}
         self.towns = {}
-        
+
+    def inject(self, engine, components):
+        self.eng = engine
+        self.components = components
+
     def __repr__(self):
         return '<Team %d>' % self.tid
 
@@ -39,7 +47,7 @@ class Team(object):
 
         for twid, twdata in data.get('towns', {}).items():
             twid = int(twid)
-            town = Town(twid, self)
+            town = self.components.construct('town', twid, self)
             town.load(twdata)
             self.towns[twid] = town
 
@@ -55,8 +63,8 @@ class Team(object):
             towns[twid] = tw.save()
 
         return {
-            'entityprotos' : protos,
-            'towns' : towns
+            'entityprotos': protos,
+            'towns': towns,
         }
 
     def controlled_by(self, player):
@@ -74,9 +82,16 @@ class Team(object):
             if town.contains(pos):
                 return town
 
-    def createtown(self, founder):
+    def create_town(self, founder, race, initial_resources={}):
         twid = max(self.towns.keys()) + 1
-        town = Town(twid, self)
-        town.addentity(founder)
+        town = self.components.construct('town', twid, self)
         self.towns[twid] = town
+        town.load({
+            'name': self.eng.generate_town_name(),
+            'race': race,
+            'resources': initial_resources,
+            'founder': founder.eid
+            })
         self.eng.ontowncreated.emit(self, town)
+        town.addentity(founder)
+        return town

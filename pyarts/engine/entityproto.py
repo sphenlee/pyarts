@@ -5,6 +5,7 @@ never changes individually. EntityProtos are local to each Team
 and hence can be modified by upgrades.
 '''
 
+
 class EntityProto(object):
     def __init__(self, epid, team):
         self.epid = epid

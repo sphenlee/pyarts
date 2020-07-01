@@ -7,68 +7,75 @@ of components.  They have no other behaviour except what is
 specified by the components.
 '''
 
+from toposort import toposort_flatten
+
 from .components import *
-from pyarts.log import info
+from pyarts.log import info, trace
+
+
+def component_order(components):
+    graph = {}
+    for name, comp in components.items():
+        graph[name] = set(d for d in comp.depends if d[0] != '@')
+
+    trace('component graph: {}', graph)
+    order = toposort_flatten(graph)
+    trace('sorted order: {}', order)
+    return order
+
 
 class Entity(object):
     def __init__(self, eid, proto):
         self.eid = eid
         self.team = proto.team
         self.proto = proto
-        self.components = { }
+        self.components = {}
 
     def __del__(self):
         info('entity %r is being deleted' % self)
 
     def __repr__(self):
-        #return '<Entity %d proto %s owned by %r>' % (self.eid, self.proto.name, self.team)
         return '<Entity %d "%s">' % (self.eid, self.proto.name)
 
     def configure(self):
         ''' Loads shared data from the entity proto into each component '''
-        # do a basic bredth first traversal of the dependencies
-        # ignore cycles - not our problem!
-        def configureone(name):
-            comp = self.components[name]
-            if comp.configured:
-                return
-            for dep in comp.depends:
-                if dep[0] != '@':
-                    configureone(dep)
-            tmp = self.proto.data.get(name)
-            comp.configure(tmp)
-            comp.configured = True
+        self.component_order = component_order(self.components)
 
-        for name in self.components.keys():
-            #print 'configure ', name
-            configureone(name)
+        for name in self.component_order:
+            comp = self.components[name]
+            data = self.proto.data.get(name)
+            comp.configure(data)
 
     def save(self):
         ''' Save each component '''
         data = {
-            'team' : self.team.tid,
-            'proto' : self.proto.epid
+            'team': self.team.tid,
+            'proto': self.proto.epid
         }
-        for name, comp in self.components.items():
-            tmp = comp.save()
-            if tmp is not None:
-                data[name] = tmp
+        for name in self.component_order:
+            comp = self.components[name]
+            cdata = comp.save()
+            if cdata is not None:
+                data[name] = cdata
         return data
 
     def load(self, data):
         ''' Loads entity specific data into each component '''
-        for name, comp in self.components.items():
-            tmp = data.get(name, {})
-            comp.load(tmp)
+        for name in self.component_order:
+            comp = self.components[name]
+            cdata = data.get(name, {})
+            comp.load(cdata)
 
     def step(self):
         ''' Step each component '''
-        for comp in self.components.values():
+        for name in self.component_order:
+            comp = self.components[name]
             comp.step()
 
     def destroy(self):
         '''Destroy each component'''
-        for comp in self.components.values():
+        for name in self.component_order:
+            comp = self.components[name]
             comp.destroy()
 
     def has(self, comp):

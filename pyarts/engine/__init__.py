@@ -9,3 +9,4 @@ from .pathfinder import *
 from .scripting import *
 from .spritemanager import *
 from .collisions import *
+from .team import *

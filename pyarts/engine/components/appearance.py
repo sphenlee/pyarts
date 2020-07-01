@@ -59,7 +59,7 @@ class Appearance(Component):
         self.sprites.set_visible(self.sprite, self.visible, self.is_selected)
 
         self.sprites.set_pos(self.sprite, self.locator.x - self.locator.r,
-                           self.locator.y - self.locator.r)
+                             self.locator.y - self.locator.r)
 
     def selected(self, yes):
         self.is_selected = yes

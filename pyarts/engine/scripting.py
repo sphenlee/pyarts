@@ -11,9 +11,10 @@ from pyarts.log import info
 
 from pyarts.engine.actions import ConstructAction
 
+
 @component
 class Scripting(object):
-    depends = ['engine', 'entitymanager', 'datasrc']
+    depends = ['engine', 'entitymanager', 'datasrc', 'gamelog']
 
     def __init__(self):
         self.__lua_methods__ = {}
@@ -23,10 +24,11 @@ class Scripting(object):
 
         self.setup()
 
-    def inject(self, engine, entitymanager, datasrc):
+    def inject(self, engine, entitymanager, datasrc, gamelog):
         self.eng = engine
         self.entities = entitymanager
         self.datasrc = datasrc
+        self.gamelog = gamelog
 
     def code(self, code):
         if isinstance(code, list):
@@ -55,7 +57,17 @@ class Scripting(object):
     def print_(self, *args):
         ''' Simulate Lua's print which tab separates args '''
         print('\t'.join(str(a) for a in args))
-        
+
+    def log(self, msg, *args):
+        '''
+        Print a message to the console log
+        '''
+        info(msg, *args)
+
+    def display(self, msg, *args):
+        formatted = msg.format(*args)
+        self.gamelog.log(formatted)
+
     def create_entity(self, tid, protoname):
         team = self.eng.getteam(tid)
         proto = team.getproto(protoname)
@@ -86,11 +98,17 @@ class Scripting(object):
             elif op == 'add':
                 ent.variables[var] += int(val)
 
-    def construct(self, me, protoname):
+    def construct(self, me, protoname, oncomplete=None):
         ent = self.entities.get(me)
         proto = ent.team.getproto(protoname)
 
-        ent.actions.now(ConstructAction(proto))
+        ent.actions.now(ConstructAction(proto, oncomplete))
+
+    def create_town(self, founder, race, initial_resources={}):
+        ent = self.entities.get(founder)
+        town = ent.team.create_town(ent, race, initial_resources)
+        self.gamelog.log(f'You have founded a new town: {town.name}')
+        return town.twid
 
     def destroy(self, eid):
         info('destroying ', eid)
@@ -106,6 +124,9 @@ class Scripting(object):
         self.lua.setglobal('write_variable', self.write_variable)
         self.lua.setglobal('destroy', self.destroy)
         self.lua.setglobal('construct', self.construct)
+        self.lua.setglobal('create_town', self.create_town)
+        self.lua.setglobal('log', self.log)
+        self.lua.setglobal('display', self.display)
 
     def runmain(self):
         main = self.datasrc.getresource('main.lua')

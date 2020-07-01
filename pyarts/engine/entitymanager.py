@@ -13,15 +13,16 @@ from .event import Event
 from pyarts.container import component
 from pyarts.log import info
 
+
 @component
 class EntityManager(object):
     depends = ['engine', 'datasrc', 'map', 'collisions']
 
     def __init__(self):
         self.nextentid = 0
-        self.entities = {} # entid -> entitiy
-        self.newentities = {} # entities created during this step
-        self.pendingdestroy = set() # eids destroyed this step
+        self.entities = {}  # entid -> entitiy
+        self.newentities = {}  # entities created during this step
+        self.pendingdestroy = set()  # eids destroyed this step
 
         self.onentitycreated = Event()
 
@@ -105,16 +106,16 @@ class EntityManager(object):
 
         # TODO - tie this with the real global components
         globalcomponents = {
-            'sprites' : self.eng.sprites,
-            'map' : self.eng.map,
-            'datasrc' : self.eng.datasrc,
-            'entitymanager' : self,
-            'content' : self.eng.content,
-            'pathfinder' : self.eng.pathfinder,
-            'engine' : self.eng,
-            'collisions' : self.collisions,
-            'scripting' : self.eng.scripting,
-            'team' : proto.team
+            'sprites': self.eng.sprites,
+            'map': self.eng.map,
+            'datasrc': self.eng.datasrc,
+            'entitymanager': self,
+            'content': self.eng.content,
+            'pathfinder': self.eng.pathfinder,
+            'engine': self.eng,
+            'collisions': self.collisions,
+            'scripting': self.eng.scripting,
+            'team': proto.team
         }
 
         # perform the injection
@@ -182,4 +183,3 @@ class EntityManager(object):
         ent = self.get(eid)
         ent.destroy()
         self.pendingdestroy.add(eid)
-

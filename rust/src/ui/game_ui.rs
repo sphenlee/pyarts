@@ -3,7 +3,7 @@ use crate::ui::ggez_renderer::GgezRenderer;
 use crate::ui::tk::*;
 use crate::util::YartsResult;
 use ggez::Context;
-use glyph_brush::HorizontalAlign;
+use glyph_brush::{HorizontalAlign, VerticalAlign};
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
 
@@ -19,6 +19,7 @@ pub struct GameUi {
     infopanel: PyObject,
     abilitypanel: PyObject,
     townspanel: PyObject,
+    camera: PyObject,
     messages: Vec<GameMsg>,
 }
 
@@ -26,7 +27,7 @@ pub struct GameUi {
 impl GameUi {
     #[staticmethod]
     fn depends() -> Vec<&'static str> {
-        vec!["infopanel", "abilitypanel", "townspanel"]
+        vec!["infopanel", "abilitypanel", "townspanel", "camera"]
     }
 
     #[new]
@@ -35,6 +36,7 @@ impl GameUi {
             infopanel: py.None(),
             abilitypanel: py.None(),
             townspanel: py.None(),
+            camera: py.None(),
             messages: vec![],
         }
     }
@@ -46,6 +48,7 @@ impl GameUi {
         self.infopanel = deps.get_item("infopanel")?.into();
         self.abilitypanel = deps.get_item("abilitypanel")?.into();
         self.townspanel = deps.get_item("townspanel")?.into();
+        self.camera = deps.get_item("camera")?.into();
 
         Ok(())
     }
@@ -100,10 +103,11 @@ impl GameUi {
         py: Python,
         ctx: &mut Context,
         ggez_rend: &mut GgezRenderer,
+        offset: (f32, f32),
     ) -> YartsResult<()> {
         let infopanel = self.build_infopanel(py, ctx, ggez_rend)?;
         let abilitypanel = self.build_abilitypanel(py, ctx, ggez_rend)?;
-        let townspanel = self.build_townspanel(py, ctx, ggez_rend)?;
+        let townspanel = self.build_townspanel(py, ctx, ggez_rend, offset)?;
 
         let ui = Panel::hbox()
             .add(
@@ -124,7 +128,7 @@ impl GameUi {
             .add(
                 Popup::new()
                     .anchor(Point::new(WIDTH_I - 600, 0))
-                    .size(Size::new(600, 32))
+                    .size(Size::new(600, 128))
                     .add(townspanel),
             )
             .build();
@@ -254,13 +258,25 @@ impl GameUi {
         py: Python,
         ctx: &mut Context,
         ggez_rend: &mut GgezRenderer,
+        offset: (f32, f32),
     ) -> YartsResult<impl Widget<GameMsg> + 'static> {
         let towns: &PyDict = self.townspanel.as_ref(py).getattr("resources")?.extract()?;
+
+        let origin = (0, 0);
+        let transform: (f32, f32) = self.camera.as_ref(py).call_method1("project", (origin,))?.extract()?;
 
         let mut panel = Panel::vbox();
 
         for (_, town) in towns {
             let dict: &PyDict = town.extract()?;
+
+            let name: String = dict_get_or_default(dict, "name")?;
+            let pos: (i32, i32) = dict_get_or_default(dict, "position")?;
+            let anchor = Point::new(
+                (pos.0 as f32 + transform.0 - 125.0) as i32,
+                (pos.1 as f32 + transform.1 - 96.0) as i32,
+            );
+
             let resource_image: String = dict_get_or_default(dict, "resource_image")?;
             let energy_image: String = dict_get_or_default(dict, "energy_image")?;
 
@@ -270,13 +286,28 @@ impl GameUi {
             let resource_value: u64 = dict_get_or_default(dict, "resource_value")?;
             let energy_value: u64 = dict_get_or_default(dict, "energy_value")?;
 
-            panel.push(1, Panel::hbox()
-                .add(Image::new(energy_icon))
-                .add(Text::new(format!("{}", energy_value))?)
-                .add(Image::new(resource_icon))
-                .add(Text::new(format!("{}", resource_value))?)
+            panel.push(
+                1,
+                Popup::new()
+                    .size(Size::new(350, 64))
+                    .anchor(anchor)
+                    .add(Border::new(
+                        Panel::hbox()
+                            .add_flex(5, Text::new(name)?.valign(VerticalAlign::Center))
+                            .add_flex(1, Image::new(energy_icon))
+                            .add_flex(
+                                3,
+                                Text::new(format!("{}", energy_value))?
+                                    .valign(VerticalAlign::Center),
+                            )
+                            .add_flex(1, Image::new(resource_icon))
+                            .add_flex(
+                                3,
+                                Text::new(format!("{}", resource_value))?
+                                    .valign(VerticalAlign::Center),
+                            ),
+                    )),
             );
-
         }
 
         Ok(panel)

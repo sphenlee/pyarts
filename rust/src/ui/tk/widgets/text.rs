@@ -1,5 +1,7 @@
 use crate::ui::tk::markup::parse;
-use crate::ui::tk::{CommandBuffer, Element, Event, InputState, Rect, TkResult, Widget};
+use crate::ui::tk::{
+    CommandBuffer, Element, Event, InputState, Rect, TkResult, Widget,
+};
 use glyph_brush::{
     BuiltInLineBreaker, HorizontalAlign, Layout, OwnedSectionText, OwnedVariedSection,
     VerticalAlign,
@@ -10,6 +12,7 @@ pub struct Text<Msg> {
     sections: Vec<OwnedSectionText>,
     bounds: Rect,
     halign: HorizontalAlign,
+    valign: VerticalAlign,
     _msg: std::marker::PhantomData<Msg>, // unused type param
 }
 
@@ -21,12 +24,18 @@ impl<Msg: 'static> Text<Msg> {
             sections,
             bounds: Rect::zero(),
             halign: HorizontalAlign::Left,
+            valign: VerticalAlign::Top,
             _msg: std::marker::PhantomData,
         })
     }
 
     pub fn halign(mut self, halign: HorizontalAlign) -> Self {
         self.halign = halign;
+        self
+    }
+
+    pub fn valign(mut self, valign: VerticalAlign) -> Self {
+        self.valign = valign;
         self
     }
 
@@ -42,13 +51,16 @@ impl<Msg> Widget<Msg> for Text<Msg> {
     }
 
     fn render(&self, _input: &InputState, buffer: &mut CommandBuffer) -> TkResult<()> {
-        let pos = if self.halign == HorizontalAlign::Center {
-            (
-                self.bounds.origin.x as f32 + self.bounds.size.width as f32 / 2.0,
-                self.bounds.origin.y as f32,
-            )
+        let posx = if self.halign == HorizontalAlign::Center {
+            self.bounds.origin.x as f32 + self.bounds.size.width as f32 / 2.0
         } else {
-            (self.bounds.origin.x as f32, self.bounds.origin.y as f32)
+            self.bounds.origin.x as f32
+        };
+
+        let posy = if self.valign == VerticalAlign::Center {
+            self.bounds.origin.y as f32 + self.bounds.size.height as f32 / 2.0
+        } else {
+            self.bounds.origin.y as f32
         };
 
         let sec = OwnedVariedSection {
@@ -57,16 +69,21 @@ impl<Msg> Widget<Msg> for Text<Msg> {
                 self.bounds.size.width as f32,
                 self.bounds.size.height as f32,
             ),
-            screen_position: pos,
+            screen_position: (posx, posy),
             layout: Layout::Wrap {
                 line_breaker: BuiltInLineBreaker::UnicodeLineBreaker,
                 h_align: self.halign,
-                v_align: VerticalAlign::Top,
+                v_align: self.valign,
             },
             ..OwnedVariedSection::default()
         };
 
         buffer.text(sec);
+        /*Texture::from_id(0)
+            .icon(rect(0, 4 * 64, 3 * 64, 64))
+            .nine_square(self.bounds)
+            .into_iter()
+            .for_each(|s| buffer.sprite(s));*/
 
         Ok(())
     }

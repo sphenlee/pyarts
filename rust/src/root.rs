@@ -4,6 +4,7 @@ use pyo3::types::PyDict;
 use crate::map::renderer::MapRenderer;
 use crate::scene::{Event, Transition, HEIGHT, WIDTH};
 use crate::sprites::SpriteManager;
+use crate::ui::game_log::GameLog;
 use crate::ui::game_ui::{GameMsg, GameUi};
 use crate::ui::ggez_renderer::GgezRenderer;
 use crate::util::YartsResult;
@@ -20,6 +21,7 @@ pub struct Root {
     sprite_manager: PyObject,
     control: PyObject,
     game_ui: PyObject,
+    game_log: PyObject,
     deps: PyObject,
 
     // for tracking camera movement - move somewhere else?
@@ -46,6 +48,7 @@ impl Root {
             "spritemanager",
             "control",
             "gameui",
+            "gamelog",
         ]
     }
 
@@ -58,6 +61,7 @@ impl Root {
             sprite_manager: py.None(),
             control: py.None(),
             game_ui: py.None(),
+            game_log: py.None(),
             deps: py.None(),
 
             dx: 0,
@@ -78,6 +82,7 @@ impl Root {
         self.sprite_manager = deps.get_item("spritemanager")?.into();
         self.control = deps.get_item("control")?.into();
         self.game_ui = deps.get_item("gameui")?.into();
+        self.game_log = deps.get_item("gamelog")?.into();
         self.deps = deps.into();
 
         Ok(())
@@ -147,6 +152,8 @@ impl Root {
                     drag.0 = x;
                     drag.1 = y;
                 }
+
+                self.control.call_method1(py, "mouse_move", (x, y))?;
             }
             Event::KeyUp(..) => {}
             Event::KeyDown(..) => {}
@@ -191,7 +198,12 @@ impl Root {
         Ok(Transition::None)
     }
 
-    pub fn draw(&mut self, py: Python, ctx: &mut Context) -> YartsResult<()> {
+    pub fn draw(
+        &mut self,
+        py: Python,
+        ctx: &mut Context,
+        ggez_rend: &mut GgezRenderer,
+    ) -> YartsResult<()> {
         let offset: (f32, f32) = self.camera.call_method0(py, "get_transform")?.extract(py)?;
 
         let mut map_renderer = self.map_renderer.extract::<PyRefMut<MapRenderer>>(py)?;
@@ -211,17 +223,11 @@ impl Root {
             graphics::draw(ctx, &rect, DrawParam::new())?;
         }
 
-        Ok(())
-    }
-
-    pub fn draw_ui(
-        &mut self,
-        py: Python,
-        ctx: &mut Context,
-        ggez_rend: &mut GgezRenderer,
-    ) -> YartsResult<()> {
         let mut game_ui = self.game_ui.extract::<PyRefMut<GameUi>>(py)?;
-        game_ui.draw(py, ctx, ggez_rend)?;
+        game_ui.draw(py, ctx, ggez_rend, offset)?;
+
+        let mut game_log = self.game_log.extract::<PyRefMut<GameLog>>(py)?;
+        game_log.draw(ctx, ggez_rend)?;
 
         graphics::draw_queued_text(
             ctx,

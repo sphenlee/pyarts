@@ -7,9 +7,7 @@ pub struct Stack<Msg> {
 
 impl<Msg: 'static> Stack<Msg> {
     pub fn new() -> Self {
-        Stack {
-            children: vec![],
-        }
+        Stack { children: vec![] }
     }
 
     pub fn add(mut self, child: impl Widget<Msg> + 'static) -> Self {

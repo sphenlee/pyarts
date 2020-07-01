@@ -10,9 +10,11 @@ from ..engine.map import SECTOR_SZ
 from pyarts.container import component
 from pyarts.log import debug
 
+
 @component
 class Camera(object):
-    depends = ['datasrc', 'maprenderer', 'map', 'spritemanager', 'local', 'settings']
+    depends = ['datasrc', 'maprenderer', 'map', 'spritemanager', 'local',
+               'settings']
 
     def __init__(self):
         self.lookx = 0
@@ -39,34 +41,42 @@ class Camera(object):
         look = data[str(self.local.pid)]
         self.lookx = int(look['x'])
         self.looky = int(look['y'])
+        self.sx = int(look['sx'])
+        self.sy = int(look['sy'])
 
     def onload(self, settings):
         self.WIDTH = settings.width
         self.HEIGHT = settings.height
 
-
     def setup_camera(self):
         # camera maybe should not be doing this?
-        sx, sy = self.map.pos_to_sector(self.lookx, self.looky)
-        sec = self.map.loadsector(sx, sy)
-
+        sec = self.map.loadsector(self.sx, self.sy)
         self.mapren.look_at(sec)
-
 
     def save(self, sink):
         data = {
-            self.local.pid : {
-                'x' : self.lookx,
-                'y' : self.looky,
+            self.local.pid: {
+                'x': self.lookx,
+                'y': self.looky,
+                'sx': self.sx,
+                'sy': self.sy,
             }
         }
         sink.setmisc('camera.initial.position', data)
 
     def unproject(self, pos):
-        looksector = self.mapren.looksector
+        '''
+        Converts a screen point into a world point
+        '''
+        return (pos[0] + self.lookx + self.sx * SECTOR_SZ,
+                pos[1] + self.looky + self.sy * SECTOR_SZ)
 
-        return (pos[0] + self.lookx + looksector.sx * SECTOR_SZ,
-                pos[1] + self.looky + looksector.sy * SECTOR_SZ)
+    def project(self, pos):
+        '''
+        Converts a world point into a screen point
+        '''
+        return (pos[0] - self.lookx - self.sx * SECTOR_SZ,
+                pos[1] - self.looky - self.sy * SECTOR_SZ)
 
     def get_transform(self):
         return (-self.lookx, -self.looky)
@@ -75,10 +85,8 @@ class Camera(object):
         self.lookx += dx
         self.looky += dy
 
-        #print('camera move', dx, dy, self.lookx, self.looky)
-
         sec = self.mapren.looksector
-        
+
         # this bit clamps the viewport to loaded sectors
         if self.lookx > SECTOR_SZ - self.WIDTH:
             if not sec.neighbour[1, 0]:
@@ -94,23 +102,25 @@ class Camera(object):
             if not sec.neighbour[0, -1]:
                 self.looky = 0
 
-
         # this bit moves the look point when when crosses a sector boundary
         if self.lookx < -self.WIDTH//2:
             if sec.neighbour[-1, 0]:
                 self.lookx += SECTOR_SZ
+                self.sx -= 1
                 self.onlookpointchanged.emit(sec.neighbour[-1, 0])
         elif self.lookx > SECTOR_SZ - self.WIDTH//2:
             if sec.neighbour[1, 0]:
                 self.lookx -= SECTOR_SZ
+                self.sx += 1
                 self.onlookpointchanged.emit(sec.neighbour[1, 0])
-        
+
         if self.looky < -self.HEIGHT//2:
             if sec.neighbour[0, -1]:
                 self.looky += SECTOR_SZ
+                self.sy -= 1
                 self.onlookpointchanged.emit(sec.neighbour[0, -1])
         elif self.looky > SECTOR_SZ - self.HEIGHT//2:
             if sec.neighbour[0, 1]:
                 self.looky -= SECTOR_SZ
+                self.sy += 1
                 self.onlookpointchanged.emit(sec.neighbour[0, 1])
-                

@@ -12,22 +12,23 @@ from .ability import Ability
 
 from pyarts.container import component
 
+
 @component
 class ContentManager(object):
-    depends = ['datasrc', 'scripting']
+    depends = ['datasrc', 'components']
 
     def __init__(self):
         self.abilities = {}
 
-    def inject(self, datasrc, scripting):
+    def inject(self, datasrc, components):
         self.datasrc = datasrc
         self.datasrc.onload.add(self.load)
-        self.scripting = scripting
+
+        self.components = components
 
     def load(self):
         for name, data in self.datasrc.getcontent('abilities').items():
-            self.abilities[name] = Ability(data, self.scripting)
+            self.abilities[name] = self.components.construct('ability', data)
 
-        
     def getability(self, name):
         return self.abilities[name]

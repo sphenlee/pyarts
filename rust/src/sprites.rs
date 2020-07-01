@@ -1,6 +1,6 @@
 use crate::map::sector_renderer::SECTOR_SZ;
 use crate::util::YartsResult;
-use ggez::graphics::{DrawParam, Drawable, Image};
+use ggez::graphics::{DrawParam, Drawable, Image, Color};
 use ggez::{graphics, Context, GameResult};
 use log::info;
 use pyo3::prelude::*;
@@ -13,6 +13,7 @@ const SPRITE_SIZE: f32 = 64.0;
 
 struct Sprite {
     img: Option<Image>,
+    color: Color,
     selected: bool,
     visible: u8,
     dx: f32,
@@ -88,6 +89,7 @@ impl SpriteManager {
 
         let sprite = Sprite {
             img,
+            color: Color::from_rgba(0xFF, 0xFF, 0xFF, 0xFF),
             selected: false,
             visible: 0,
             dx: 0.0,
@@ -112,6 +114,11 @@ impl SpriteManager {
         let sprite = self.sprites.get_mut(idx).expect("idx missing from slab");
         sprite.visible = visible;
         sprite.selected = selected;
+    }
+
+    fn set_color(&mut self, idx: usize, color: (u8, u8, u8, u8)) {
+        let sprite = self.sprites.get_mut(idx).expect("idx missing from slab");
+        sprite.color = Color::from(color);
     }
 
     fn set_pos(&mut self, idx: usize, dx: f32, dy: f32) {
@@ -160,7 +167,8 @@ impl SpriteManager {
                             sprite.dx - self.dx + offset.0,
                             sprite.dy - self.dy + offset.1,
                         ])
-                        .scale([scale, scale]);
+                        .scale([scale, scale])
+                        .color(sprite.color);
 
                     img.draw(ctx, param)?;
                 }

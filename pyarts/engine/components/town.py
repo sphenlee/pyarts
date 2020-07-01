@@ -9,7 +9,8 @@ from .component import Component, register
 
 from ..pathfinder import distance
 
-from pyarts.log import error
+from pyarts.log import error, trace
+
 
 @register
 class Town(Component):
@@ -17,6 +18,7 @@ class Town(Component):
 
     def inject(self, locator, team):
         self.locator = locator
+        self.locator.onplace.add(self.updateplace)
         self.team = team
 
     def configure(self, data):
@@ -25,12 +27,14 @@ class Town(Component):
     def load(self, data):
         if 'id' in data:
             self.town = self.team.gettown(data['id'])
-        else:
-            # new entity, search for the right town
-            # founding a town requires that an empty town is created first
-            self.town = self.team.gettownat(self.locator.pos())
+            trace('entity {} loading, adding itself to town {}', self.ent, self.town)
+            self.town.addentity(self.ent)
 
-        self.town.addentity(self.ent)
+    def updateplace(self, locator):
+        self.town = self.team.gettownat(locator.pos())
+        trace('{} has moved place, new town is {}', self, self.town)
+        if self.town:
+            self.town.addentity(self.ent)
 
     def save(self):
         return {
@@ -38,7 +42,10 @@ class Town(Component):
         }
 
     def contains(self, pt):
-        return distance(pt, self.locator.pos()) < self.r2
+        d = distance(pt, self.locator.pos())
+        trace('contains: {} in {}@{}?', pt, self.locator.pos(), self.r2)
+        trace('dist = {}', d)
+        return d < self.r2
 
     def destroy(self):
         error('TODO - remove from town')

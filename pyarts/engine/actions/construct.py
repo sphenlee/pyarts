@@ -11,10 +11,12 @@ from ..target import Target
 
 from pyarts.log import info
 
+
 class ConstructAction(Action):
-    def __init__(self, proto):
+    def __init__(self, proto, oncomplete=None):
         self.proto = proto
-        self.wait = 200 # TODO - get this from somewhere
+        self.oncomplete = oncomplete
+        self.wait = 200  # TODO - get this from somewhere
 
     def interruptible(self):
         return False
@@ -25,7 +27,8 @@ class ConstructAction(Action):
         # TODO - cache these protos - and abstract out dynamic proto creation?
         new_proto = EntityProto(self.proto.epid, self.proto.team)
         new_data = self.proto.data.copy()
-        new_data['components'] = ['appearance', 'footprint', 'locator', 'variables']
+        new_data['components'] = ['appearance', 'footprint', 'locator',
+                                  'variables']
         new_proto.load(new_data)
 
         self.construction_site = em.create(new_proto)
@@ -35,7 +38,6 @@ class ConstructAction(Action):
 
         self.construction_site.variables['hp'] = 1
         self.maxhp = self.construction_site.variables.get('hp').max
-
 
     def step(self):
         if self.wait:
@@ -55,6 +57,10 @@ class ConstructAction(Action):
         em.destroy(self.construction_site.eid)
 
         building = em.create(self.proto)
+
+        if self.oncomplete:
+            self.oncomplete(building.eid)
+
         building.locator.place(*self.ent.locator.pos())
 
         self.done()

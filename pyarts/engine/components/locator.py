@@ -5,23 +5,27 @@ Component to give an entity a location on the map
 '''
 
 from .component import Component, register
+from ..event import Event
 
 @register
 class Locator(Component):
     depends = ['@map']
+
+    def init(self):
+        self.onplace = Event(debug='locator.onplace')
 
     def inject(self, map):
         self.map = map
 
     def configure(self, data):
         self.r = data.get('r', 16)
-        self.sight = data.get('sight', self.r + 16) # guess?
+        self.sight = data.get('sight', self.r + 16)  # guess?
 
     def save(self):
         return {
-            'x' : self.x,
-            'y' : self.y,
-            'placed' : self.placed
+            'x': self.x,
+            'y': self.y,
+            'placed': self.placed
         }
 
     def load(self, data):
@@ -37,6 +41,7 @@ class Locator(Component):
         self.x = x
         self.y = y
         self.map.place(self)
+        self.onplace.emit(self)
 
     def move(self, x, y):
         ''' Move the entity - an instant jump to the new location '''
