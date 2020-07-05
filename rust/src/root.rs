@@ -224,7 +224,7 @@ impl Root {
         }
 
         let mut game_ui = self.game_ui.extract::<PyRefMut<GameUi>>(py)?;
-        game_ui.draw(py, ctx, ggez_rend, offset)?;
+        game_ui.draw(py, ctx, ggez_rend)?;
 
         let mut game_log = self.game_log.extract::<PyRefMut<GameLog>>(py)?;
         game_log.draw(ctx, ggez_rend)?;

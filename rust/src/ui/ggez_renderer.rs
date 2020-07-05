@@ -28,7 +28,7 @@ impl GgezRenderer {
             textures: Slab::new(),
             input: InputState::default(),
             events: vec![],
-            font: Font::new(ctx, "/maps/test/res/AccanthisadfstdBold-BYzx.ttf")?
+            font: Font::new(ctx, "/maps/test/res/AccanthisadfstdBold-BYzx.ttf")?,
         };
         slf.load_texture(ctx, "/maps/test/res/ui.png")?;
         Ok(slf)

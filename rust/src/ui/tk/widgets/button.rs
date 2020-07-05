@@ -13,6 +13,7 @@ const BUTTON_OFFSET_X: i32 = 0;
 const BUTTON_OFFSET_Y: i32 = 0;
 const BUTTON_WIDTH: i32 = 64;
 const BUTTON_HEIGHT: i32 = 64;
+const BUTTON_9SQ_OFFSET: i32 = 16;
 
 pub struct Button<Msg: Clone> {
     text: String,
@@ -109,7 +110,10 @@ impl<Msg: Clone + 'static> Widget<Msg> for Button<Msg> {
             )
         };
 
-        for s in Texture::from_id(0).icon(uv).nine_square(self.bounds) {
+        for s in Texture::from_id(0)
+            .icon(uv)
+            .nine_square(self.bounds, BUTTON_9SQ_OFFSET)
+        {
             buffer.sprite(s);
         }
 

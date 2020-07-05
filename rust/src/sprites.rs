@@ -1,6 +1,6 @@
 use crate::map::sector_renderer::SECTOR_SZ;
 use crate::util::YartsResult;
-use ggez::graphics::{DrawParam, Drawable, Image, Color};
+use ggez::graphics::{Color, DrawParam, Drawable, Image};
 use ggez::{graphics, Context, GameResult};
 use log::info;
 use pyo3::prelude::*;

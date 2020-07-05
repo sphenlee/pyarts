@@ -1,10 +1,10 @@
+use crate::scene::HEIGHT;
+use crate::ui::ggez_renderer::GgezRenderer;
 use ggez::{graphics, Context, GameResult};
+use glyph_brush::rusttype::Scale;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use std::time::{Duration, Instant};
-use crate::ui::ggez_renderer::GgezRenderer;
-use glyph_brush::rusttype::Scale;
-use crate::scene::HEIGHT;
 
 const LOG_Y_POS: f32 = HEIGHT / 4.0 * 3.0 - 24.0; // fudge factor - approx the height of one line
 

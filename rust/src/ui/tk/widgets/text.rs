@@ -1,7 +1,5 @@
 use crate::ui::tk::markup::parse;
-use crate::ui::tk::{
-    CommandBuffer, Element, Event, InputState, Rect, TkResult, Widget,
-};
+use crate::ui::tk::{CommandBuffer, Element, Event, InputState, Rect, TkResult, Widget};
 use glyph_brush::{
     BuiltInLineBreaker, HorizontalAlign, Layout, OwnedSectionText, OwnedVariedSection,
     VerticalAlign,
@@ -80,10 +78,10 @@ impl<Msg> Widget<Msg> for Text<Msg> {
 
         buffer.text(sec);
         /*Texture::from_id(0)
-            .icon(rect(0, 4 * 64, 3 * 64, 64))
-            .nine_square(self.bounds)
-            .into_iter()
-            .for_each(|s| buffer.sprite(s));*/
+        .icon(rect(0, 4 * 64, 3 * 64, 64))
+        .nine_square(self.bounds)
+        .into_iter()
+        .for_each(|s| buffer.sprite(s));*/
 
         Ok(())
     }

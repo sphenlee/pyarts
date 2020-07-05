@@ -27,8 +27,6 @@ impl Texture {
 #[derive(Copy, Clone)]
 pub struct Icon(Texture, Rect);
 
-const NINE_SQ: i32 = 16;
-
 impl Icon {
     pub fn at(self, rect: Rect) -> Sprite {
         Sprite {
@@ -46,8 +44,8 @@ impl Icon {
         self.1
     }
 
-    pub fn nine_square(self, pos: Rect) -> impl IntoIterator<Item = Sprite> {
-        let nine_sq_size = Size::new(NINE_SQ, NINE_SQ);
+    pub fn nine_square(self, pos: Rect, offset: i32) -> impl IntoIterator<Item = Sprite> {
+        let nine_sq_size = Size::new(offset, offset);
         vec![
             Sprite {
                 texture: self.0,
@@ -57,121 +55,121 @@ impl Icon {
             Sprite {
                 texture: self.0,
                 pos: rect(
-                    pos.origin.x + NINE_SQ,
+                    pos.origin.x + offset,
                     pos.origin.y,
-                    pos.size.width - 2 * NINE_SQ,
-                    NINE_SQ,
+                    pos.size.width - 2 * offset,
+                    offset,
                 ),
                 uv: rect(
-                    self.1.origin.x + NINE_SQ,
+                    self.1.origin.x + offset,
                     self.1.origin.y,
-                    self.1.size.width - 2 * NINE_SQ,
-                    NINE_SQ,
+                    self.1.size.width - 2 * offset,
+                    offset,
                 ),
             },
             Sprite {
                 texture: self.0,
                 pos: rect(
-                    pos.origin.x + pos.size.width - NINE_SQ,
+                    pos.origin.x + pos.size.width - offset,
                     pos.origin.y,
-                    NINE_SQ,
-                    NINE_SQ,
+                    offset,
+                    offset,
                 ),
                 uv: rect(
-                    self.1.origin.x + self.1.size.width - NINE_SQ,
+                    self.1.origin.x + self.1.size.width - offset,
                     self.1.origin.y,
-                    NINE_SQ,
-                    NINE_SQ,
+                    offset,
+                    offset,
                 ),
             },
             Sprite {
                 texture: self.0,
                 pos: rect(
                     pos.origin.x,
-                    pos.origin.y + NINE_SQ,
-                    NINE_SQ,
-                    pos.size.height - 2 * NINE_SQ,
+                    pos.origin.y + offset,
+                    offset,
+                    pos.size.height - 2 * offset,
                 ),
                 uv: rect(
                     self.1.origin.x,
-                    self.1.origin.y + NINE_SQ,
-                    NINE_SQ,
-                    self.1.size.height - 2 * NINE_SQ,
+                    self.1.origin.y + offset,
+                    offset,
+                    self.1.size.height - 2 * offset,
                 ),
             },
             Sprite {
                 texture: self.0,
                 pos: rect(
-                    pos.origin.x + NINE_SQ,
-                    pos.origin.y + NINE_SQ,
-                    pos.size.width - 2 * NINE_SQ,
-                    pos.size.height - 2 * NINE_SQ,
+                    pos.origin.x + offset,
+                    pos.origin.y + offset,
+                    pos.size.width - 2 * offset,
+                    pos.size.height - 2 * offset,
                 ),
                 uv: rect(
-                    self.1.origin.x + NINE_SQ,
-                    self.1.origin.y + NINE_SQ,
-                    self.1.size.width - 2 * NINE_SQ,
-                    self.1.size.height - 2 * NINE_SQ,
+                    self.1.origin.x + offset,
+                    self.1.origin.y + offset,
+                    self.1.size.width - 2 * offset,
+                    self.1.size.height - 2 * offset,
                 ),
             },
             Sprite {
                 texture: self.0,
                 pos: rect(
-                    pos.origin.x + pos.size.width - NINE_SQ,
-                    pos.origin.y + NINE_SQ,
-                    NINE_SQ,
-                    pos.size.height - 2 * NINE_SQ,
+                    pos.origin.x + pos.size.width - offset,
+                    pos.origin.y + offset,
+                    offset,
+                    pos.size.height - 2 * offset,
                 ),
                 uv: rect(
-                    self.1.origin.x + self.1.size.width - NINE_SQ,
-                    self.1.origin.y + NINE_SQ,
-                    NINE_SQ,
-                    self.1.size.height - 2 * NINE_SQ,
+                    self.1.origin.x + self.1.size.width - offset,
+                    self.1.origin.y + offset,
+                    offset,
+                    self.1.size.height - 2 * offset,
                 ),
             },
             Sprite {
                 texture: self.0,
                 pos: rect(
                     pos.origin.x,
-                    pos.origin.y + pos.size.height - NINE_SQ,
-                    NINE_SQ,
-                    NINE_SQ,
+                    pos.origin.y + pos.size.height - offset,
+                    offset,
+                    offset,
                 ),
                 uv: rect(
                     self.1.origin.x,
-                    self.1.origin.y + self.1.size.height - NINE_SQ,
-                    NINE_SQ,
-                    NINE_SQ,
+                    self.1.origin.y + self.1.size.height - offset,
+                    offset,
+                    offset,
                 ),
             },
             Sprite {
                 texture: self.0,
                 pos: rect(
-                    pos.origin.x + NINE_SQ,
-                    pos.origin.y + pos.size.height - NINE_SQ,
-                    pos.size.width - 2 * NINE_SQ,
-                    NINE_SQ,
+                    pos.origin.x + offset,
+                    pos.origin.y + pos.size.height - offset,
+                    pos.size.width - 2 * offset,
+                    offset,
                 ),
                 uv: rect(
-                    self.1.origin.x + NINE_SQ,
-                    self.1.origin.y + self.1.size.height - NINE_SQ,
-                    self.1.size.width - 2 * NINE_SQ,
-                    NINE_SQ,
+                    self.1.origin.x + offset,
+                    self.1.origin.y + self.1.size.height - offset,
+                    self.1.size.width - 2 * offset,
+                    offset,
                 ),
             },
             Sprite {
                 texture: self.0,
                 pos: rect(
-                    pos.origin.x + pos.size.width - NINE_SQ,
-                    pos.origin.y + pos.size.height - NINE_SQ,
-                    NINE_SQ,
-                    NINE_SQ,
+                    pos.origin.x + pos.size.width - offset,
+                    pos.origin.y + pos.size.height - offset,
+                    offset,
+                    offset,
                 ),
                 uv: rect(
-                    self.1.origin.x + self.1.size.width - NINE_SQ,
-                    self.1.origin.y + self.1.size.height - NINE_SQ,
-                    NINE_SQ,
-                    NINE_SQ,
+                    self.1.origin.x + self.1.size.width - offset,
+                    self.1.origin.y + self.1.size.height - offset,
+                    offset,
+                    offset,
                 ),
             },
         ]

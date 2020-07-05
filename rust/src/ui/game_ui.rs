@@ -103,13 +103,12 @@ impl GameUi {
         py: Python,
         ctx: &mut Context,
         ggez_rend: &mut GgezRenderer,
-        offset: (f32, f32),
     ) -> YartsResult<()> {
         let infopanel = self.build_infopanel(py, ctx, ggez_rend)?;
         let abilitypanel = self.build_abilitypanel(py, ctx, ggez_rend)?;
-        let townspanel = self.build_townspanel(py, ctx, ggez_rend, offset)?;
+        let townspanel = self.build_townspanel(py, ctx, ggez_rend)?;
 
-        let ui = Panel::hbox()
+        let ui = Stack::new()
             .add(
                 Popup::new()
                     .anchor(Point::new(0, HEIGHT_I / 4 * 3))
@@ -125,12 +124,7 @@ impl GameUi {
                     .size(Size::new(ABILITY_BUTTON * 5, ABILITY_BUTTON * 2))
                     .add(abilitypanel),
             )
-            .add(
-                Popup::new()
-                    .anchor(Point::new(WIDTH_I - 600, 0))
-                    .size(Size::new(600, 128))
-                    .add(townspanel),
-            )
+            .add(townspanel)
             .build();
 
         let messages = ggez_rend.render(ctx, ui, rect(0, 0, WIDTH_I, HEIGHT_I))?;
@@ -258,14 +252,19 @@ impl GameUi {
         py: Python,
         ctx: &mut Context,
         ggez_rend: &mut GgezRenderer,
-        offset: (f32, f32),
     ) -> YartsResult<impl Widget<GameMsg> + 'static> {
         let towns: &PyDict = self.townspanel.as_ref(py).getattr("resources")?.extract()?;
 
         let origin = (0, 0);
-        let transform: (f32, f32) = self.camera.as_ref(py).call_method1("project", (origin,))?.extract()?;
+        let transform: (f32, f32) = self
+            .camera
+            .as_ref(py)
+            .call_method1("project", (origin,))?
+            .extract()?;
 
-        let mut panel = Panel::vbox();
+        let mut stack = Stack::new();
+
+        let icon = Texture::from_id(0).icon(rect(0, 6 * 64, 3 * 64, 64));
 
         for (_, town) in towns {
             let dict: &PyDict = town.extract()?;
@@ -273,8 +272,8 @@ impl GameUi {
             let name: String = dict_get_or_default(dict, "name")?;
             let pos: (i32, i32) = dict_get_or_default(dict, "position")?;
             let anchor = Point::new(
-                (pos.0 as f32 + transform.0 - 125.0) as i32,
-                (pos.1 as f32 + transform.1 - 96.0) as i32,
+                (pos.0 as f32 + transform.0 - 150.0) as i32,
+                (pos.1 as f32 + transform.1 - 128.0) as i32,
             );
 
             let resource_image: String = dict_get_or_default(dict, "resource_image")?;
@@ -286,14 +285,14 @@ impl GameUi {
             let resource_value: u64 = dict_get_or_default(dict, "resource_value")?;
             let energy_value: u64 = dict_get_or_default(dict, "energy_value")?;
 
-            panel.push(
-                1,
+            stack.push(
                 Popup::new()
-                    .size(Size::new(350, 64))
+                    .size(Size::new(300, 64))
                     .anchor(anchor)
-                    .add(Border::new(
+                    .add(Border::with_icon(
+                        icon,
                         Panel::hbox()
-                            .add_flex(5, Text::new(name)?.valign(VerticalAlign::Center))
+                            .add_flex(4, Text::new(name)?.valign(VerticalAlign::Center))
                             .add_flex(1, Image::new(energy_icon))
                             .add_flex(
                                 3,
@@ -310,6 +309,6 @@ impl GameUi {
             );
         }
 
-        Ok(panel)
+        Ok(stack)
     }
 }

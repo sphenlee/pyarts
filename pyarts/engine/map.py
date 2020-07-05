@@ -109,7 +109,7 @@ class Map(object):
    
     def step(self):
         self.n += 1
-        if self.n % 500:
+        if (self.n % 10) == 0:
             was_dirty = len(self.dirty) > 0
 
             while self.dirty:
