@@ -9,26 +9,31 @@ from .sector import Sector, SECTOR_SZ, VERTEX_SZ
 
 from pyarts.container import component
 
+from pyarts.log import warn
+
 
 @component
 class Map(object):
-    depends = ['engine', 'datasrc']
+    depends = ['engine', 'datasrc', 'components', 'entitymanager', 'space']
 
     def __init__(self):
         self.sectors = {}
         self.dirty = set()
         self.locators = set()
         self.placedon = {}  # locator -> set(sectors)
-
+        
         self.onsectorloaded = Event()
         self.onfogupdated = Event()
 
         self.n = 0
 
-    def inject(self, engine, datasrc):
+    def inject(self, engine, datasrc, components, entitymanager, space):
         self.eng = engine
         self.datasrc = datasrc
         self.datasrc.onready.add(self.ready)
+        self.components = components
+        self.entities = entitymanager
+        self.space = space
 
     def ready(self):
         for sx, sy in self.datasrc.getloadedsectors():
@@ -84,7 +89,14 @@ class Map(object):
         try:
             return self.sectors[sx, sy]
         except KeyError:
-            s = Sector.construct(self, self.datasrc, sx, sy)
+            # TODO - hack - check for sectors existing
+            try:
+                self.datasrc.getmapsector(sx, sy)
+                s = self.components.construct('sector', sx, sy)
+            except KeyError:
+                warn(f"sector {sx},{sy} doesn't exist")
+                s = None
+
             self.sectors[sx, sy] = s
             if s is not None:
                 self.dirty.add(s)
@@ -121,11 +133,14 @@ class Map(object):
 
     def place(self, locator):
         self.locators.add(locator)
+        self.space.insert(locator.eid, locator.pos(), locator.r)
         self.placedon[locator] = set()
         self.move(locator)
 
     def move(self, locator):
         x, y = locator.x, locator.y
+
+        self.space.move(locator.eid, (x, y), locator.r)
 
         sx, sy = self.pos_to_sector(x, y)
         ox, oy = self.pos_to_offset_mystery(x, y)
@@ -165,6 +180,8 @@ class Map(object):
             sectorplace(dx, dy)
 
     def unplace(self, locator):
+        self.space.remove(locator.eid, (locator.x, locator.y), locator.r)
+
         secs = self.placedon[locator]
         for sec in secs:
             sec.locators.discard(locator)
@@ -182,18 +199,25 @@ class Map(object):
             return True
 
     def entities_in_rect(self, x1, y1, x2, y2):
-        # TODO eventually this can use spatial partitioning to speed it up
-        result = set()
+        # result = set()
 
         if x2 < x1:
             x1, x2 = x2, x1
         if y2 < y1:
             y1, y2 = y2, y1
 
-        for loc in self.locators:
-            if loc.placed:
-                if x1 - loc.r <= loc.x <= x2 + loc.r:
-                    if y1 - loc.r <= loc.y <= y2 + loc.r:
-                        result.add(loc.ent)
+        result = set(self.space.get_in_rect((x1, y1), (x2, y2)))
 
-        return result
+        # for loc in self.locators:
+        #     if loc.placed:
+        #         if x1 - loc.r <= loc.x <= x2 + loc.r:
+        #             if y1 - loc.r <= loc.y <= y2 + loc.r:
+        #                 result.add(loc.eid)
+
+        # if check_result != result:
+        #     warn('in rect returned different results!:')
+        #     print(check_result, result)
+        # else:
+        #     warn('in rect same result :)')
+
+        return [self.entities.get(eid) for eid in result]

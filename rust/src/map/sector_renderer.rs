@@ -83,13 +83,9 @@ impl SectorRenderer {
     fn prepare_gfx(&mut self, py: Python, ctx: &mut Context) -> GameResult<GfxState> {
         trace!("updating gfx");
 
-        let pypeer = self
-            .sector
-            .getattr(py, "peer")
-            .expect("sector missing peer");
-        let peer: PyRefMut<Sector> = pypeer.extract(py).expect("peer is wrong type");
+        let sector: PyRefMut<Sector> = self.sector.extract(py).expect("sector is wrong type");
 
-        trace!("(sector is {},{})", peer.sx(), peer.sy());
+        trace!("(sector is {},{})", sector.sx(), sector.sy());
 
         let mut vdata = Vec::with_capacity(NUM_TILES_CAPACITY * 4);
         let mut index = Vec::with_capacity(NUM_TILES_CAPACITY * 6);
@@ -102,12 +98,12 @@ impl SectorRenderer {
                 let vy = f32::from(y) * VERTEX_SZ;
 
                 //let tile = i16::from(self.tiles[(x + y * NUM_TILES) as usize]);
-                let tile = peer.tile((x, y)) as u16;
+                let tile = sector.tile((x, y)) as u16;
                 let (ty, tx): (u16, u16) = num_integer::div_rem(tile, TILES_PER_ROW);
                 let tx = f32::from(tx) * TEX_SZ_X;
                 let ty = f32::from(ty) * TEX_SZ_Y;
 
-                let walk = peer.walk((x, y));
+                let walk = sector.walk((x, y));
 
                 index.extend_from_slice(&[i, i + 1, i + 2, i, i + 3, i + 1]);
                 i += 4;
@@ -156,7 +152,7 @@ impl SectorRenderer {
         })
     }
 
-    fn prepare_fog(&mut self, ctx: &mut Context, peer: &PyRefMut<Sector>) -> GameResult<()> {
+    fn prepare_fog(&mut self, ctx: &mut Context, sector: &PyRefMut<Sector>) -> GameResult<()> {
         trace!("preparing fog: ({}, {})", self.dx, self.dy);
 
         let mut fog1 = Vec::with_capacity(NUM_TILES_CAPACITY * 4);
@@ -179,10 +175,10 @@ impl SectorRenderer {
                 let vx = f32::from(x) * VERTEX_SZ;
                 let vy = f32::from(y) * VERTEX_SZ;
 
-                let a = is_set(peer.visible((x, y)), tidmask);
-                let b = is_set(peer.visible((x + 1, y)), tidmask);
-                let c = is_set(peer.visible((x, y + 1)), tidmask);
-                let d = is_set(peer.visible((x + 1, y + 1)), tidmask);
+                let a = is_set(sector.visible((x, y)), tidmask);
+                let b = is_set(sector.visible((x + 1, y)), tidmask);
+                let c = is_set(sector.visible((x, y + 1)), tidmask);
+                let d = is_set(sector.visible((x + 1, y + 1)), tidmask);
 
                 // let a = 1 - is_set(peer.walk((x, y)), 0x08 | 0x01);
                 // let b = a; let c = a; let d = a;
@@ -204,10 +200,10 @@ impl SectorRenderer {
                 fog1.push(vert(vx, vy + VERTEX_SZ, tx, ty + TEX_SZ, 3));
                 fog1.push(vert(vx + VERTEX_SZ, vy, tx + TEX_SZ, ty, 4));
 
-                let a = is_set(peer.visited((x, y)), tidmask);
-                let b = is_set(peer.visited((x + 1, y)), tidmask);
-                let c = is_set(peer.visited((x, y + 1)), tidmask);
-                let d = is_set(peer.visited((x + 1, y + 1)), tidmask);
+                let a = is_set(sector.visited((x, y)), tidmask);
+                let b = is_set(sector.visited((x + 1, y)), tidmask);
+                let c = is_set(sector.visited((x, y + 1)), tidmask);
+                let d = is_set(sector.visited((x + 1, y + 1)), tidmask);
 
                 let tx = f32::from(4 * b + 2 * c + d) * TEX_SZ;
                 let ty = f32::from(a) * TEX_SZ;
@@ -241,15 +237,12 @@ impl SectorRenderer {
             self.gfx = Some(self.prepare_gfx(py, ctx)?);
         }
 
-        let pypeer = self
-            .sector
-            .getattr(py, "peer")
-            .expect("sector missing peer");
-        let peer: PyRefMut<Sector> = pypeer.extract(py).expect("peer is wrong type");
+        let pysector = self.sector.clone_ref(py);
+        let sector: PyRefMut<Sector> = pysector.extract(py).expect("sector is wrong type");
 
-        if self.update_token != peer.update_token() {
-            self.prepare_fog(ctx, &peer)?;
-            self.update_token = peer.update_token();
+        if self.update_token != sector.update_token() {
+            self.prepare_fog(ctx, &sector)?;
+            self.update_token = sector.update_token();
         }
 
         let gfx = self.gfx.as_mut().unwrap();

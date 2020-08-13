@@ -20,7 +20,7 @@ pub struct MainScene {
 const WELCOME_MSG: &str = r##"\
 # Welcome to Pyarts #
 
-Click on *"Start Game"* to being a new game.
+Click on *"Start Game"* to begin a new game.
 
 This is just a test for the popup component ;)
 "##;

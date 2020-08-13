@@ -3,17 +3,17 @@ use ggez::{Context, GameResult};
 use log::{debug, info};
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
-use std::cell::RefCell;
 use std::collections::HashMap;
 use std::sync::Arc;
+use antidote::Mutex;
 
 #[pyclass]
 pub struct MapRenderer {
     map: PyObject,
     _data_src: PyObject,
 
-    active_renderers: Vec<Arc<RefCell<SectorRenderer>>>,
-    all_renderers: HashMap<(u32, u32), Arc<RefCell<SectorRenderer>>>,
+    active_renderers: Vec<Arc<Mutex<SectorRenderer>>>,
+    all_renderers: HashMap<(u32, u32), Arc<Mutex<SectorRenderer>>>,
     //image_cache: HashMap<String, Image>,
     #[pyo3(get)]
     looksector: PyObject,
@@ -96,12 +96,12 @@ impl MapRenderer {
         let sr = if let Some(sr) = self.all_renderers.get(&(sx, sy)) {
             Arc::clone(sr)
         } else {
-            let sr = Arc::new(RefCell::new(SectorRenderer::new(py, sector)?));
+            let sr = Arc::new(Mutex::new(SectorRenderer::new(py, sector)?));
             self.all_renderers.insert((sx, sy), Arc::clone(&sr));
             sr
         };
 
-        sr.borrow_mut().update_offset(dx, dy);
+        sr.lock().update_offset(dx, dy);
         self.active_renderers.push(sr);
         debug!("{} renderers active", self.active_renderers.len());
         Ok(())
@@ -109,7 +109,7 @@ impl MapRenderer {
 
     pub fn draw(&mut self, py: Python, ctx: &mut Context, offset: (f32, f32)) -> GameResult<()> {
         for sr in &self.active_renderers {
-            sr.borrow_mut().draw(py, ctx, offset)?;
+            sr.lock().draw(py, ctx, offset)?;
         }
 
         Ok(())

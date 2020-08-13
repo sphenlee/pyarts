@@ -10,7 +10,7 @@ pub const NUM_VERTS_CAPACITY: usize = (NUM_VERTS * NUM_VERTS) as usize;
 
 pub const WALK_FOOT: u8 = 0x08;
 
-#[pyclass(module = "yarts")]
+#[pyclass(module = "yarts", subclass)]
 pub struct Sector {
     #[pyo3(get)]
     sx: i32,
@@ -26,18 +26,25 @@ pub struct Sector {
 #[pymethods]
 impl Sector {
     #[new]
-    pub fn new(sx: i32, sy: i32, file: String) -> PyResult<Self> {
-        let loaded = load_map(file)?;
-
+    pub fn new(sx: i32, sy: i32) -> PyResult<Self> {
         Ok(Sector {
             sx,
             sy,
-            tiles: loaded.tiles,
-            visited: vec![0u8; NUM_VERTS_CAPACITY], // TODO - load visited data here
+            tiles: vec![],
+            visited: vec![0u8; NUM_VERTS_CAPACITY],
             visible: vec![0u8; NUM_VERTS_CAPACITY],
-            walk: loaded.walk,
+            walk: vec![],
             update_token: 1, // the renderer defaults to 0
         })
+    }
+
+    fn load(&mut self, file: String) -> PyResult<()> {
+        let loaded = load_map(file)?;
+
+        self.tiles = loaded.tiles;
+        self.walk =  loaded.walk;
+
+        Ok(())
     }
 
     fn footprint(&mut self, x: i16, y: i16, r: i16) {

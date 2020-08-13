@@ -8,6 +8,8 @@ import array
 import binascii
 import time
 
+from pyarts.container import dynamic_component
+
 from .event import Event
 
 from yarts import Sector as RsSector
@@ -34,10 +36,12 @@ def distance2(x1, y1, x2, y2):
 #         return binascii.unhexlify(fp.read().replace(b'\n', b''))
 
 
-class Sector(object):
+@dynamic_component
+class Sector(RsSector):
     '''
     A sector is a piece of the map
     '''
+    depends = ['map', 'datasrc']
 
     # constants for walkmap - if the bit is set,
     # it is NOT walkable for that walk type
@@ -46,36 +50,23 @@ class Sector(object):
     WALK_AIR = 0x04
     WALK_FOOT = 0x08
 
-    @classmethod
-    def construct(cls, map, datasrc, sx, sy):
-        try:
-            data = datasrc.getmapsector(sx, sy)
-        except KeyError:
-            warn(f"sector {sx},{sy} doesn't exist")
-            return None
-
-        tileset = datasrc.gettileset(data['tileset']).copy()
+    def inject(self, map, datasrc):
+        self.map = map
+        
+        data = datasrc.getmapsector(self.sx, self.sy)
+        
+        self.tileset = datasrc.gettileset(data['tileset']).copy()
 
         # TODO - work out ggez's crazy path system!
-        tileset['texture'] = '/' + datasrc.getresource(tileset['texture'])
-        tileset['fogofwar'] = '/' + datasrc.getresource(tileset['fogofwar'])
+        self.tileset['texture'] = '/' + datasrc.getresource(self.tileset['texture'])
+        self.tileset['fogofwar'] = '/' + datasrc.getresource(self.tileset['fogofwar'])
 
         # TODO this is bad - the value is
         # eids and is not kept updated
-        entities = data.get('entities', ())
+        self.entities = data.get('entities', ())
 
         file = datasrc.getresource(data['file'])
-
-        peer = RsSector(sx, sy, file)
-        return cls(peer, map, entities, tileset)
-
-    def __init__(self, peer, map, entities, tileset):
-        self.peer = peer
-        self.sx = peer.sx
-        self.sy = peer.sy
-        self.map = map
-        self.entities = entities
-        self.tileset = tileset
+        self.load(file)
 
         self.onfogupdated = Event()
 
@@ -125,32 +116,32 @@ class Sector(object):
         y = int(loc.y/VERTEX_SZ + 0.5) - self.sy*NUM_TILES
         r = int(loc.r/VERTEX_SZ + 0.5)
 
-        self.peer.footprint(x, y, r)
+        super().footprint(x, y, r)
 
     def occupied(self):
         return len(self.locators) > 0
 
     def cellvisited(self, tid, pt):
-        return (self.peer.visited(pt) & (1 << tid)) > 0
+        return (self.visited(pt) & (1 << tid)) > 0
 
     def cellvisible(self, tid, pt):
-        return (self.peer.visible(pt) & (1 << tid)) > 0
+        return (self.visible(pt) & (1 << tid)) > 0
 
     def cellvisited_mask(self, pt):
-        return self.peer.visited(pt)
+        return self.visited(pt)
 
     def cellvisible_mask(self, pt):
-        return self.peer.visible(pt)
+        return self.visible(pt)
 
     def cellwalkable(self, walk, pt):
-        return (self.peer.walk(pt) & walk) == 0
+        return (self.walk(pt) & walk) == 0
 
     def updatefog(self):
-        self.peer.clear_fog()
+        self.clear_fog()
 
         for loc in self.locators:
             x = int(loc.x/VERTEX_SZ + 0.5) - self.sx*NUM_TILES
             y = int(loc.y/VERTEX_SZ + 0.5) - self.sy*NUM_TILES
             r = int(loc.sight/VERTEX_SZ + 0.5)
 
-            self.peer.update_fog(x, y, r, loc.ent.team.tid)
+            self.update_fog(x, y, r, loc.ent.team.tid)

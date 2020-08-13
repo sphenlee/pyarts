@@ -10,9 +10,10 @@ from .container import component, construct
 
 # register components implemented in Rust
 
-from yarts import MapRenderer, GameUi, Root, GameLog
+from yarts import MapRenderer, GameUi, Root, GameLog, Space
 
 component(MapRenderer)
 component(GameUi)
 component(Root)
 component(GameLog)
+component(Space)

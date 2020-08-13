@@ -4,7 +4,7 @@
 
 ### Bugs
 
-- [ ] Component load should be in dependency order to prevent reading
+- [x] Component load should be in dependency order to prevent reading
       not-yet-loaded data
 
 
