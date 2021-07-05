@@ -9,7 +9,8 @@ name = "yarts"
 crate-type = ["cdylib"]
 
 [dependencies]
-ggez = "0.5"
+#ggez = "0.5"
+ggez = { git = "https://github.com/ggez/ggez", branch = "devel" }
 tiled = "0.9"
 num-integer = "0.1"
 log = "0.4.8"
@@ -18,7 +19,7 @@ slab = "0.4"
 thiserror = "1.0"
 pathfinding = "2"
 euclid = "0.20"
-glyph_brush = "0.5"
+glyph_brush = "0.7"
 pulldown-cmark = "0.7"
 rstar = "0.8"
 antidote = "1.0.0"

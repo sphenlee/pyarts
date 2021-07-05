@@ -9,6 +9,7 @@ from .component import Component, register
 from .stats import StatusEffect
 from .variables import Variable
 from ..target import Target
+from ..pathfinder import distance
 
 from pyarts.log import debug, info
 
@@ -53,11 +54,15 @@ class Harvester(Component):
                 return e
 
     def finddropoff(self, pos):
+        closest = None
         x, y = pos
         R = 1024 * 128
         for e in self.map.entities_in_rect(x-R, y-R, x+R, y+R):
             if e.team == self.ent.team and e.has('harveststore'):
-                return e
+                if closest is None or distance(pos, e.locator.pos()) < distance(pos, closest.locator.pos()):
+                    closest = e
+
+        return closest
 
     def gotopickup(self, proto, pos):
         self.pickup = self.findlike(proto, pos)

@@ -1,8 +1,8 @@
 use crate::util::{YartsError, YartsResult};
 use ggez::event::{self, EventHandler, MouseButton};
 use ggez::graphics::Drawable;
-use ggez::{graphics, Context, ContextBuilder, GameResult};
-use log::{error, info};
+use ggez::{graphics, Context, ContextBuilder, GameError, GameResult};
+use log::error;
 use pyo3::prelude::*;
 use std::time::Duration;
 
@@ -50,7 +50,7 @@ pub trait Screen {
 pub fn launch(py: Python<'_>) -> YartsResult<()> {
     let cwd = std::env::current_dir().unwrap();
 
-    let (mut ctx, mut event_loop) = ContextBuilder::new("yarts", "Steve Lee")
+    let (mut ctx, event_loop) = ContextBuilder::new("yarts", "Steve Lee")
         .window_setup(ggez::conf::WindowSetup {
             title: "Pyarts".to_owned(),
             vsync: true,
@@ -74,12 +74,12 @@ pub fn launch(py: Python<'_>) -> YartsResult<()> {
 
     screens.screens.push(main_scene::MainScene::new(&mut ctx)?);
 
-    match event::run(&mut ctx, &mut event_loop, &mut screens) {
-        Ok(_) => info!("Exited cleanly."),
-        Err(e) => error!("Error occurred: {}", e),
-    }
+    let screens: SceneStack::<'static> = unsafe {
+        std::mem::transmute(screens)
+    };
 
-    Ok(())
+    // WARNING: this function never returns!
+    event::run(ctx, event_loop, screens)
 }
 
 struct SceneStack<'p> {
@@ -139,7 +139,7 @@ where
     }
 }
 
-impl EventHandler for SceneStack<'_> {
+impl EventHandler<GameError> for SceneStack<'_> {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         let screen = self.screens.last_mut().expect("popped last screen?");
 
@@ -154,7 +154,7 @@ impl EventHandler for SceneStack<'_> {
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-        graphics::clear(ctx, graphics::BLACK);
+        graphics::clear(ctx, graphics::Color::BLACK);
 
         python_protect(self.py, ctx, |py, ctx| {
             let screen = self.screens.last_mut().expect("popped last screen?");

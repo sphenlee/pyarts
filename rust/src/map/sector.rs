@@ -42,7 +42,7 @@ impl Sector {
         let loaded = load_map(file)?;
 
         self.tiles = loaded.tiles;
-        self.walk =  loaded.walk;
+        self.walk = loaded.walk;
 
         Ok(())
     }

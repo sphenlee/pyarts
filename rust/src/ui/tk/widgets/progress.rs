@@ -1,8 +1,7 @@
 use crate::ui::tk::{rect, CommandBuffer, Element, InputState, Rect, Texture, TkResult, Widget};
-use glyph_brush::rusttype::Scale;
+use glyph_brush::ab_glyph::PxScale;
 use glyph_brush::{
-    BuiltInLineBreaker, FontId, HorizontalAlign, Layout, OwnedSectionText, OwnedVariedSection,
-    VerticalAlign,
+    BuiltInLineBreaker, FontId, HorizontalAlign, Layout, OwnedSection, OwnedText, VerticalAlign,
 };
 
 const PROGRESS_OFFSET_X: i32 = 0;
@@ -90,26 +89,23 @@ impl<Msg: 'static> Widget<Msg> for Progress<Msg> {
         if !self.text.is_empty() {
             let pos = self.bounds.center().to_tuple();
 
-            let sec = OwnedVariedSection {
-                text: vec![OwnedSectionText {
-                    text: self.text.clone(),
-                    color: [1.0, 1.0, 1.0, 1.0],
-                    font_id: FontId(1),
-                    scale: Scale::uniform(18.0),
-                    ..OwnedSectionText::default()
-                }],
-                bounds: (
+            let sec = OwnedSection::default()
+                .with_bounds((
                     self.bounds.size.width as f32,
                     self.bounds.size.height as f32,
-                ),
-                screen_position: (pos.0 as f32, pos.1 as f32),
-                layout: Layout::SingleLine {
+                ))
+                .with_screen_position((pos.0 as f32, pos.1 as f32))
+                .with_layout(Layout::SingleLine {
                     line_breaker: BuiltInLineBreaker::AnyCharLineBreaker,
                     h_align: HorizontalAlign::Center,
                     v_align: VerticalAlign::Center,
-                },
-                ..OwnedVariedSection::default()
-            };
+                })
+                .add_text(
+                    OwnedText::new(&self.text)
+                        .with_color([1.0, 1.0, 1.0, 1.0])
+                        .with_font_id(FontId(1))
+                        .with_scale(PxScale::from(18.0)),
+                );
 
             buffer.text(sec);
         }

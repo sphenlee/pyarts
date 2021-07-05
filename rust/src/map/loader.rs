@@ -2,7 +2,7 @@ use crate::map::sector::{NUM_TILES, NUM_TILES_CAPACITY};
 use pyo3::PyErr;
 use std::collections::HashMap;
 use thiserror::Error;
-use tiled::{Properties, PropertyValue, TiledError};
+use tiled::{LayerData, Properties, PropertyValue, TiledError};
 
 pub struct LoadedMap {
     pub tiles: Vec<u32>,
@@ -94,7 +94,12 @@ pub fn load_map(file: String) -> Result<LoadedMap, MapLoadError> {
     let mut tiles = Vec::with_capacity(NUM_TILES_CAPACITY);
     let mut walk = Vec::with_capacity(NUM_TILES_CAPACITY);
 
-    for row in &layer0.tiles {
+    let rows = match layer0.tiles {
+        LayerData::Finite(ref rows) => rows,
+        LayerData::Infinite(_) => panic!("can't support infinite maps"),
+    };
+
+    for row in rows {
         for tile in row {
             tiles.push(tile.gid - tileset0.first_gid); // tiled starts counting tiles at 1
             let mask = tile_to_walk.get(&tile.gid).copied().unwrap_or(0x02);

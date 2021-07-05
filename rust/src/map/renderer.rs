@@ -1,11 +1,11 @@
 use super::sector_renderer::SectorRenderer;
+use antidote::Mutex;
 use ggez::{Context, GameResult};
 use log::{debug, info};
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use std::collections::HashMap;
 use std::sync::Arc;
-use antidote::Mutex;
 
 #[pyclass]
 pub struct MapRenderer {

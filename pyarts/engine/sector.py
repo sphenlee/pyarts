@@ -76,7 +76,7 @@ class Sector(RsSector):
         # neighbour sectors
         self.neighbour = {}
         for dx, dy in NEIGHBOURS:
-            s = self.map.sectors.get((self.sx + dx, self.sy + dy))
+            s = self.map.get_sector_or_none(self.sx + dx, self.sy + dy)
             self.neighbour[dx, dy] = s
             if s:
                 s.neighbour[-dx, -dy] = self

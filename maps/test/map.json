@@ -127,28 +127,28 @@
             "team" : 0,
             "proto" : "peasant",
             "locator" : {
-                "x" : 750, "y" : 500, "placed" : true
+                "x" : 2750, "y" : 2500, "placed" : true
             }
         },
         "2" : {
             "team" : 0,
             "proto" : "archer",
             "locator" : {
-                "x" : 700, "y" : 500, "placed" : true
+                "x" : 2700, "y" : 2500, "placed" : true
             }
         },
         "3" : {
             "team" : 0,
             "proto" : "archer",
             "locator" : {
-                "x" : 250, "y" : 250, "placed" : true
+                "x" : 2250, "y" : 2250, "placed" : true
             }
         },
         "4" : {
             "team" : 0,
             "proto" : "townhall",
             "locator" : {
-                "x" : 500, "y" : 500, "placed" : true
+                "x" : 2500, "y" : 2500, "placed" : true
             },
             "town" : {"id": 0}
         },
@@ -156,7 +156,7 @@
             "team" : 1,
             "proto" : "townhall",
             "locator" : {
-                "x" : 2500, "y" : 1000, "placed" : true
+                "x" : 4500, "y" : 3000, "placed" : true
             },
             "town" : {"id": 0}
         },
@@ -164,21 +164,21 @@
             "team" : 2,
             "proto" : "goldmine",
             "locator" : {
-                "x" : 2500, "y" : 500, "placed" : true
+                "x" : 2000, "y" : 3400, "placed" : true
             },
             "resource" : {
                 "quantity" : 1500
             }
         },
-        "6": { "team": 2, "proto": "tree", "locator": {"x": 100, "y": 200}},
-        "7": { "team": 2, "proto": "tree", "locator": {"x": 164, "y": 200}},
-        "8": { "team": 2, "proto": "tree", "locator": {"x": 228, "y": 200}},
-        "9": { "team": 2, "proto": "tree", "locator": {"x": 292, "y": 200}},
+        "6": { "team": 2, "proto": "tree", "locator": {"x": 2100, "y": 2200, "placed": true}},
+        "7": { "team": 2, "proto": "tree", "locator": {"x": 2164, "y": 2200, "placed": true}},
+        "8": { "team": 2, "proto": "tree", "locator": {"x": 2228, "y": 2200, "placed": true}},
+        "9": { "team": 2, "proto": "tree", "locator": {"x": 2292, "y": 2200, "placed": true}},
         "11": {
             "team": 0,
             "proto": "fishing_boat",
             "locator": {
-                "x" : 750, "y" : 800, "placed" : true
+                "x" : 2750, "y" : 2800, "placed" : true
             }
         }
     },
@@ -299,7 +299,8 @@
                     "race" : "human",
                     "resources" : { "resource" : 1000, "energy" : 1000 },
                     "name": "Home",
-                    "founder": 4
+                    "founder": 4,
+                    "eids": [4]
                 }
             }
         },
@@ -352,7 +353,7 @@
 
     "misc" : {
         "camera.initial.position" : {
-            "0" : { "x" : 0, "y" : 0, "sx": 0, "sy": 0},
+            "0" : { "x" : 0, "y" : 0, "sx": 1, "sy": 1},
             "1" : { "x" : 0, "y" : 0, "sx": 1, "sy": 1}
         },
         "entities.nexteid" : 100
@@ -370,8 +371,7 @@
         "sectors" : {
             "0/0" : {
                 "file" : "map0000.tmx",
-                "tileset": "grass",
-                "entities" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+                "tileset": "grass"
             },
             "0/1" : {
                 "file" : "map0001.tmx",
@@ -383,7 +383,8 @@
             },
             "1/1" : {
                 "file" : "map0101.tmx",
-                "tileset": "grass"
+                "tileset": "grass",
+                "entities" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
             },
             "1/2" : {
                 "file" : "map0102.tmx",
@@ -403,6 +404,34 @@
             },
             "2/2" : {
                 "file" : "map0202.tmx",
+                "tileset": "grass"
+            },
+            "0/3" : {
+                "file" : "map0003.tmx",
+                "tileset": "grass"
+            },
+            "1/3" : {
+                "file" : "map0103.tmx",
+                "tileset": "grass"
+            },
+            "2/3" : {
+                "file" : "map0203.tmx",
+                "tileset": "grass"
+            },
+            "3/3" : {
+                "file" : "map0303.tmx",
+                "tileset": "grass"
+            },
+            "3/0" : {
+                "file" : "map0300.tmx",
+                "tileset": "grass"
+            },
+            "3/1" : {
+                "file" : "map0301.tmx",
+                "tileset": "grass"
+            },
+            "3/2" : {
+                "file" : "map0302.tmx",
                 "tileset": "grass"
             }
         }

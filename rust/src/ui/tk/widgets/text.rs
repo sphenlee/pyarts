@@ -1,13 +1,10 @@
 use crate::ui::tk::markup::parse;
 use crate::ui::tk::{CommandBuffer, Element, Event, InputState, Rect, TkResult, Widget};
-use glyph_brush::{
-    BuiltInLineBreaker, HorizontalAlign, Layout, OwnedSectionText, OwnedVariedSection,
-    VerticalAlign,
-};
+use glyph_brush::{BuiltInLineBreaker, HorizontalAlign, Layout, OwnedSection, VerticalAlign};
 use std::sync::mpsc::Sender;
 
 pub struct Text<Msg> {
-    sections: Vec<OwnedSectionText>,
+    section: OwnedSection,
     bounds: Rect,
     halign: HorizontalAlign,
     valign: VerticalAlign,
@@ -16,10 +13,10 @@ pub struct Text<Msg> {
 
 impl<Msg: 'static> Text<Msg> {
     pub fn new(text: impl Into<String>) -> TkResult<Self> {
-        let sections = parse(&text.into())?;
+        let section = parse(&text.into())?;
 
         Ok(Text {
-            sections,
+            section,
             bounds: Rect::zero(),
             halign: HorizontalAlign::Left,
             valign: VerticalAlign::Top,
@@ -61,20 +58,19 @@ impl<Msg> Widget<Msg> for Text<Msg> {
             self.bounds.origin.y as f32
         };
 
-        let sec = OwnedVariedSection {
-            text: self.sections.clone(),
-            bounds: (
+        let sec = self
+            .section
+            .clone()
+            .with_bounds((
                 self.bounds.size.width as f32,
                 self.bounds.size.height as f32,
-            ),
-            screen_position: (posx, posy),
-            layout: Layout::Wrap {
+            ))
+            .with_screen_position((posx, posy))
+            .with_layout(Layout::Wrap {
                 line_breaker: BuiltInLineBreaker::UnicodeLineBreaker,
                 h_align: self.halign,
                 v_align: self.valign,
-            },
-            ..OwnedVariedSection::default()
-        };
+            });
 
         buffer.text(sec);
         /*Texture::from_id(0)

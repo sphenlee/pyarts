@@ -72,11 +72,11 @@ class EntityManager(object):
 
     def _docreate(self, proto, eid=None):
         '''Create an entity from a proto - implementation method'''
-        info('creating {0}', proto.name)
-
         if eid is None:
             eid = self.nextentid
             self.nextentid += 1
+
+        info('creating {0} {1}', eid, proto.name)
 
         ent = Entity(eid, proto)
         self.newentities[eid] = ent

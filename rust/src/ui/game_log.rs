@@ -1,7 +1,7 @@
 use crate::scene::HEIGHT;
 use crate::ui::ggez_renderer::GgezRenderer;
 use ggez::{graphics, Context, GameResult};
-use glyph_brush::rusttype::Scale;
+use glyph_brush::ab_glyph::PxScale;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use std::time::{Duration, Instant};
@@ -61,7 +61,7 @@ impl GameLog {
             };
 
             let mut text = graphics::Text::new(line.msg.as_ref());
-            text.set_font(ggez_rend.font, Scale::uniform(18.0));
+            text.set_font(ggez_rend.font, PxScale::from(18.0));
 
             graphics::queue_text(
                 ctx,

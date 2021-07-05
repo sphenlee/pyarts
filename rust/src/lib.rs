@@ -1,4 +1,4 @@
-#![feature(specialization, const_fn)]
+#![feature(const_fn)]
 
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
@@ -45,6 +45,7 @@ fn yarts(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(launch))?;
     m.add_wrapped(wrap_pyfunction!(emit_log))?;
     m.add_class::<root::Root>()?;
+    m.add_class::<map::Map>()?;
     m.add_class::<map::sector::Sector>()?;
     m.add_class::<map::renderer::MapRenderer>()?;
     m.add_class::<sprites::SpriteManager>()?;

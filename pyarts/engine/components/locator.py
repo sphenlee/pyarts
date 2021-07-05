@@ -6,10 +6,14 @@ Component to give an entity a location on the map
 
 from .component import Component, register
 from ..event import Event
+from pyarts.log import warn
 
 @register
 class Locator(Component):
     depends = ['@map']
+
+    def __repr__(self):
+        return f'<Locator eid={self.eid} x={self.x} y={self.y} placed={self.placed} r={self.r} sight={self.sight}>'
 
     def init(self):
         self.onplace = Event(debug='locator.onplace')
@@ -31,12 +35,16 @@ class Locator(Component):
     def load(self, data):
         self.x = data.get('x', 0)
         self.y = data.get('y', 0)
-        self.placed = data.get('placed', True)
+        self.placed = data.get('placed', False)
         if self.placed:
             self.map.place(self)
 
     def place(self, x, y):
         ''' Put the entity onto the map '''
+        if self.placed:
+            # maybe this should be an error - for now just forward to move
+            return self.move(x, y)
+
         self.placed = True
         self.x = x
         self.y = y
@@ -64,4 +72,5 @@ class Locator(Component):
         return self.x, self.y
 
     def destroy(self):
+        warn(f'locator {self} being destroyed')
         self.unplace()

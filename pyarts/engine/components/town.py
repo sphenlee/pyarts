@@ -26,19 +26,25 @@ class Town(Component):
 
     def load(self, data):
         if 'id' in data:
-            self.town = self.team.gettown(data['id'])
-            trace('entity {} loading, adding itself to town {}', self.ent, self.town)
-            self.town.addentity(self.ent)
+            self.twid = data['id']
+            trace('entity {} loading, adding itself to town {}', self.ent, self.twid)
+            #self.town.addentity(self.ent)
+
+    @property
+    def town(self):
+        return self.team.gettown(self.twid)
+    
 
     def updateplace(self, locator):
-        self.town = self.team.gettownat(locator.pos())
-        trace('{} has moved place, new town is {}', self, self.town)
-        if self.town:
-            self.town.addentity(self.ent)
+        town = self.team.gettownat(locator.pos())
+        trace('{} has moved place, new town is {}', self, town)
+        if town:
+            self.twid = town.twid
+            town.addentity(self.ent)
 
     def save(self):
         return {
-            'id': self.town.twid
+            'id': self.twid
         }
 
     def contains(self, pt):

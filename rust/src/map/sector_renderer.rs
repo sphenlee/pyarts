@@ -127,7 +127,7 @@ impl SectorRenderer {
 
         trace!("building mesh");
         let terrain = graphics::MeshBuilder::new()
-            .raw(&vdata, &index, Some(image))
+            .raw(&vdata, &index, Some(image))?
             .build(ctx)?;
 
         trace!("loading fog image: {}", self.fogofwar);
@@ -136,11 +136,11 @@ impl SectorRenderer {
 
         trace!("building (empty) fog mesh1");
         let fog1 = graphics::MeshBuilder::new()
-            .raw(&vdata, &index, None)
+            .raw(&vdata, &index, None)?
             .build(ctx)?;
         trace!("building (empty) fog mesh2");
         let fog2 = graphics::MeshBuilder::new()
-            .raw(&vdata, &index, None)
+            .raw(&vdata, &index, None)?
             .build(ctx)?;
 
         trace!("gfx done");

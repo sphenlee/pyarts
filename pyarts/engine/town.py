@@ -9,7 +9,7 @@ from pyarts.container import dynamic_component
 from .resource import ResourcePool
 from .event import Event
 
-from pyarts.log import debug, warn
+from pyarts.log import debug, warn, error
 
 
 @dynamic_component
@@ -23,7 +23,7 @@ class Town(object):
         self.resources = ResourcePool(self)
 
         self.eids = set()
-        self.towncomponents = set()
+        #self.towncomponents = set()
         self.founder_eid = None
 
         self.onentityadded = Event(debug='onentityadded')
@@ -40,14 +40,15 @@ class Town(object):
         self.race = self.eng.getrace(data['race'])
         self.resources.load(data['resources'])
         self.founder_eid = data['founder']
-        # TODO - how do we ensure the founder is always added to the town?
+        self.eids = set(data.get('eids', []))
 
     def save(self):
         return {
             'name': self.name,
             'race': self.race['name'],
             'resources': self.resources.save(),
-            'founder': self.founder_eid
+            'founder': self.founder_eid,
+            'eids': list(self.eids)
         }
 
     @property
@@ -55,18 +56,20 @@ class Town(object):
         try:
             return self.em.get(self.founder_eid)
         except  KeyError:
-            debug('founder not loaded yet {} {}', self, self.founder_eid)
-            return None
+            error('founder not loaded yet {} {}', self, self.founder_eid)
+            raise
 
     def addentity(self, ent):
         debug('adding entity {} to town {}', ent.eid, self)
         self.eids.add(ent.eid)
-        self.towncomponents.add(ent.town)
+        #self.towncomponents.add(ent.town)
 
         self.onentityadded.emit(self, ent)
 
     def contains(self, pt):
-        for tc in self.towncomponents:
+        for eid in self.eids:
+            ent = self.em.get(eid)
+            tc = ent.town
             if tc.contains(pt):
                 return True
 

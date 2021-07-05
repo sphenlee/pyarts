@@ -1,10 +1,10 @@
 use super::Sprite;
-use glyph_brush::OwnedVariedSection;
+use glyph_brush::OwnedSection;
 
 #[derive(Debug)]
 pub enum Command {
     Sprite(Sprite),
-    Text(OwnedVariedSection),
+    Text(OwnedSection),
 }
 
 #[derive(Default)]
@@ -17,7 +17,7 @@ impl CommandBuffer {
         self.commands.push(Command::Sprite(sprite.into()));
     }
 
-    pub fn text(&mut self, section: OwnedVariedSection) {
+    pub fn text(&mut self, section: OwnedSection) {
         self.commands.push(Command::Text(section));
     }
 }

@@ -7,17 +7,17 @@ Holds the state of the terrain and fog-of-war.
 from .event import Event
 from .sector import Sector, SECTOR_SZ, VERTEX_SZ
 
-from pyarts.container import component
+from yarts import Map as RsMap
 
+from pyarts.container import component
 from pyarts.log import warn
 
 
 @component
-class Map(object):
+class Map(RsMap):
     depends = ['engine', 'datasrc', 'components', 'entitymanager', 'space']
 
     def __init__(self):
-        self.sectors = {}
         self.dirty = set()
         self.locators = set()
         self.placedon = {}  # locator -> set(sectors)
@@ -40,10 +40,11 @@ class Map(object):
             self.loadsector(sx, sy)
 
     def save(self, datasink):
-        for sec in self.sectors.values():
+        sectors = self.get_all_sectors()
+        for (_, _, sec) in sectors:
             sec.save(datasink)
 
-        datasink.setloadedsectors(iter(self.sectors.keys()))
+        datasink.setloadedsectors((x, y) for (x, y, _) in sectors)
 
     # _________________________________________________________
     # TODO - work out how many of these are actually being used
@@ -87,29 +88,31 @@ class Map(object):
 
     def loadsector(self, sx, sy):
         try:
-            return self.sectors[sx, sy]
+            return self.get_sector(sx, sy)
         except KeyError:
             # TODO - hack - check for sectors existing
             try:
                 self.datasrc.getmapsector(sx, sy)
-                s = self.components.construct('sector', sx, sy)
             except KeyError:
                 warn(f"sector {sx},{sy} doesn't exist")
                 s = None
-
-            self.sectors[sx, sy] = s
+            else:
+                s = self.components.construct('sector', sx, sy)
+            
+            self.store_sector(sx, sy, s)
             if s is not None:
                 self.dirty.add(s)
                 self.onsectorloaded.emit(s)
+
             return s
 
     def sector_at_pos(self, x, y):
         sx, sy = self.pos_to_sector(x, y)
-        return self.sectors.get((sx, sy))
+        return self.get_sector(sx, sy)
 
     def sector_at_cell(self, x, y):
         sx, sy = self.cell_to_sector(x, y)
-        return self.sectors.get((sx, sy))
+        return self.get_sector(sx, sy)
 
     def cell_walkable(self, walk, x, y):
         ''' used by the pathfinder in Rust '''
@@ -180,7 +183,8 @@ class Map(object):
             sectorplace(dx, dy)
 
     def unplace(self, locator):
-        self.space.remove(locator.eid, (locator.x, locator.y), locator.r)
+        warn(f'map unplacing locator {locator}')
+        self.space.remove(locator.eid)
 
         secs = self.placedon[locator]
         for sec in secs:
