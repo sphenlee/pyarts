@@ -43,10 +43,10 @@ impl From<YartsError> for GameError {
 impl From<YartsError> for PyErr {
     fn from(err: YartsError) -> Self {
         match err {
-            YartsError::GameError(ge) => pyo3::exceptions::IOError::py_err(ge.to_string()),
+            YartsError::GameError(ge) => pyo3::exceptions::PyIOError::new_err(ge.to_string()),
             YartsError::PyErr(pyerr) => pyerr,
-            YartsError::Other(err) => pyo3::exceptions::IOError::py_err(err.to_string()),
-            YartsError::TkError(err) => pyo3::exceptions::IOError::py_err(err.to_string()),
+            YartsError::Other(err) => pyo3::exceptions::PyIOError::new_err(err.to_string()),
+            YartsError::TkError(err) => pyo3::exceptions::PyIOError::new_err(err.to_string()),
         }
     }
 }

@@ -172,7 +172,7 @@ impl EventHandler<GameError> for SceneStack<'_> {
 
         graphics::present(ctx)?;
 
-        ggez::timer::sleep(Duration::from_millis(5));
+        //ggez::timer::sleep(Duration::from_millis(5));
 
         Ok(())
     }

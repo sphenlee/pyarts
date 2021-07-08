@@ -1,9 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="64" height="64" tilewidth="32" tileheight="32" infinite="0" nextlayerid="2" nextobjectid="1">
+<map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="64" height="64" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="53">
+ <properties>
+  <property name="Team" type="int" value="2"/>
+ </properties>
  <tileset firstgid="1" source="terrain-map-v7.tsx"/>
+ <tileset firstgid="4145" source="objects.tsx"/>
  <layer id="1" name="Tile Layer 1" width="64" height="64">
   <data encoding="base64" compression="zlib">
-   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
+   eAHVms1qFUEQhUeREHGhOxFx40afwMcQFNzkGdStgqigEHQjgm4iEd0YkCyDCSQ+gys3/jyMdeAeOCm6p6dnqmeui6b73pnc7q/OqZqZnmx0Xbexhm3/bNddtnUdnu+669aX2js775qdV9vWkf3wTNf9qODfNfa3/yE/OH8lGtlz+oN3R9oY9qf298+tLak/PQ7OXPP+n6I1cwPs29aQU0vy75nH79k6tqwN4Y9gRwxertiX5mfscz74bus8sEa/j/E5Ndd+nfi11qkHyA6NxtZ2ZcaYOU/vf7TYUoMl+hw74sC8j/I8+FV3sH9dmD/ne+V/b2tEnX5mzetZ+5n8ZMc8S+iOOfu0V374PyoHyP/FYnlibQz/34vjY6bXe73GYx2+0f8t+PGbeyP51S9/KmPR5/c+/qgaQP3H8v+u5GWsqHtJc40B9Y9iR+3Xuo/ah/m4xlZ9Kc+VWcfkj7r2pbRvzZ9ix3X92DXWorn4p9S/oT7x7OTG/RxrGnvWohb88D2un/S+n3MoT+k85jif5zTXwZ7i5lqgh/cEz5/qf/U950PPmJe4eDxX+8itvKpjH/uucX+wpuvy43XhZxzQ6z1A3zWtjx2cYHthTZ/lfTxa8E+5//PX/By/Z4fWyolx6nkO8WAM8Depc2rue1P+p/eH1v8+76d879mp9dB10xNT2TFfBL96X8c57b+JhmCP0HFo7Px5rfj99U1r3p3N03kdoaPnKn2+aXG/a+21aeFraq3/VXOM+9gRB/CX1tfqOLkf274q1sL7SI1BDb/WO9Z97NttWVxVcx3PzU9m6E1ursfza+1/Ygxe26GfuXeZ2r+ckx/snpns6JVf2XHsygR+jZOvg3Py3175XJl1fGSMn1eNz3w8HsHva8Ejm+vGTPlf0p6cqR7ev2BNdawde3bMs07ap7j5HbQ/Z+utZdbzve/n5I/QPpp/Lu9HsU/hX8r7kexj+MGNZ3x/3z+X9qV6z/zWHrXuwaregVmb5jPG5OM+xk9j1XNSOT8X+xjtWeeVWcee2ev6avP0O3p/fC523C/XaN+nufKn8li9Uxqv2/VuKDdjkPJziZnH59S+5P1a7hw/9i6OV+3EerKm+nXSnvcz5Braq/5+30afE5WfMdq3+LR6jvW/e+tSXgtoj3vZocx6HuuZZ8fzMvnJS18c2Fw4znfT2F+Pekftufm5r/aN1R5xoK76nMi9AvKnjvEc7RGPiPf0ZNZ+CX6+l6DeypobT92vJjPf29BXOf4p3i/pn2Ps+z4iJ8C+vcoxzIXffGONXmU/lb3Ev2tz7kjjvnwfvz/GeNTkRWnPlvxT8p41kL+VynHvZe7Lj4lJrjaoz1lHVXvGk7WI60UfxZ+q/ZjX8zM3tdf3NVxrrqcXyAlPpLRO/X1L/pT2Q/kRi5oYKBvikdJaz+FY+ZH3uec5+npoDx9N5Z8SA/L19bpvG1HzNDYpfta92vc2vj6MqZepOKj2ETnv+Y/MT5+sce4hea81IDcemtucN9e35vceWFf+aO/DB2DX+g/v1/o+pb+/h8lpq98jz9WHPEb9o71Pfq1/EdrXsoMb72jwfga5yPc17Pne5n/hr8l7sJMPXky1yOud1j7qr/UvQv8afv1fvBQ7vmuhO+OA39f8j+DndXDo9Y/5vQS/sqPeRPCzHjIOO+ZxtlRMch5o6Xvqf2BrAzfqPtYYUfvJ7/tcXczVgJa+Jz+vMZG6e258rmVHLlw1PR7aC4r71rje6J78uefTFMuY77QmQm9/bcvlPr5v6QPyo2/pAeUv1TsfC/iglQfAPUfuT+Fv6QHwt/Q+8h77HdvWMFeu1nnN/edWOYA1tYyB6o55ar3POLTi/wcs83Xc
   </data>
  </layer>
+ <objectgroup id="2" name="Object Layer 1">
+  <object id="4" name="50" gid="4145" x="318.667" y="638.667" width="128" height="128"/>
+  <object id="5" name="1" gid="4146" x="630.667" y="417.333" width="128" height="128">
+   <properties>
+    <property name="Team" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="6" gid="4149" x="785.667" y="332.667" width="128" height="128">
+   <properties>
+    <property name="Team" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="8" gid="4150" x="58.6667" y="225.333" width="128" height="128"/>
+  <object id="9" gid="4150" x="124" y="188" width="128" height="128"/>
+  <object id="10" gid="4150" x="241.333" y="185.333" width="128" height="128"/>
+  <object id="11" gid="4150" x="245.333" y="244" width="128" height="128"/>
+  <object id="12" gid="4150" x="172" y="296" width="128" height="128"/>
+  <object id="13" gid="4150" x="136" y="370.667" width="128" height="128"/>
+  <object id="14" gid="4150" x="45.3333" y="385.333" width="128" height="128"/>
+  <object id="15" gid="4150" x="66.6667" y="501.333" width="128" height="128"/>
+  <object id="16" gid="4150" x="117.333" y="553.333" width="128" height="128"/>
+  <object id="17" gid="4150" x="78.6667" y="650.667" width="128" height="128"/>
+  <object id="18" gid="4150" x="1.33333" y="669.333" width="128" height="128"/>
+  <object id="19" gid="4150" x="193.333" y="530.667" width="128" height="128"/>
+  <object id="20" gid="4150" x="276" y="428" width="128" height="128"/>
+  <object id="21" gid="4150" x="332" y="322.667" width="128" height="128"/>
+  <object id="22" gid="4150" x="349.333" y="229.333" width="128" height="128"/>
+  <object id="23" gid="4150" x="341.333" y="145.333" width="128" height="128"/>
+  <object id="24" gid="4150" x="385.333" y="73.3333" width="128" height="128"/>
+  <object id="25" gid="4150" x="249.333" y="41.3333" width="128" height="128"/>
+  <object id="26" gid="4150" x="193.333" y="56" width="128" height="128"/>
+  <object id="27" gid="4150" x="84" y="57.3333" width="128" height="128"/>
+  <object id="28" gid="4150" x="12" y="137.333" width="128" height="128"/>
+  <object id="29" gid="4150" x="-28" y="282.667" width="128" height="128"/>
+  <object id="30" gid="4150" x="-20" y="470.667" width="128" height="128"/>
+  <object id="31" gid="4150" x="18.6667" y="536" width="128" height="128"/>
+  <object id="32" gid="4150" x="160" y="636" width="128" height="128"/>
+  <object id="33" gid="4150" x="102.667" y="733.333" width="128" height="128"/>
+  <object id="34" gid="4150" x="17.3333" y="782.667" width="128" height="128"/>
+  <object id="35" gid="4150" x="62.6667" y="881.333" width="128" height="128"/>
+  <object id="36" gid="4150" x="142.667" y="826.667" width="128" height="128"/>
+  <object id="37" gid="4150" x="-22.6667" y="880" width="128" height="128"/>
+  <object id="38" gid="4150" x="421.333" y="136" width="128" height="128"/>
+  <object id="39" gid="4150" x="492" y="108" width="128" height="128"/>
+  <object id="40" gid="4150" x="588" y="77.3333" width="128" height="128"/>
+  <object id="41" gid="4150" x="694.667" y="56" width="128" height="128"/>
+  <object id="42" type="fishing_boat" gid="4148" x="865.333" y="780" width="128" height="128">
+   <properties>
+    <property name="Team" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="43" gid="4147" x="572" y="220" width="128" height="128">
+   <properties>
+    <property name="Team" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="44" gid="4147" x="457.333" y="265.333" width="128" height="128">
+   <properties>
+    <property name="Team" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="45" gid="4147" x="413.333" y="397.333" width="128" height="128">
+   <properties>
+    <property name="Team" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="46" name="10" gid="4146" x="1626.67" y="1969.33" width="128" height="128">
+   <properties>
+    <property name="Team" type="int" value="2"/>
+   </properties>
+  </object>
+  <object id="47" gid="4145" x="1896" y="1633.33" width="128" height="128">
+   <properties>
+    <property name="Team" type="int" value="2"/>
+   </properties>
+  </object>
+  <object id="48" gid="4149" x="1722.67" y="1888" width="128" height="128">
+   <properties>
+    <property name="Team" type="int" value="2"/>
+   </properties>
+  </object>
+  <object id="49" gid="4149" x="1782.67" y="2010.67" width="128" height="128">
+   <properties>
+    <property name="Team" type="int" value="2"/>
+   </properties>
+  </object>
+  <object id="50" gid="4147" x="1394.67" y="2044" width="128" height="128">
+   <properties>
+    <property name="Team" type="int" value="2"/>
+   </properties>
+  </object>
+  <object id="51" gid="4147" x="1422.67" y="1881.33" width="128" height="128">
+   <properties>
+    <property name="Team" type="int" value="2"/>
+   </properties>
+  </object>
+ </objectgroup>
 </map>

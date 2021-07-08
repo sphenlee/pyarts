@@ -87,6 +87,9 @@ class Map(RsMap):
     # _________________________________________________________
 
     def loadsector(self, sx, sy):
+        assert isinstance(sx, int)
+        assert isinstance(sy, int)
+
         try:
             return self.get_sector(sx, sy)
         except KeyError:
@@ -118,7 +121,7 @@ class Map(RsMap):
         ''' used by the pathfinder in Rust '''
         sec, off = self.cell_to_sector_offset(x, y)
         if sec:
-            return sec.cellwalkable(walk, off) and sec.cellvisited(0, off) # TODO - get the current tid
+            return sec.cellwalkable(walk, off) and sec.cellvisited(1, off) # TODO - tidmask
         else:
             return False
    

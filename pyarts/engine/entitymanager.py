@@ -48,13 +48,21 @@ class EntityManager(object):
         ''' Individual entities are loaded as the map loads sectors, juts grab misc data here '''
         self.nextentid = self.datasrc.getmisc('entities.nexteid', 1)
 
-    def loadentity(self, eid):
+    def load_entity(self, eid, extra={}):
         ''' Load a single entity by eid '''
         data = self.datasrc.getentity(eid)
+        data.update(extra)
         team = self.eng.getteam(data['team'])
         proto = team.getproto(data['proto'])
         ent = self._docreate(proto, eid=int(eid))
         ent.load(data)
+
+    def load_fresh_entity(self, proto_name, tid, extra={}):
+        ''' Load a single entity by eid '''
+        team = self.eng.getteam(tid)
+        proto = team.getproto(proto_name)
+        ent = self._docreate(proto)
+        ent.load(extra)
 
     def create(self, proto, eid=None):
         '''Create an entity from a proto and load it with no data (to indicate that it is freshly created)'''
@@ -140,8 +148,21 @@ class EntityManager(object):
 
     def sectorloaded(self, sec):
         '''Load all the entities on the new sector'''
-        for eid in sec.entities:
-            self.loadentity(eid)
+        for ent in sec.entities:
+            (x, y) = sec.relative_pos(ent.x, ent.y)
+            extra = {
+                'locator': {
+                    'x': x,
+                    'y': y,
+                    'placed': True,
+                }
+            }
+
+            if ent.eid is not None:
+                self.load_entity(ent.eid, extra)
+            else:
+                self.load_fresh_entity(ent.proto, ent.tid, extra)
+
 
     def step(self):
         ''' Step all entities '''

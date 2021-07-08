@@ -61,12 +61,9 @@ class Sector(RsSector):
         self.tileset['texture'] = '/' + datasrc.getresource(self.tileset['texture'])
         self.tileset['fogofwar'] = '/' + datasrc.getresource(self.tileset['fogofwar'])
 
-        # TODO this is bad - the value is
-        # eids and is not kept updated
-        self.entities = data.get('entities', ())
-
         file = datasrc.getresource(data['file'])
         self.load(file)
+        self.entities = self.loaded_ents()
 
         self.onfogupdated = Event()
 
@@ -145,3 +142,6 @@ class Sector(RsSector):
             r = int(loc.sight/VERTEX_SZ + 0.5)
 
             self.update_fog(x, y, r, loc.ent.team.tid)
+
+    def relative_pos(self, x, y):
+        return (self.sx * SECTOR_SZ + x), (self.sy * SECTOR_SZ + y)

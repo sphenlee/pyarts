@@ -1,6 +1,7 @@
 use super::loader::load_map;
 use log::trace;
 use pyo3::prelude::*;
+use crate::map::loader::LoadedEnt;
 
 pub const NUM_TILES: u16 = 64;
 pub const NUM_VERTS: u16 = NUM_TILES + 1;
@@ -20,6 +21,7 @@ pub struct Sector {
     visited: Vec<u8>,
     visible: Vec<u8>,
     walk: Vec<u8>,
+    ents: Vec<LoadedEnt>,
     update_token: u8,
 }
 
@@ -34,6 +36,7 @@ impl Sector {
             visited: vec![0u8; NUM_VERTS_CAPACITY],
             visible: vec![0u8; NUM_VERTS_CAPACITY],
             walk: vec![],
+            ents: vec![],
             update_token: 1, // the renderer defaults to 0
         })
     }
@@ -43,8 +46,13 @@ impl Sector {
 
         self.tiles = loaded.tiles;
         self.walk = loaded.walk;
+        self.ents = loaded.ents;
 
         Ok(())
+    }
+
+    fn loaded_ents(&mut self) -> PyResult<Vec<LoadedEnt>> {
+        Ok(std::mem::take(&mut self.ents))
     }
 
     fn footprint(&mut self, x: i16, y: i16, r: i16) {

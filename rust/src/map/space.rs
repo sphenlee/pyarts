@@ -3,7 +3,7 @@ use pyo3::types::PyDict;
 use rstar::primitives::Rectangle;
 use rstar::{RTree, RTreeObject, AABB};
 use std::collections::BTreeMap;
-use log::{warn, error};
+use log::error;
 
 type RectangleI2 = Rectangle<[i64; 2]>;
 

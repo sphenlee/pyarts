@@ -25,7 +25,7 @@ impl Map {
         self.sectors
             .get(&(sx, sy))
             .map(|obj| obj.clone_ref(py))
-            .ok_or_else(|| pyo3::exceptions::KeyError::py_err("sector doesn't exist"))
+            .ok_or_else(|| pyo3::exceptions::PyKeyError::new_err("sector doesn't exist"))
     }
 
     fn get_sector_or_none(&self, py: Python, sx: i32, sy: i32) -> PyObject {

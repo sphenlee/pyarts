@@ -14,7 +14,7 @@ pub struct GameScene {
 
 fn construct_root(py: Python, _ctx: &mut Context) -> PyResult<PyObject> {
     let pyarts = py.import("pyarts")?;
-    let construct: PyObject = pyarts.get("construct")?.into();
+    let construct: PyObject = pyarts.getattr("construct")?.into();
 
     let mut settings = HashMap::<String, String>::new();
 

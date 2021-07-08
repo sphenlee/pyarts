@@ -51,7 +51,8 @@ class Camera(object):
     def setup_camera(self):
         # camera maybe should not be doing this?
         sec = self.map.loadsector(self.sx, self.sy)
-        self.mapren.look_at(sec)
+        #self.mapren.look_at(sec)
+        self.onlookpointchanged.emit(sec)
 
     def save(self, sink):
         data = {

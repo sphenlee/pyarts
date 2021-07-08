@@ -57,7 +57,7 @@ class Town(object):
             return self.em.get(self.founder_eid)
         except  KeyError:
             error('founder not loaded yet {} {}', self, self.founder_eid)
-            raise
+            return None
 
     def addentity(self, ent):
         debug('adding entity {} to town {}', ent.eid, self)

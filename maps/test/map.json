@@ -124,61 +124,20 @@
 
     "entities" : {
         "1" : {
-            "team" : 0,
-            "proto" : "peasant",
-            "locator" : {
-                "x" : 2750, "y" : 2500, "placed" : true
-            }
-        },
-        "2" : {
-            "team" : 0,
-            "proto" : "archer",
-            "locator" : {
-                "x" : 2700, "y" : 2500, "placed" : true
-            }
-        },
-        "3" : {
-            "team" : 0,
-            "proto" : "archer",
-            "locator" : {
-                "x" : 2250, "y" : 2250, "placed" : true
-            }
-        },
-        "4" : {
-            "team" : 0,
+            "team" : 1,
             "proto" : "townhall",
-            "locator" : {
-                "x" : 2500, "y" : 2500, "placed" : true
-            },
             "town" : {"id": 0}
         },
         "10" : {
-            "team" : 1,
+            "team" : 2,
             "proto" : "townhall",
-            "locator" : {
-                "x" : 4500, "y" : 3000, "placed" : true
-            },
             "town" : {"id": 0}
         },
-        "5" : {
-            "team" : 2,
+        "50" : {
+            "team" : 0,
             "proto" : "goldmine",
-            "locator" : {
-                "x" : 2000, "y" : 3400, "placed" : true
-            },
             "resource" : {
                 "quantity" : 1500
-            }
-        },
-        "6": { "team": 2, "proto": "tree", "locator": {"x": 2100, "y": 2200, "placed": true}},
-        "7": { "team": 2, "proto": "tree", "locator": {"x": 2164, "y": 2200, "placed": true}},
-        "8": { "team": 2, "proto": "tree", "locator": {"x": 2228, "y": 2200, "placed": true}},
-        "9": { "team": 2, "proto": "tree", "locator": {"x": 2292, "y": 2200, "placed": true}},
-        "11": {
-            "team": 0,
-            "proto": "fishing_boat",
-            "locator": {
-                "x" : 2750, "y" : 2800, "placed" : true
             }
         }
     },
@@ -274,7 +233,7 @@
     },
 
     "teams" : {
-        "0" : {
+        "1" : {
             "entityprotos" : {
                 "peasant" : {
                     "name" : "Peasant Upgraded",
@@ -299,12 +258,12 @@
                     "race" : "human",
                     "resources" : { "resource" : 1000, "energy" : 1000 },
                     "name": "Home",
-                    "founder": 4,
-                    "eids": [4]
+                    "founder": 1,
+                    "eids": [1]
                 }
             }
         },
-        "1" : {
+        "2" : {
             "towns" : {
                 "0" : {
                     "race" : "human",
@@ -315,22 +274,22 @@
             },
             "entityprotos" : {}
         },
-        "2" : {
+        "0" : {
             "entityprotos" : {}
         }
     },
 
     "players" : [
         {
-            "teams" : [0],
+            "teams" : [1],
             "type" : "human"
         },
         {
-            "teams" : [1],
+            "teams" : [2],
             "type" : "passive"
         },
         {
-            "teams" : [2],
+            "teams" : [0],
             "type" : "passive"
         }
     ],
@@ -367,7 +326,7 @@
     },
 
     "map" : {
-        "loaded" : ["0/0"],
+        "loaded" : ["1/1", "0/0"],
         "sectors" : {
             "0/0" : {
                 "file" : "map0000.tmx",
@@ -384,7 +343,7 @@
             "1/1" : {
                 "file" : "map0101.tmx",
                 "tileset": "grass",
-                "entities" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+                "x-entities" : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
             },
             "1/2" : {
                 "file" : "map0102.tmx",

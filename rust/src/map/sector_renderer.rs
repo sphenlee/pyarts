@@ -160,7 +160,7 @@ impl SectorRenderer {
         let mut index = Vec::with_capacity(NUM_TILES_CAPACITY * 6);
         let mut i = 0;
 
-        let tidmask = 1u8; // TODO
+        let tidmask = 2u8; // TODO
 
         fn is_set(x: u8, tidmask: u8) -> u8 {
             if (x & tidmask) > 0 {
@@ -239,6 +239,8 @@ impl SectorRenderer {
 
         let pysector = self.sector.clone_ref(py);
         let sector: PyRefMut<Sector> = pysector.extract(py).expect("sector is wrong type");
+
+        //let tidmask = self.local.getattr(py, "tidmask")?.extract(py);
 
         if self.update_token != sector.update_token() {
             self.prepare_fog(ctx, &sector)?;
