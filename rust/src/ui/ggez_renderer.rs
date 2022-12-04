@@ -1,8 +1,7 @@
 use crate::scene;
 use crate::ui::tk::*;
-use ggez::graphics::{DrawParam, Font, Image};
+use ggez::graphics::{Canvas, DrawParam, FontData, Image};
 use ggez::{Context, GameError, GameResult};
-use glyph_brush::{BuiltInLineBreaker, Layout};
 use slab::Slab;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
@@ -18,7 +17,7 @@ pub struct GgezRenderer {
     textures: Slab<Image>,
     input: InputState,
     events: Vec<Event>,
-    pub font: Font,
+    //pub font: FontData,
 }
 
 impl GgezRenderer {
@@ -28,8 +27,12 @@ impl GgezRenderer {
             textures: Slab::new(),
             input: InputState::default(),
             events: vec![],
-            font: Font::new(ctx, "/maps/test/res/AccanthisadfstdBold-BYzx.ttf")?,
+            //font: FontData::from_path(ctx, "/maps/test/res/AccanthisadfstdBold-BYzx.ttf")?,
         };
+
+        let font = FontData::from_path(ctx, "/maps/test/res/AccanthisadfstdBold-BYzx.ttf")?;
+        ctx.gfx.add_font("Accanthis", font);
+
         slf.load_texture(ctx, "/maps/test/res/ui.png")?;
         Ok(slf)
     }
@@ -38,7 +41,7 @@ impl GgezRenderer {
         match self.texture_cache.entry(name.to_owned()) {
             Entry::Occupied(entry) => Ok(*entry.get()),
             Entry::Vacant(entry) => {
-                let img = Image::new(ctx, name)?;
+                let img = Image::from_path(ctx, name)?;
                 let size = Size::new(img.width() as i32, img.height() as i32);
                 let id = self.textures.insert(img);
                 let tex = Texture { id, size };
@@ -71,7 +74,8 @@ impl GgezRenderer {
 
     pub fn render<Msg>(
         &mut self,
-        ctx: &mut Context,
+        _ctx: &mut Context,
+        canvas: &mut Canvas,
         mut root: Element<Msg>,
         bounds: Rect,
     ) -> GameResult<impl Iterator<Item = Msg>> {
@@ -88,13 +92,13 @@ impl GgezRenderer {
         root.render(&self.input, &mut buf)?;
 
         for cmd in buf {
-            self.do_command(ctx, cmd)?;
+            self.do_command(canvas, cmd)?;
         }
 
         Ok(rx.into_iter())
     }
 
-    fn do_command(&self, ctx: &mut Context, cmd: Command) -> GameResult<()> {
+    fn do_command(&self, canvas: &mut Canvas, cmd: Command) -> GameResult<()> {
         match cmd {
             Command::Sprite(sprite) => {
                 let img = self.textures.get(sprite.texture.id).ok_or_else(|| {
@@ -125,14 +129,10 @@ impl GgezRenderer {
                     uv_size.height as f32 / img.height() as f32,
                 );
 
-                ggez::graphics::draw(ctx, img, DrawParam::new().dest(dest).src(src).scale(scale))?;
+                canvas.draw(img, DrawParam::new().dest(dest).src(src).scale(scale));
             }
-            Command::Text(text) => {
-                ggez::graphics::queue_text_raw(
-                    ctx,
-                    text.to_borrowed(),
-                    None::<&Layout<BuiltInLineBreaker>>,
-                );
+            Command::Text(text, param) => {
+                canvas.draw(&text, param);
             }
         };
 

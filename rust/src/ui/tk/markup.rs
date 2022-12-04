@@ -1,45 +1,67 @@
+use ggez::graphics::{Color, PxScale, Text, TextFragment};
 use crate::ui::tk::{TkError, TkResult};
-use glyph_brush::ab_glyph::PxScale;
-use glyph_brush::{Extra, FontId, OwnedSection, OwnedText};
+//use glyph_brush::ab_glyph::PxScale;
+//use glyph_brush::{Extra, FontId, OwnedSection, OwnedText};
 use pulldown_cmark::{Event, Parser, Tag};
 
-pub fn parse(text: &str) -> TkResult<OwnedSection> {
+#[derive(Clone)]
+struct GState {
+    color: Color,
+    font: Option<String>,
+    scale: PxScale,
+}
+
+pub fn parse(text: &str) -> TkResult<Text> {
     let parser = Parser::new(text);
 
     //let mut paragraphs = Vec::<Vec::<OwnedSectionText>>::new();
-    let mut text = Vec::<OwnedText>::new();
+    let mut text = Text::default();
 
-    let mut gstack = Vec::<OwnedText>::new();
-    let mut gstate = OwnedText::new("")
-        .with_color([1.0, 1.0, 1.0, 1.0])
-        .with_font_id(FontId(1))
-        .with_scale(PxScale::from(18.0));
+    let mut gstack = Vec::<GState>::new();
+    let mut gstate = GState {
+        color: [1.0, 1.0, 1.0, 1.0].into(),
+        font: None,
+        scale: 18.0.into(),
+    };
 
     for event in parser {
         match event {
             Event::Start(Tag::Emphasis) => {
                 gstack.push(gstate.clone());
-                gstate.extra.color = [1.0, 1.0, 0.0, 1.0]; // yellow
+                gstate.color = [1.0, 1.0, 0.0, 1.0].into(); // yellow
             }
             Event::Start(Tag::Strong) => {
                 gstack.push(gstate.clone());
-                gstate.extra.color = [1.0, 0.0, 0.0, 1.0]; // red
+                gstate.color = [1.0, 0.0, 0.0, 1.0].into(); // red
             }
             Event::Start(Tag::Paragraph) => {}
             Event::Start(Tag::Heading(_n)) => {
                 gstack.push(gstate.clone());
-                gstate.scale = PxScale::from(24.0);
+                gstate.scale = 24.0.into();
             }
             Event::End(Tag::Emphasis) | Event::End(Tag::Strong) => {
                 gstate = gstack.pop().expect("gstack empty - unbalanced tags?");
             }
             Event::End(Tag::Heading(_)) => {
                 gstate = gstack.pop().expect("gstack empty - unbalanced tags?");
-                text.push(gstate.clone().with_text("\n\n".to_owned()));
+                text.add(TextFragment::new("\n\n")
+                    .color(gstate.color)
+                    .scale(gstate.scale)
+                );
             }
-            Event::End(Tag::Paragraph) => text.push(gstate.clone().with_text("\n\n".to_owned())),
+            Event::End(Tag::Paragraph) => {
+                text.add(
+                    TextFragment::new("\n\n")
+                        .color(gstate.color)
+                        .scale(gstate.scale)
+                );
+            },
             Event::Text(str) => {
-                text.push(gstate.clone().with_text(&str.into_string()));
+                text.add(
+                    TextFragment::new(&str.into_string())
+                        .color(gstate.color)
+                        .scale(gstate.scale)
+                );
             }
             Event::SoftBreak => {}
             Event::HardBreak => {}
@@ -49,5 +71,5 @@ pub fn parse(text: &str) -> TkResult<OwnedSection> {
         }
     }
 
-    Ok(OwnedSection::<Extra>::default().with_text(text))
+    Ok(text)
 }

@@ -1,8 +1,5 @@
+use ggez::graphics::{DrawParam, Text, TextFragment, TextLayout};
 use crate::ui::tk::{rect, CommandBuffer, Element, InputState, Rect, Texture, TkResult, Widget};
-use glyph_brush::ab_glyph::PxScale;
-use glyph_brush::{
-    BuiltInLineBreaker, FontId, HorizontalAlign, Layout, OwnedSection, OwnedText, VerticalAlign,
-};
 
 const PROGRESS_OFFSET_X: i32 = 0;
 const PROGRESS_OFFSET_Y: i32 = 192;
@@ -89,8 +86,19 @@ impl<Msg: 'static> Widget<Msg> for Progress<Msg> {
         if !self.text.is_empty() {
             let pos = self.bounds.center().to_tuple();
 
-            let sec = OwnedSection::default()
-                .with_bounds((
+            let frag = TextFragment::new(&self.text)
+                .color([1.0, 1.0, 1.0, 1.0])
+                .scale(18.0);
+
+            let mut text = Text::new(frag);
+            text.set_bounds([
+                self.bounds.size.width as f32,
+                self.bounds.size.height as f32,
+            ])
+            .set_layout(TextLayout::center());
+
+            /*
+            sec.with_bounds((
                     self.bounds.size.width as f32,
                     self.bounds.size.height as f32,
                 ))
@@ -106,8 +114,8 @@ impl<Msg: 'static> Widget<Msg> for Progress<Msg> {
                         .with_font_id(FontId(1))
                         .with_scale(PxScale::from(18.0)),
                 );
-
-            buffer.text(sec);
+*/
+            buffer.text(text, DrawParam::new().dest([pos.0 as f32, pos.1 as f32]));
         }
 
         Ok(())

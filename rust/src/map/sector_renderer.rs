@@ -3,20 +3,21 @@ use log::trace;
 use pyo3::prelude::*;
 
 use super::sector::{Sector, NUM_TILES};
-use ggez::graphics::{self, DrawParam, Drawable, FilterMode};
+use ggez::graphics::{self, DrawParam, Canvas, MeshData};
 
 pub const VERTEX_SZ: f32 = 32.0;
 pub const TILES_PER_ROW: u16 = 16;
 pub const TEX_SZ: f32 = 1.0 / 8.0;
 pub const TEX_SZ_X: f32 = 1.0 / TILES_PER_ROW as f32; // tiles per row
-pub const TEX_SZ_Y: f32 = 1.0 / 259.0; // tiles per column TODO this can't be a const!
+pub const TEX_SZ_Y: f32 = 1.0 / 40.0; // tiles per column TODO this can't be a const!
 pub const SECTOR_SZ: f32 = NUM_TILES as f32 * VERTEX_SZ;
 pub const NUM_TILES_CAPACITY: usize = (NUM_TILES * NUM_TILES) as usize;
 
 struct GfxState {
-    terrain: graphics::Mesh,
-    fog1: graphics::Mesh,
-    fog2: graphics::Mesh,
+    terrain_mesh: graphics::Mesh,
+    terrain_image: graphics::Image,
+    fog1_mesh: graphics::Mesh,
+    fog2_mesh: graphics::Mesh,
     fogofwar: graphics::Image,
 }
 
@@ -31,7 +32,7 @@ pub struct SectorRenderer {
 }
 
 fn vert(vx: f32, vy: f32, tx: f32, ty: f32, walk: u8) -> graphics::Vertex {
-    let _color = match walk {
+    let color = match walk {
         0x00 => [1.0, 1.0, 1.0, 1.0],        // open => shallows (white)
         0x01 => [0.0, 0.0, 1.0, 1.0],        // sea+air => water (blue)
         0x02 => [0.0, 1.0, 0.0, 1.0],        // ground+air => land (green)
@@ -45,7 +46,7 @@ fn vert(vx: f32, vy: f32, tx: f32, ty: f32, walk: u8) -> graphics::Vertex {
     };
 
     graphics::Vertex {
-        pos: [vx, vy],
+        position: [vx, vy],
         uv: [tx, ty],
         color: [1.0, 1.0, 1.0, 1.0],
         //color,
@@ -122,32 +123,37 @@ impl SectorRenderer {
         }
 
         trace!("loading texture image: {}", self.texture);
-        let mut image = graphics::Image::new(ctx, &self.texture)?;
-        image.set_filter(FilterMode::Nearest);
+        let terrain_image = graphics::Image::from_path(ctx, &self.texture)?;
+        //image.set_filter(FilterMode::Nearest);
 
         trace!("building mesh");
-        let terrain = graphics::MeshBuilder::new()
-            .raw(&vdata, &index, Some(image))?
-            .build(ctx)?;
+        let terrain_mesh = graphics::Mesh::from_data(ctx, MeshData {
+            vertices: &vdata,
+            indices: &index,
+        });
 
         trace!("loading fog image: {}", self.fogofwar);
-        let mut fogofwar = graphics::Image::new(ctx, &self.fogofwar)?;
-        fogofwar.set_filter(FilterMode::Nearest);
+        let fogofwar = graphics::Image::from_path(ctx, &self.fogofwar)?;
+        //fogofwar.set_filter(FilterMode::Nearest);
 
         trace!("building (empty) fog mesh1");
-        let fog1 = graphics::MeshBuilder::new()
-            .raw(&vdata, &index, None)?
-            .build(ctx)?;
+        let fog1_mesh = graphics::Mesh::from_data(ctx, MeshData {
+            vertices: &vdata,
+            indices: &index
+        });
+
         trace!("building (empty) fog mesh2");
-        let fog2 = graphics::MeshBuilder::new()
-            .raw(&vdata, &index, None)?
-            .build(ctx)?;
+        let fog2_mesh = graphics::Mesh::from_data(ctx, MeshData {
+            vertices: &vdata,
+            indices: &index
+        });
 
         trace!("gfx done");
         Ok(GfxState {
-            terrain,
-            fog1,
-            fog2,
+            terrain_mesh,
+            terrain_image,
+            fog1_mesh,
+            fog2_mesh,
             fogofwar,
         })
     }
@@ -224,15 +230,20 @@ impl SectorRenderer {
         let gfx = self.gfx.as_mut().unwrap();
 
         trace!("update fog mesh 1");
-        gfx.fog1 = graphics::Mesh::from_raw(ctx, &fog1, &index, Some(gfx.fogofwar.clone()))?;
+        gfx.fog1_mesh = graphics::Mesh::from_data(ctx, MeshData {
+            vertices: &fog1,
+            indices: &index
+        });
         trace!("update fog mesh 2");
-        gfx.fog2 = graphics::Mesh::from_raw(ctx, &fog2, &index, Some(gfx.fogofwar.clone()))?;
-
+        gfx.fog2_mesh = graphics::Mesh::from_data(ctx, MeshData {
+            vertices: &fog2,
+            indices: &index
+        });
         trace!("fog done");
         Ok(())
     }
 
-    pub fn draw(&mut self, py: Python, ctx: &mut Context, offset: (f32, f32)) -> GameResult<()> {
+    pub fn draw(&mut self, py: Python, ctx: &mut Context, canvas: &mut Canvas, offset: (f32, f32)) -> GameResult<()> {
         if self.gfx.is_none() {
             self.gfx = Some(self.prepare_gfx(py, ctx)?);
         }
@@ -251,9 +262,9 @@ impl SectorRenderer {
 
         let dp = DrawParam::new().dest([self.dx + offset.0, self.dy + offset.1]);
 
-        gfx.terrain.draw(ctx, dp)?;
-        gfx.fog1.draw(ctx, dp)?;
-        gfx.fog2.draw(ctx, dp)?;
+        canvas.draw_textured_mesh(gfx.terrain_mesh.clone(), gfx.terrain_image.clone(), dp);
+        //canvas.draw_textured_mesh(gfx.fog1_mesh.clone(), gfx.fogofwar.clone(), dp);
+        //canvas.draw_textured_mesh(gfx.fog2_mesh.clone(), gfx.fogofwar.clone(), dp);
         Ok(())
     }
 }

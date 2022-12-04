@@ -3,15 +3,17 @@ name = "yarts"
 version = "0.1.0"
 authors = ["Stephen Lee <sphen.lee@gmail.com>"]
 edition = "2018"
+resolver = "2"
 
 [lib]
 name = "yarts"
 crate-type = ["cdylib"]
 
 [dependencies]
-#ggez = "0.5"
-ggez = { git = "https://github.com/ggez/ggez", branch = "devel" }
-tiled = "0.9"
+#ggez = "0.8"
+ggez = { path = "/home/slee/src/ggez" }
+#tiled = "0.10"
+tiled = { path = "/home/slee/src/rs-tiled" }
 num-integer = "0.1"
 log = "0.4.8"
 pretty_env_logger = "0.4.0"
@@ -23,6 +25,7 @@ glyph_brush = "0.7"
 pulldown-cmark = "0.7"
 rstar = "0.8"
 antidote = "1.0.0"
+rlua = "0.19.4"
 
 [dependencies.pyo3]
 version = "0.14"

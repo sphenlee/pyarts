@@ -9,7 +9,7 @@ from pyarts.container import component
 
 # TODO
 import os
-mapfile = os.path.join(os.getcwd(), 'maps/test/map.json')
+mapfile = os.path.join(os.getcwd(), 'maps/warc/map.yml')
 
 @component
 class Settings(object):

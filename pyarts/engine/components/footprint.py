@@ -33,4 +33,4 @@ class Footprint(Component):
         return { }
 
     def destroy(self):
-        warn('TODO - unfootprint')
+        self.map.unfootprint(self.locator)

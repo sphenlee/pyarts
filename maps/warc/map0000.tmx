@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.8" tiledversion="1.9.1" orientation="orthogonal" renderorder="right-down" width="64" height="64" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="73">
+ <tileset firstgid="1" source="grass-full.tsx"/>
+ <tileset firstgid="641" source="objects.tsx"/>
+ <layer id="1" name="terrain" width="64" height="64">
+  <data encoding="base64" compression="zlib">
+   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
+  </data>
+ </layer>
+ <objectgroup id="2" name="objects">
+  <object id="1" gid="648" x="762" y="492" width="128" height="128">
+   <properties>
+    <property name="Team" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="2" gid="647" x="746" y="546" width="32" height="32">
+   <properties>
+    <property name="Team" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="3" gid="647" x="810" y="548" width="32" height="32">
+   <properties>
+    <property name="Team" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="4" gid="647" x="862" y="542" width="32" height="32">
+   <properties>
+    <property name="Team" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="5" gid="647" x="918" y="518" width="32" height="32">
+   <properties>
+    <property name="Team" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="6" gid="643" x="930" y="332" width="64" height="64">
+   <properties>
+    <property name="Team" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="7" gid="643" x="1004" y="410" width="64" height="64">
+   <properties>
+    <property name="Team" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="8" gid="641" x="520" y="564" width="128" height="128">
+   <properties>
+    <property name="Team" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="9" gid="644" x="482" y="632" width="32" height="32">
+   <properties>
+    <property name="Team" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="10" gid="644" x="554" y="646" width="32" height="32">
+   <properties>
+    <property name="Team" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="15" gid="649" x="404" y="448" width="128" height="128"/>
+  <object id="20" gid="649" x="882" y="258" width="128" height="128"/>
+  <object id="21" gid="649" x="880" y="160" width="128" height="128"/>
+  <object id="22" gid="649" x="812" y="134" width="128" height="128"/>
+  <object id="23" gid="649" x="746" y="124" width="128" height="128"/>
+  <object id="24" gid="649" x="630" y="178" width="128" height="128"/>
+  <object id="25" gid="649" x="522" y="268" width="128" height="128"/>
+  <object id="26" gid="649" x="500" y="130" width="128" height="128"/>
+  <object id="27" gid="649" x="386" y="134" width="128" height="128"/>
+  <object id="28" gid="649" x="384" y="260" width="128" height="128"/>
+  <object id="29" gid="649" x="300" y="294" width="128" height="128"/>
+  <object id="30" gid="649" x="464" y="340" width="128" height="128"/>
+  <object id="31" gid="649" x="600" y="256" width="128" height="128"/>
+  <object id="32" gid="649" x="778" y="214" width="128" height="128"/>
+  <object id="48" gid="649" x="222" y="788" width="128" height="128"/>
+  <object id="49" gid="649" x="132" y="874" width="128" height="128"/>
+  <object id="50" gid="649" x="-14" y="906" width="128" height="128"/>
+  <object id="51" gid="649" x="-16" y="772" width="128" height="128"/>
+  <object id="52" gid="649" x="88" y="744" width="128" height="128"/>
+  <object id="53" gid="649" x="208" y="624" width="128" height="128"/>
+  <object id="54" gid="649" x="62" y="600" width="128" height="128"/>
+  <object id="55" gid="649" x="-34" y="542" width="128" height="128"/>
+  <object id="56" gid="649" x="16" y="440" width="128" height="128"/>
+  <object id="57" gid="649" x="152" y="478" width="128" height="128"/>
+  <object id="58" gid="649" x="306" y="486" width="128" height="128"/>
+  <object id="59" gid="649" x="310" y="386" width="128" height="128"/>
+  <object id="60" gid="649" x="214" y="368" width="128" height="128"/>
+  <object id="61" gid="649" x="120" y="318" width="128" height="128"/>
+  <object id="62" gid="649" x="18" y="300" width="128" height="128"/>
+  <object id="63" gid="649" x="-14" y="180" width="128" height="128"/>
+  <object id="64" gid="649" x="4" y="74" width="128" height="128"/>
+  <object id="65" gid="649" x="156" y="114" width="128" height="128"/>
+  <object id="66" gid="649" x="86" y="190" width="128" height="128"/>
+  <object id="67" gid="649" x="172" y="196" width="128" height="128"/>
+  <object id="68" gid="649" x="266" y="132" width="128" height="128"/>
+ </objectgroup>
+</map>

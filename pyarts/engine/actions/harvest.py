@@ -7,6 +7,8 @@ a resource sink
 
 from .action import Action
 
+from pyarts.log import info
+
 INIT = 'init'
 MOVING = 'moving'
 HARVESTING = 'harvesting'
@@ -39,12 +41,17 @@ class HarvestAction(Action):
             if h.gotopickup(self.proto, self.pos):
                 self.state = MOVING
             else:
+                info('no more resources to pickup')
                 self.done()
 
         elif self.state == MOVING:
             if not h.intransit:
-                h.startharvest()
-                self.state = HARVESTING
+                if h.moving.success:
+                    h.startharvest()
+                    self.state = HARVESTING
+                else:
+                    info('failed to move to resource')
+
 
         elif self.state == HARVESTING:
             if h.full():
@@ -52,6 +59,7 @@ class HarvestAction(Action):
                 if h.gotodropoff():
                     self.state = RETURNING
                 else:
+                    info('nowhere to return resources')
                     self.done()
 
         elif self.state == RETURNING:

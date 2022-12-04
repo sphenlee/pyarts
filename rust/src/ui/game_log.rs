@@ -1,10 +1,9 @@
 use crate::scene::HEIGHT;
-use crate::ui::ggez_renderer::GgezRenderer;
 use ggez::{graphics, Context, GameResult};
-use glyph_brush::ab_glyph::PxScale;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use std::time::{Duration, Instant};
+use ggez::graphics::{Canvas, DrawParam};
 
 const LOG_Y_POS: f32 = HEIGHT / 4.0 * 3.0 - 24.0; // fudge factor - approx the height of one line
 
@@ -45,7 +44,7 @@ impl GameLog {
 }
 
 impl GameLog {
-    pub fn draw(&mut self, ctx: &mut Context, ggez_rend: &GgezRenderer) -> GameResult<()> {
+    pub fn draw(&mut self, ctx: &mut Context, canvas: &mut Canvas) -> GameResult<()> {
         let now = Instant::now();
         let timeout = now - Duration::from_secs(15);
 
@@ -60,17 +59,16 @@ impl GameLog {
                 1.0 - (age.as_secs_f32() - 10.0) / 5.0
             };
 
-            let mut text = graphics::Text::new(line.msg.as_ref());
-            text.set_font(ggez_rend.font, PxScale::from(18.0));
+            let mut text = graphics::Text::new(&line.msg);
+            //text.set_font(ggez_rend.font);
+            text.set_scale(18.0);
 
-            graphics::queue_text(
-                ctx,
-                &text,
-                [0.0, y],
-                Some(graphics::Color::new(1.0, 1.0, 0.0, fade)),
+            canvas.draw(&text, DrawParam::new()
+                .color([1.0, 1.0, 0.0, fade])
+                .offset([0.0, y])
             );
 
-            y -= text.height(ctx) as f32;
+            y -= text.measure(ctx)?.y;
         }
 
         Ok(())

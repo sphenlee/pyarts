@@ -13,15 +13,16 @@ class Appearance(Component):
     VISIBLE_VIEWING = 'viewing'
 
 
-    depends = ['locator', '@sprites', '@map']
+    depends = ['locator', '@sprites', '@map', '@datasrc']
 
-    def inject(self, locator, sprites, map):
+    def inject(self, locator, sprites, map, datasrc):
         self.locator = locator
         self.sprites = sprites
         self.map = map
+        self.datasrc = datasrc
 
     def configure(self, data):
-        img = 'maps/test/' + data['sprite'] # TODO
+        img = self.datasrc.resource_root + data['sprite']
         self.sprite = self.sprites.new_sprite(img, self.locator.r)
         self.portrait = data['portrait']
         self.visibility = data.get('visibility', self.VISIBLE_VIEWING)

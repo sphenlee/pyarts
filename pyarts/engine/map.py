@@ -205,6 +205,16 @@ class Map(RsMap):
                 sec.footprint(locator)
             return True
 
+    def unfootprint(self, locator):
+        try:
+            secs = self.placedon[locator]
+        except KeyError:
+            return False
+        else:
+            for sec in secs:
+                sec.unfootprint(locator)
+            return True
+
     def entities_in_rect(self, x1, y1, x2, y2):
         # result = set()
 

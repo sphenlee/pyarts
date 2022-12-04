@@ -101,15 +101,12 @@ impl Pathfinder {
         // first convert the raw points into cells
         let start_pt = Pt::from(start);
         let goal_pt = Pt::from(goal);
+        let range = range / CELL_FACTOR;
 
-        // don't consider any nodes that are 1.5x further away than the goal
+        // don't consider any nodes that are 2x further away than the goal
         // otherwise we have to travsese the entire map to determine that no
         // path exists in trivial cases eg. goal is in the water
-        let search_radius = {
-            let d = start_pt.dist(goal_pt);
-            d + d / 2 // (to avoid a float operation of 1.5x )
-        };
-
+        let search_radius = start_pt.dist(goal_pt) * 2;
         info!(
             "pathfinding from {:?} to {:?}, range of {}",
             start_pt, goal_pt, range

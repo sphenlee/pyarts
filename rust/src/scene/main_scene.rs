@@ -3,8 +3,8 @@ use crate::scene::{Event, Screen, Transition, HEIGHT, WIDTH};
 use crate::ui::ggez_renderer::GgezRenderer;
 use crate::ui::tk::*;
 use crate::util::YartsResult;
-use ggez::graphics::{DrawParam, FilterMode};
-use ggez::{event, graphics, Context, GameResult};
+use ggez::graphics::{Canvas};
+use ggez::{Context, GameResult, input};
 use log::warn;
 use pyo3::prelude::*;
 
@@ -73,7 +73,7 @@ impl Screen for MainScene {
         self.ggez_rend.event(event.clone());
 
         // TODO - add hotkeys to buttons to reduce duplication
-        if let Event::KeyUp(event::KeyCode::S, _) = event {
+        if let Event::KeyUp(input::keyboard::KeyCode::S, _) = event {
             let game_ui = GameScene::new(py, ctx)?;
             Ok(Transition::Next(game_ui))
         } else {
@@ -81,13 +81,13 @@ impl Screen for MainScene {
         }
     }
 
-    fn draw(&mut self, py: Python<'_>, ctx: &mut Context) -> YartsResult<Transition> {
+    fn draw(&mut self, py: Python<'_>, ctx: &mut Context, canvas: &mut Canvas) -> YartsResult<Transition> {
         let mut transition = Transition::None;
 
         let root = self.build()?;
 
         let bounds = rect(860, 508, 200, 64 * 3);
-        for msg in self.ggez_rend.render(ctx, root, bounds)? {
+        for msg in self.ggez_rend.render(ctx, canvas, root, bounds)? {
             match msg {
                 Msg::StartGame => {
                     warn!("START GAME!");
@@ -96,8 +96,6 @@ impl Screen for MainScene {
                 }
             }
         }
-
-        graphics::draw_queued_text(ctx, DrawParam::default(), None, FilterMode::Nearest)?;
 
         Ok(transition)
     }

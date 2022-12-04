@@ -1,10 +1,9 @@
 use crate::util::{YartsError, YartsResult};
 use ggez::event::{self, EventHandler, MouseButton};
-use ggez::graphics::Drawable;
-use ggez::{graphics, Context, ContextBuilder, GameError, GameResult};
+use ggez::graphics::{Canvas, Color, DrawParam};
+use ggez::{graphics, Context, ContextBuilder, GameError, GameResult, input};
 use log::error;
 use pyo3::prelude::*;
-use std::time::Duration;
 
 pub mod game_scene;
 pub mod main_scene;
@@ -26,8 +25,8 @@ pub enum Transition {
 
 #[derive(Clone, Debug)]
 pub enum Event {
-    KeyUp(event::KeyCode, event::KeyMods),
-    KeyDown(event::KeyCode, event::KeyMods),
+    KeyUp(input::keyboard::KeyCode, input::keyboard::KeyMods),
+    KeyDown(input::keyboard::KeyCode, input::keyboard::KeyMods),
     TextInput(char),
     MouseMotion { x: f32, y: f32, dx: f32, dy: f32 },
     MouseDown { x: f32, y: f32, button: MouseButton },
@@ -44,7 +43,7 @@ pub trait Screen {
         event: Event,
     ) -> YartsResult<Transition>;
 
-    fn draw<'p>(&mut self, py: Python<'p>, ctx: &mut Context) -> YartsResult<Transition>;
+    fn draw<'p>(&mut self, py: Python<'p>, ctx: &mut Context, canvas: &mut Canvas) -> YartsResult<Transition>;
 }
 
 pub fn launch(py: Python<'_>) -> YartsResult<()> {
@@ -53,16 +52,16 @@ pub fn launch(py: Python<'_>) -> YartsResult<()> {
     let (mut ctx, event_loop) = ContextBuilder::new("yarts", "Steve Lee")
         .window_setup(ggez::conf::WindowSetup {
             title: "Pyarts".to_owned(),
-            vsync: true,
+            //vsync: true,
             ..Default::default()
         })
         .add_resource_path(&cwd)
         .window_mode(ggez::conf::WindowMode {
             width: WIDTH,
             height: HEIGHT,
-            //maximized: true,
+            maximized: true,
             //resizable: true,
-            fullscreen_type: ggez::conf::FullscreenType::Desktop,
+            fullscreen_type: ggez::conf::FullscreenType::True,
             ..Default::default()
         })
         .with_conf_file(true)
@@ -107,13 +106,14 @@ impl<'p> SceneStack<'p> {
         };
     }
 
-    fn do_event(&mut self, ctx: &mut Context, event: Event) {
+    fn do_event(&mut self, ctx: &mut Context, event: Event) -> YartsResult<()> {
         python_protect(self.py, ctx, |py, ctx| {
             let screen = self.screens.last_mut().expect("popped last screen?");
             let transition = screen.event(py, ctx, event)?;
             self.transition(transition);
             Ok(())
         });
+        Ok(())
     }
 }
 
@@ -124,7 +124,7 @@ where
     match f(py, ctx) {
         Ok(r) => Some(r),
         Err(err) => {
-            event::quit(ctx);
+            ctx.request_quit();
             match err {
                 YartsError::GameError(err) => error!("game error: {}", err),
                 YartsError::PyErr(pyerr) => {
@@ -144,7 +144,7 @@ impl EventHandler<GameError> for SceneStack<'_> {
         let screen = self.screens.last_mut().expect("popped last screen?");
 
         python_protect(self.py, ctx, |py, ctx| {
-            while ggez::timer::check_update_time(ctx, 60) {
+            while ctx.time.check_update_time(60) {
                 screen.update(py, ctx)?;
             }
             Ok(())
@@ -154,67 +154,75 @@ impl EventHandler<GameError> for SceneStack<'_> {
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-        graphics::clear(ctx, graphics::Color::BLACK);
+        let mut canvas = Canvas::from_frame(ctx, Color::BLACK);
 
         python_protect(self.py, ctx, |py, ctx| {
             let screen = self.screens.last_mut().expect("popped last screen?");
-            let transition = screen.draw(py, ctx)?;
+            let transition = screen.draw(py, ctx, &mut canvas)?;
             self.transition(transition);
             Ok(())
         });
 
-        graphics::Text::new(format!("fps: {}", ggez::timer::fps(ctx))).draw(
-            ctx,
+        canvas.draw(
+        &graphics::Text::new(format!("fps: {}", ctx.time.fps()))
+            ,
             graphics::DrawParam::new()
                 .dest([20.0, 20.0])
                 .color(graphics::Color::new(1.0, 0.0, 0.0, 1.0)),
-        )?;
-
-        graphics::present(ctx)?;
+        );
 
         //ggez::timer::sleep(Duration::from_millis(5));
 
+        canvas.finish(ctx)?;
         Ok(())
     }
 
-    fn mouse_button_down_event(&mut self, ctx: &mut Context, button: MouseButton, x: f32, y: f32) {
-        self.do_event(ctx, Event::MouseDown { x, y, button });
+    fn mouse_button_down_event(&mut self, ctx: &mut Context, button: MouseButton, x: f32, y: f32) -> Result<(), GameError>{
+        self.do_event(ctx, Event::MouseDown { x, y, button })?;
+        Ok(())
     }
 
-    fn mouse_button_up_event(&mut self, ctx: &mut Context, button: MouseButton, x: f32, y: f32) {
-        self.do_event(ctx, Event::MouseUp { x, y, button });
+    fn mouse_button_up_event(&mut self, ctx: &mut Context, button: MouseButton, x: f32, y: f32) -> Result<(), GameError> {
+        self.do_event(ctx, Event::MouseUp { x, y, button })?;
+        Ok(())
     }
 
-    fn mouse_motion_event(&mut self, ctx: &mut Context, x: f32, y: f32, dx: f32, dy: f32) {
-        self.do_event(ctx, Event::MouseMotion { x, y, dx, dy });
+    fn mouse_motion_event(&mut self, ctx: &mut Context, x: f32, y: f32, dx: f32, dy: f32) -> Result<(), GameError> {
+        self.do_event(ctx, Event::MouseMotion { x, y, dx, dy })?;
+        Ok(())
     }
 
     fn key_down_event(
         &mut self,
         ctx: &mut Context,
-        keycode: event::KeyCode,
-        keymods: event::KeyMods,
+        input: input::keyboard::KeyInput,
         repeat: bool,
-    ) {
-        if keycode == event::KeyCode::Escape {
-            event::quit(ctx);
+    ) -> Result<(), GameError> {
+        if input.keycode == Some(input::keyboard::KeyCode::Escape) {
+            ctx.request_quit();
         }
 
         if !repeat {
-            self.do_event(ctx, Event::KeyDown(keycode, keymods));
+            if let Some(key) = input.keycode {
+                self.do_event(ctx, Event::KeyDown(key, input.mods))?;
+            }
         }
+        Ok(())
     }
 
     fn key_up_event(
         &mut self,
         ctx: &mut Context,
-        keycode: event::KeyCode,
-        keymods: event::KeyMods,
-    ) {
-        self.do_event(ctx, Event::KeyUp(keycode, keymods));
+        input: input::keyboard::KeyInput,
+    )-> Result<(), GameError> {
+        if let Some(key) = input.keycode {
+            self.do_event(ctx, Event::KeyUp(key, input.mods))?;
+        }
+        Ok(())
     }
 
-    fn text_input_event(&mut self, ctx: &mut Context, character: char) {
-        self.do_event(ctx, Event::TextInput(character));
+    fn text_input_event(&mut self, ctx: &mut Context, character: char) -> Result<(), GameError> {
+        self.do_event(ctx, Event::TextInput(character))?;
+        Ok(())
     }
 }

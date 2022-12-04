@@ -1,0 +1,346 @@
+content:
+    abilities:
+        boost:
+            cooldown: 300
+            cost:
+                mana: 10
+            description: |
+                # HP Boost #
+
+                Raises *MaxHP* by *10%* for *30s*
+
+                **Actually does nothing yet ;)**
+            effect: |
+              function(me, target)
+                  print('Inside Lua boost' .. me)
+                  print(target)
+              end
+            group: true
+            image: res/pesant.png
+            name: HP Boost
+            type: instant
+
+        build_townhall:
+            cooldown: 0
+            cost:
+                energy: 100
+                resource: 500
+            description: '# Builds a Townhall #'
+            effect:
+                file: abilities.lua
+                function: build_townhall
+            image: res/townhall.png
+            name: Build Townhall
+            onstart:
+                file: abilities.lua
+                function: start_building
+            proto: townhall
+            type: build
+
+        train_archer:
+            cost:
+                energy: 100
+                resource: 100
+            description: '# Train Archer #'
+            effect: |
+              function(me)
+                print('Inside train archer')
+                ent = create_entity(0, 'archer')
+                place_entity_near(ent, me)
+              end
+            group: true
+            image: res/footman.png
+            name: Train Archer
+            queue: true
+            type: activity
+            wait: 120
+
+        train_peasant:
+            cost:
+                energy: 100
+                resource: 100
+            description: '# Trains a Peasant #'
+            effect: |
+              function(me)
+                print('Inside train peasant')
+                ent = create_entity(0, 'peasant')
+                place_entity_near(ent, me)
+              end
+            group: true
+            image: res/peasant.png
+            name: Train Peasant
+            queue: true
+            type: activity
+            wait: 120
+
+
+entities:
+    '1':
+        proto: townhall
+        team: 1
+        town:
+            id: 0
+    
+    '50':
+        proto: goldmine
+        resource:
+            quantity: 1500
+        team: 0
+
+
+entityprotos:
+    archer:
+        abilities:
+        appearance:
+            portrait: res/footman.png
+            sprite: res/footman.png
+        behaviour:
+            type: unit
+        components:
+          - moving
+          - appearance
+          - behaviour
+          - variables
+          - abilities
+          - maprevealer
+        locator:
+            r: 32
+        name: Archer
+        rank: 20
+        stats:
+            hpregen: 20
+            maxhp: 250
+            maxmp: 200
+            mpregen: 20
+            sight: 512
+        variables:
+            hp:
+                max: maxhp
+                regen: hpregen
+            mana:
+                initial: '70'
+                max: maxmp
+                regen: mpregen
+
+    goldmine:
+        appearance:
+            portrait: res/goldmine.png
+            sprite: res/goldmine.png
+            visibility: visited
+        components:
+          - appearance
+          - footprint
+          - resource
+        locator:
+            r: 128
+        name: Gold Mine
+        rank: 200
+        resource:
+            deplete: |
+              function(me)
+                  display('Gold Mine depleted')
+                  destroy(me)
+              end
+            kind: resource
+            quantity: 2000
+            unplace_harvester: true
+
+    peasant:
+        abilities:
+          - build_townhall
+        appearance:
+            portrait: res/peasant.png
+            sprite: res/peasant.png
+        behaviour:
+            type: unit
+        components:
+          - abilities
+          - appearance
+          - behaviour
+          - harvester
+          - moving
+        harvester:
+          rate: 1
+          capacity: 50
+        locator:
+            r: 32
+        name: Peasant
+        rank: 30
+
+    footman:
+        appearance:
+            portrait: res/footman.png
+            sprite: res/footman.png
+        behaviour:
+            type: unit
+        components:
+          - moving
+          - appearance
+          - behaviour
+        locator:
+            r: 64
+        name: Footman
+        rank: 20
+
+    townhall:
+        abilities:
+          - train_archer
+          - train_peasant
+        appearance:
+            portrait: res/townhall.png
+            sprite: res/townhall.png
+        behaviour:
+            type: building
+        components:
+          - town
+          - appearance
+          - behaviour
+          - maprevealer
+          - footprint
+          - abilities
+          - harveststore
+          - queue
+          - variables
+        locator:
+            r: 64
+        name: Town Hall
+        rank: 100
+        stats:
+            maxhp: 1000
+            sight: 1024
+        town:
+            r: 1024
+        variables:
+            hp:
+                max: maxhp
+
+
+    farm:
+        appearance:
+            portrait: res/farm.png
+            sprite: res/farm.png
+        behaviour:
+            type: building
+        components:
+          - town
+          - appearance
+          - behaviour
+          - maprevealer
+          - footprint
+        locator:
+            r: 64
+        name: Farm
+        rank: 110
+        stats:
+            maxhp: 200
+            sight: 256
+        town:
+            r: 256
+        variables:
+            hp:
+                max: maxhp
+
+    barracks:
+        appearance:
+            portrait: res/barracks.png
+            sprite: res/barracks.png
+        behaviour:
+            type: building
+        components:
+          - town
+          - appearance
+          - behaviour
+          - maprevealer
+          - footprint
+        locator:
+            r: 64
+        name: Farm
+        rank: 110
+        stats:
+            maxhp: 500
+            sight: 256
+        town:
+            r: 256
+        variables:
+            hp:
+                max: maxhp
+
+    tree:
+        appearance:
+            portrait: res/tree1.png
+            sprite: res/tree1.png
+            visibility: visited
+        components:
+          - appearance
+          - footprint
+          - resource
+        locator:
+            r: 64
+        name: Tree
+        rank: 250
+        resource:
+            # todo - default deplete behaviour?
+            deplete: |
+              function(me)
+                log('tree depleted')
+                destroy(me)
+              end
+            kind: resource
+            quantity: 200
+
+
+misc:
+    camera.initial.position:
+        '0':
+            sx: 0
+            sy: 0
+            x: 512
+            y: 512
+    entities.nexteid: 100
+
+
+players:
+  -   teams:
+        - 1
+      type: human
+  -   teams:
+        - 0
+      type: passive
+
+
+races:
+    human:
+        energy: Gold
+        energy_icon: res/gold.png
+        resource: Lumber
+        resource_icon: res/lumber.png
+
+
+teams:
+    '0':
+        entityprotos: {}
+    '1':
+        entityprotos: {}
+        towns:
+            '0':
+                eids:
+                  - 1
+                founder: 1
+                name: Home
+                race: human
+                resources:
+                    energy: 1000
+                    resource: 1000
+    
+tileset:
+    grass:
+        fogofwar: fogofwar.png
+        texture: grass-full.png
+
+map:
+    loaded:
+      - 0/0
+    sectors:
+        0/0:
+            file: map0000.tmx
+            tileset: grass

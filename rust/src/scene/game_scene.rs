@@ -6,6 +6,7 @@ use ggez::Context;
 use pyo3::prelude::*;
 use pyo3::{PyObject, PyResult, Python};
 use std::collections::HashMap;
+use ggez::graphics::Canvas;
 
 pub struct GameScene {
     root: PyObject,
@@ -59,10 +60,10 @@ impl Screen for GameScene {
         root.event(py, ctx, event)
     }
 
-    fn draw(&mut self, py: Python<'_>, ctx: &mut Context) -> YartsResult<Transition> {
+    fn draw(&mut self, py: Python<'_>, ctx: &mut Context, canvas: &mut Canvas) -> YartsResult<Transition> {
         let mut root = self.root.as_ref(py).extract::<PyRefMut<Root>>()?;
 
-        root.draw(py, ctx, &mut self.ggez_rend)?;
+        root.draw(py, ctx, canvas, &mut self.ggez_rend)?;
 
         Ok(Transition::None)
     }

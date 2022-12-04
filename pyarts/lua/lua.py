@@ -18,7 +18,17 @@ import types
 import ctypes
 lua = ctypes.cdll.LoadLibrary('liblua5.2.so.0')
 
+# decorator for making a python function into a raw lua function
+# 'raw' as in taking the Lua state, not converted args
+rawfunc = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
+
 # declare arg and return types
+lua.luaL_newstate.argtypes = []
+lua.luaL_newstate.restype = ctypes.c_void_p
+
+lua.lua_createtable.argtypes = [ ctypes.c_void_p, ctypes.c_int, ctypes.c_int ]
+lua.lua_createtable.restype = None
+
 lua.lua_tolstring.restype = ctypes.c_char_p
 
 lua.lua_tonumberx.argtypes = [ ctypes.c_void_p, ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
@@ -47,6 +57,32 @@ lua.lua_pcallk.argtypes = [ ctypes.c_void_p, ctypes.c_int, ctypes.c_int,
 lua.lua_pcallk.restype  = ctypes.c_int
 
 lua.luaL_loadstring.argtypes = [ ctypes.c_void_p, ctypes.c_char_p ]
+
+lua.lua_gettop.argtypes = [ ctypes.c_void_p ]
+lua.lua_gettop.restype = ctypes.c_int
+
+lua.lua_settop.argtypes = [ ctypes.c_void_p, ctypes.c_int ]
+lua.lua_settop.restype = None
+
+lua.lua_pushlightuserdata.argtypes = [ ctypes.c_void_p, ctypes.py_object ]
+lua.lua_pushlightuserdata.restype = None
+
+lua.lua_pushcclosure.argtypes = [ ctypes.c_void_p, rawfunc, ctypes.c_int ]
+
+lua.lua_type.argtypes = [ ctypes.c_void_p, ctypes.c_int ]
+lua.lua_type.restype = ctypes.c_int
+
+lua.lua_pushvalue.argtypes = [ ctypes.c_void_p, ctypes.c_int ]
+
+lua.lua_remove.argtypes = [ ctypes.c_void_p, ctypes.c_int ]
+
+lua.lua_topointer.argtypes = [ ctypes.c_void_p, ctypes.c_int ]
+lua.lua_topointer.restype = ctypes.c_void_p
+
+lua.lua_tolstring.argtypes = [ ctypes.c_void_p, ctypes.c_int, ctypes.POINTER(ctypes.c_size_t) ]
+lua.lua_topointer.restype = ctypes.c_char_p
+
+lua.lua_pushnil.argtypes = [ ctypes.c_void_p ]
 
 # declare constants
 LUA_MULTIRET = -1
@@ -186,6 +222,7 @@ class State(object):
         self.lua = lua # keep the DLL open as long as we have a state object around
 
         self.L = lua.luaL_newstate()
+        assert self.L
         #lua.luaL_openlibs(self.L)
 
         lua.lua_createtable(self.L, 0, 0)
@@ -241,9 +278,9 @@ class State(object):
             return luaget(self.L, -1)
 
 # python wrapper for a lua table
-import collections
+import collections.abc
 
-class Table(collections.MutableMapping):
+class Table(collections.abc.MutableMapping):
     def __init__(self, L, ref):
         super(Table, self).__init__()
         self.L = L
@@ -334,9 +371,6 @@ class function(object):
             else:
                 raise LuaError(ret)
 
-# decorator for making a python function into a raw lua function
-# 'raw' as in taking the Lua state, not converted args
-rawfunc = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
 
 # decorator for making a python function into a lua function,
 # args are converted into python objects

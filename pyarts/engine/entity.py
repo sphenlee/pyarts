@@ -73,8 +73,8 @@ class Entity(object):
             comp.step()
 
     def destroy(self):
-        '''Destroy each component'''
-        for name in self.component_order:
+        '''Destroy each component *in reverse order* '''
+        for name in reversed(self.component_order):
             comp = self.components[name]
             comp.destroy()
 

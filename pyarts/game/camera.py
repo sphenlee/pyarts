@@ -51,6 +51,7 @@ class Camera(object):
     def setup_camera(self):
         # camera maybe should not be doing this?
         sec = self.map.loadsector(self.sx, self.sy)
+        assert sec is not None
         #self.mapren.look_at(sec)
         self.onlookpointchanged.emit(sec)
 

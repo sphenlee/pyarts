@@ -1,35 +1,38 @@
 use crate::ui::tk::markup::parse;
 use crate::ui::tk::{CommandBuffer, Element, Event, InputState, Rect, TkResult, Widget};
-use glyph_brush::{BuiltInLineBreaker, HorizontalAlign, Layout, OwnedSection, VerticalAlign};
+//use glyph_brush::{BuiltInLineBreaker, HorizontalAlign, Layout, OwnedSection, VerticalAlign};
 use std::sync::mpsc::Sender;
+use ggez::graphics::{DrawParam, Text as GgezText, TextAlign, TextLayout};
 
 pub struct Text<Msg> {
-    section: OwnedSection,
+    text: GgezText,
     bounds: Rect,
-    halign: HorizontalAlign,
-    valign: VerticalAlign,
+    halign: TextAlign,
+    valign: TextAlign,
     _msg: std::marker::PhantomData<Msg>, // unused type param
 }
 
 impl<Msg: 'static> Text<Msg> {
     pub fn new(text: impl Into<String>) -> TkResult<Self> {
-        let section = parse(&text.into())?;
+        let mut parsed = parse(&text.into())?;
+
+        parsed.set_font("Accanthis");
 
         Ok(Text {
-            section,
+            text: parsed,
             bounds: Rect::zero(),
-            halign: HorizontalAlign::Left,
-            valign: VerticalAlign::Top,
+            halign: TextAlign::Begin,
+            valign: TextAlign::Begin,
             _msg: std::marker::PhantomData,
         })
     }
 
-    pub fn halign(mut self, halign: HorizontalAlign) -> Self {
+    pub fn halign(mut self, halign: TextAlign) -> Self {
         self.halign = halign;
         self
     }
 
-    pub fn valign(mut self, valign: VerticalAlign) -> Self {
+    pub fn valign(mut self, valign: TextAlign) -> Self {
         self.valign = valign;
         self
     }
@@ -46,38 +49,31 @@ impl<Msg> Widget<Msg> for Text<Msg> {
     }
 
     fn render(&self, _input: &InputState, buffer: &mut CommandBuffer) -> TkResult<()> {
-        let posx = if self.halign == HorizontalAlign::Center {
+        let posx = if self.halign == TextAlign::Middle {
             self.bounds.origin.x as f32 + self.bounds.size.width as f32 / 2.0
         } else {
             self.bounds.origin.x as f32
         };
 
-        let posy = if self.valign == VerticalAlign::Center {
+        let posy = if self.valign == TextAlign::Middle {
             self.bounds.origin.y as f32 + self.bounds.size.height as f32 / 2.0
         } else {
             self.bounds.origin.y as f32
         };
 
-        let sec = self
-            .section
-            .clone()
-            .with_bounds((
+        let mut text = self.text.clone();
+
+        text.set_bounds([
                 self.bounds.size.width as f32,
                 self.bounds.size.height as f32,
-            ))
-            .with_screen_position((posx, posy))
-            .with_layout(Layout::Wrap {
-                line_breaker: BuiltInLineBreaker::UnicodeLineBreaker,
+            ])
+            .set_layout(TextLayout {
                 h_align: self.halign,
                 v_align: self.valign,
-            });
+            })
+            .set_wrap(true);
 
-        buffer.text(sec);
-        /*Texture::from_id(0)
-        .icon(rect(0, 4 * 64, 3 * 64, 64))
-        .nine_square(self.bounds)
-        .into_iter()
-        .for_each(|s| buffer.sprite(s));*/
+        buffer.text(text, DrawParam::new().dest([posx, posy]));
 
         Ok(())
     }

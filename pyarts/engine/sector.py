@@ -115,6 +115,13 @@ class Sector(RsSector):
 
         super().footprint(x, y, r)
 
+    def unfootprint(self, loc):
+        x = int(loc.x/VERTEX_SZ + 0.5) - self.sx*NUM_TILES
+        y = int(loc.y/VERTEX_SZ + 0.5) - self.sy*NUM_TILES
+        r = int(loc.r/VERTEX_SZ + 0.5)
+
+        super().unfootprint(x, y, r)
+
     def occupied(self):
         return len(self.locators) > 0
 
@@ -141,7 +148,8 @@ class Sector(RsSector):
             y = int(loc.y/VERTEX_SZ + 0.5) - self.sy*NUM_TILES
             r = int(loc.sight/VERTEX_SZ + 0.5)
 
-            self.update_fog(x, y, r, loc.ent.team.tid)
+            if loc.ent.team.tid != 0:
+                self.update_fog(x, y, r, loc.ent.team.tid)
 
     def relative_pos(self, x, y):
         return (self.sx * SECTOR_SZ + x), (self.sy * SECTOR_SZ + y)

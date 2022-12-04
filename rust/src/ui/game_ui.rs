@@ -3,7 +3,7 @@ use crate::ui::ggez_renderer::GgezRenderer;
 use crate::ui::tk::*;
 use crate::util::YartsResult;
 use ggez::Context;
-use glyph_brush::{HorizontalAlign, VerticalAlign};
+use ggez::graphics::{Canvas, TextAlign};
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
 
@@ -102,6 +102,7 @@ impl GameUi {
         &mut self,
         py: Python,
         ctx: &mut Context,
+        canvas: &mut Canvas,
         ggez_rend: &mut GgezRenderer,
     ) -> YartsResult<()> {
         let infopanel = self.build_infopanel(py, ctx, ggez_rend)?;
@@ -127,7 +128,12 @@ impl GameUi {
             .add(townspanel)
             .build();
 
-        let messages = ggez_rend.render(ctx, ui, rect(0, 0, WIDTH_I, HEIGHT_I))?;
+        let messages = ggez_rend.render(
+            ctx,
+            canvas,
+            ui,
+            rect(0, 0, WIDTH_I, HEIGHT_I)
+        )?;
         self.messages.extend(messages);
 
         Ok(())
@@ -146,7 +152,7 @@ impl GameUi {
 
             // name
             let name: String = dict_get_or_default(data, "name")?;
-            let mut info = Panel::vbox().add(Text::new(name)?.halign(HorizontalAlign::Center));
+            let mut info = Panel::vbox().add(Text::new(name)?.halign(TextAlign::Middle));
 
             // portrait
             let portrait: Option<String> = dict_get(data, "portrait")?;
@@ -292,18 +298,18 @@ impl GameUi {
                     .add(Border::with_icon(
                         icon,
                         Panel::hbox()
-                            .add_flex(4, Text::new(name)?.valign(VerticalAlign::Center))
+                            .add_flex(4, Text::new(name)?.valign(TextAlign::Middle))
                             .add_flex(1, Image::new(energy_icon))
                             .add_flex(
                                 3,
                                 Text::new(format!("{}", energy_value))?
-                                    .valign(VerticalAlign::Center),
+                                    .valign(TextAlign::Middle),
                             )
                             .add_flex(1, Image::new(resource_icon))
                             .add_flex(
                                 3,
                                 Text::new(format!("{}", resource_value))?
-                                    .valign(VerticalAlign::Center),
+                                    .valign(TextAlign::Middle),
                             ),
                     )),
             );

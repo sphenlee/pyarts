@@ -4,10 +4,19 @@ Manages loading all resources and data
 '''
 
 import json
+import yaml
 import os.path as p
 
 from .event import Event
 from pyarts.container import component
+
+
+def load_by_extension(fname):
+    if fname.endswith('yml') or fname.endswith('yaml'):
+        return yaml.safe_load(open(fname))
+    else:
+        return json.load(open(fname))
+
 
 @component
 class DataSource(object):
@@ -22,15 +31,18 @@ class DataSource(object):
         settings.onready.add(self.load)
 
     def load(self, settings):
-        self.save = json.load(open(settings.data_save))
-        self.map = json.load(open(settings.data_map))
-        self.core = json.load(open(settings.data_core))
+        # TODO !
+        self.resource_root = 'maps/warc/' #p.dirname(settings.data_map)
+        self.save = load_by_extension(settings.data_save)
+        self.map = load_by_extension(settings.data_map)
+        self.core = load_by_extension(settings.data_core)
 
         self.onload.emit()
         self.onready.emit()
 
     def getresource(self, name):
-        return p.join('maps', 'test', name)
+        # TODO - search in data_map and data_core directories
+        return p.join(self.resource_root, name)
 
     def getentityprotos(self, tid):
         protos = self.map['entityprotos']

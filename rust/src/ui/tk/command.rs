@@ -1,10 +1,10 @@
+use ggez::graphics::{DrawParam, Text};
 use super::Sprite;
-use glyph_brush::OwnedSection;
 
 #[derive(Debug)]
 pub enum Command {
     Sprite(Sprite),
-    Text(OwnedSection),
+    Text(Text, DrawParam),
 }
 
 #[derive(Default)]
@@ -17,8 +17,8 @@ impl CommandBuffer {
         self.commands.push(Command::Sprite(sprite.into()));
     }
 
-    pub fn text(&mut self, section: OwnedSection) {
-        self.commands.push(Command::Text(section));
+    pub fn text(&mut self, section: Text, param: DrawParam) {
+        self.commands.push(Command::Text(section, param));
     }
 }
 

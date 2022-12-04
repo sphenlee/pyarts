@@ -1,6 +1,6 @@
 use crate::map::sector_renderer::SECTOR_SZ;
 use crate::util::YartsResult;
-use ggez::graphics::{Color, DrawParam, Drawable, Image};
+use ggez::graphics::{Color, DrawParam, Image, Canvas};
 use ggez::{graphics, Context, GameResult};
 use log::info;
 use pyo3::prelude::*;
@@ -133,33 +133,32 @@ impl SpriteManager {
         self.local.getattr(py, "tidmask")?.extract(py)
     }
 
-    pub fn draw(&mut self, py: Python, ctx: &mut Context, offset: (f32, f32)) -> YartsResult<()> {
+    pub fn draw(&mut self, py: Python, ctx: &mut Context, canvas: &mut Canvas, offset: (f32, f32)) -> YartsResult<()> {
         let tidmask = self.get_tidmask(py)?;
 
         for (imgname, idx) in self.unresolved.drain(..) {
             let sprite = self.sprites.get_mut(idx).expect("idx missing from slab");
 
             let path = PathBuf::from("/").join(&imgname);
-            let img = Image::new(ctx, &path)?;
+            let img = Image::from_path(ctx, &path)?;
             self.images.insert(imgname, img.clone());
             sprite.img = Some(img)
         }
 
         for (_, sprite) in self.sprites.iter() {
-            let scale = sprite.r / SPRITE_SIZE;
-
             if (sprite.visible & tidmask) > 0 {
                 if let Some(ref img) = sprite.img {
+                    let scale = sprite.r / img.width() as f32;
+
                     if sprite.selected {
                         let circle = SpriteManager::make_ring(ctx, sprite)?;
 
-                        circle.draw(
-                            ctx,
-                            DrawParam::new().dest([
+                        canvas.draw(&circle,
+                                    DrawParam::new().dest([
                                 sprite.dx + sprite.r - self.dx + offset.0,
                                 sprite.dy + (sprite.r * 1.5) - self.dy + offset.1,
                             ]),
-                        )?;
+                        );
                     }
 
                     let param = DrawParam::new()
@@ -170,7 +169,7 @@ impl SpriteManager {
                         .scale([scale, scale])
                         .color(sprite.color);
 
-                    img.draw(ctx, param)?;
+                    canvas.draw(img, param);
                 }
             }
         }

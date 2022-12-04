@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.5" tiledversion="1.7.0" name="terrain" tilewidth="32" tileheight="32" tilecount="4144" columns="16">
- <image source="terrain-map-v7.png" width="512" height="8288"/>
+ <image source="terrain-map-v7.png" width="512" height="8192"/>
  <tile id="28">
   <properties>
    <property name="Ground" type="bool" value="false"/>

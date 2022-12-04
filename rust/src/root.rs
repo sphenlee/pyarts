@@ -9,7 +9,7 @@ use crate::ui::game_ui::{GameMsg, GameUi};
 use crate::ui::ggez_renderer::GgezRenderer;
 use crate::util::YartsResult;
 use ggez::event::MouseButton;
-use ggez::graphics::{self, Color, DrawMode, DrawParam, Rect};
+use ggez::graphics::{self, Canvas, Color, DrawMode, DrawParam, Rect};
 use ggez::Context;
 use std::collections::HashMap;
 
@@ -202,15 +202,16 @@ impl Root {
         &mut self,
         py: Python,
         ctx: &mut Context,
+        canvas: &mut Canvas,
         ggez_rend: &mut GgezRenderer,
     ) -> YartsResult<()> {
         let offset: (f32, f32) = self.camera.call_method0(py, "get_transform")?.extract(py)?;
 
         let mut map_renderer = self.map_renderer.extract::<PyRefMut<MapRenderer>>(py)?;
-        map_renderer.draw(py, ctx, offset)?;
+        map_renderer.draw(py, ctx, canvas, offset)?;
 
         let mut sprite_manager = self.sprite_manager.extract::<PyRefMut<SpriteManager>>(py)?;
-        sprite_manager.draw(py, ctx, offset)?;
+        sprite_manager.draw(py, ctx, canvas, offset)?;
 
         if let (Some((x1, y1)), Some((x2, y2))) = (self.click, self.drag) {
             let rect = graphics::Mesh::new_rectangle(
@@ -220,21 +221,15 @@ impl Root {
                 Color::from_rgb(0xFF, 0xFF, 0x00),
             )?;
 
-            graphics::draw(ctx, &rect, DrawParam::new())?;
+            canvas.draw(&rect, DrawParam::new());
         }
 
         let mut game_ui = self.game_ui.extract::<PyRefMut<GameUi>>(py)?;
-        game_ui.draw(py, ctx, ggez_rend)?;
+        game_ui.draw(py, ctx, canvas, ggez_rend)?;
 
         let mut game_log = self.game_log.extract::<PyRefMut<GameLog>>(py)?;
-        game_log.draw(ctx, ggez_rend)?;
+        game_log.draw(ctx, canvas)?;
 
-        graphics::draw_queued_text(
-            ctx,
-            DrawParam::default(),
-            None,
-            graphics::FilterMode::Nearest,
-        )?;
         Ok(())
     }
 }

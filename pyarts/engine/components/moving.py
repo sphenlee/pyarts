@@ -48,6 +48,7 @@ class Moving(Component):
         self.target = data.get('target')
         self.range = data.get('range')
         self.waypoints = data.get('waypoints', [])
+        self.success = False
         #self.intransit = bool(self.waypoints)
 
     @property
@@ -73,6 +74,7 @@ class Moving(Component):
             if d <= self.range**2:
                 trace('{0} reached target {1}', self.ent, self.target)
                 self.stop()
+                self.success = True
                 return
 
             else:
@@ -115,6 +117,7 @@ class Moving(Component):
 
         if self.range is None and self.target.isent():
             self.range = self.target.ent.locator.r + self.locator.r
+            debug('findpath picked range of {}', self.range)
         else:
             self.range = 0#self.locator.r
         
@@ -134,8 +137,9 @@ class Moving(Component):
             #     # cell, so replace it with the actual goal
             #     self.waypoints[0] = goal
         else:
-            warn('no path to', self.target)
+            warn('no path to {}', self.target)
             self.stop()
+            self.success = False
 
 
     def stop(self):

@@ -6,6 +6,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use std::collections::HashMap;
 use std::sync::Arc;
+use ggez::graphics::Canvas;
 
 #[pyclass]
 pub struct MapRenderer {
@@ -107,9 +108,9 @@ impl MapRenderer {
         Ok(())
     }
 
-    pub fn draw(&mut self, py: Python, ctx: &mut Context, offset: (f32, f32)) -> GameResult<()> {
+    pub fn draw(&mut self, py: Python, ctx: &mut Context, canvas: &mut Canvas, offset: (f32, f32)) -> GameResult<()> {
         for sr in &self.active_renderers {
-            sr.lock().draw(py, ctx, offset)?;
+            sr.lock().draw(py, ctx, canvas, offset)?;
         }
 
         Ok(())

@@ -75,6 +75,26 @@ impl Sector {
         }
     }
 
+    fn unfootprint(&mut self, x: i16, y: i16, r: i16) {
+        trace!(
+            "unfoot printing sector {},{} -> ({},{})@{}",
+            self.sx,
+            self.sy,
+            x,
+            y,
+            r
+        );
+        for i in (x - r)..(x + r) {
+            for j in (y - r)..(y + r) {
+                if i >= 0 && j >= 0 && i < NUM_TILES as i16 && j < NUM_TILES as i16 {
+                    if ((x - i) * (x - i)) + ((y - j) * (y - j)) <= r * r {
+                        self.walk[(i + j * NUM_TILES as i16) as usize] &= !WALK_FOOT;
+                    }
+                }
+            }
+        }
+    }
+
     pub fn tile(&self, pt: (u16, u16)) -> u32 {
         let idx = pt.0 + NUM_TILES * pt.1;
         self.tiles[idx as usize]

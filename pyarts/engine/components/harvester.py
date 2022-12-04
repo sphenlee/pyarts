@@ -46,11 +46,11 @@ class Harvester(Component):
 
     def findlike(self, proto, pos):
         x, y = pos
-        debug('looking for ', proto, x, y)
+        debug('looking for {} @ {},{}', proto, x, y)
         R = 20
         for e in self.map.entities_in_rect(x-R, y-R, x+R, y+R):
             if e.proto.name == proto.name:
-                debug('found', e, e.proto)
+                debug('found {} {}', e, e.proto)
                 return e
 
     def finddropoff(self, pos):
